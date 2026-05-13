@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Landmark, LayoutDashboard, ShieldCheck, Users, FileText } from 'lucide-react';
+import { Landmark, LayoutDashboard, ShieldCheck, Users, FileText, MapPin } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -19,6 +19,34 @@ export function Sidebar({ className }: SidebarProps) {
       href: '/dashboard',
       active: pathname === '/dashboard',
       show: true,
+    },
+    {
+      label: 'Sectores',
+      icon: Landmark,
+      href: '/sectores',
+      active: pathname.includes('/sectores'),
+      show: hasPermission('sectores:list'),
+    },
+    {
+      label: 'Bases',
+      icon: MapPin,
+      href: '/bases',
+      active: pathname.includes('/bases'),
+      show: hasPermission('bases:list'),
+    },
+    {
+      label: 'Personas',
+      icon: Users,
+      href: '/personas',
+      active: pathname.includes('/personas'),
+      show: hasPermission('personas:list'),
+    },
+    {
+      label: 'Cargos',
+      icon: ShieldCheck,
+      href: '/cargos',
+      active: pathname.includes('/cargos'),
+      show: hasPermission('cargos:list'),
     },
     {
       label: 'Gestión de Roles',

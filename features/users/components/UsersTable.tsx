@@ -74,7 +74,7 @@ export function UsersTable() {
         </TableHeader>
         <TableBody>
           {users?.map((user) => (
-            <TableRow key={user.id}>
+            <TableRow key={user.id} className="hover:bg-slate-50/50 transition-colors">
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar className="h-9 w-9 border border-indigo-100 dark:border-slate-800">
@@ -121,7 +121,7 @@ export function UsersTable() {
                       variant="ghost" 
                       size="icon" 
                       onClick={() => handleEditClick(user)}
-                      className="text-slate-500 hover:text-indigo-600"
+                      className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -131,7 +131,7 @@ export function UsersTable() {
                       variant="ghost" 
                       size="icon" 
                       onClick={() => setUserToDelete(user)}
-                      className="text-slate-500 hover:text-red-600"
+                      className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

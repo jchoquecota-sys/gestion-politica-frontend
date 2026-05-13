@@ -71,7 +71,7 @@ export function RolesTable() {
         </TableHeader>
         <TableBody>
           {roles?.map((role) => (
-            <TableRow key={role.id}>
+            <TableRow key={role.id} className="hover:bg-slate-50/50 transition-colors">
               <TableCell className="font-medium capitalize">
                 {role.name}
                 {role.name === 'super-admin' && (
@@ -104,7 +104,7 @@ export function RolesTable() {
                       variant="ghost" 
                       size="icon" 
                       onClick={() => handleEditClick(role)}
-                      className="text-slate-500 hover:text-indigo-600"
+                      className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -114,7 +114,7 @@ export function RolesTable() {
                       variant="ghost" 
                       size="icon" 
                       onClick={() => setRoleToDelete(role)}
-                      className="text-slate-500 hover:text-red-600"
+                      className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

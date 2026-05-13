@@ -104,3 +104,25 @@ Guarda el token y la información del usuario (`user`, `permissions`).
 
 ### Control de Acceso UI
 Crea un componente o hook (ej. `HasPermission`) que revise si el `user` del store incluye un permiso específico (ej. `roles:create`) para renderizar un botón.
+
+---
+
+## 🎨 Estándares de UI/UX en Tablas
+
+Para mantener la consistencia en todo el sistema, todas las tablas de datos deben seguir estos estándares:
+
+### 1. Interacción de Filas
+- Todas las filas (`TableRow`) deben incluir la clase `hover:bg-slate-50/50 transition-colors` para dar feedback visual al usuario.
+
+### 2. Acciones de Fila
+- **Visibilidad**: Los botones de acción deben estar **siempre visibles** (evitar el uso de `group-hover` para ocultarlos inicialmente).
+- **Contenedor**: Usa un `div` con `flex justify-end gap-2`.
+- **Botón de Edición**: 
+  - Variante: `ghost`, Tamaño: `icon` (`h-8 w-8`).
+  - Color: `text-blue-600 hover:text-blue-700 hover:bg-blue-50`.
+- **Botón de Eliminación**:
+  - Variante: `ghost`, Tamaño: `icon` (`h-8 w-8`).
+  - Color: `text-red-600 hover:text-red-700 hover:bg-red-50`.
+
+### 3. Información de Auditoría
+- Siempre que sea posible, incluye un icono de información (`Info`) o similar cerca del nombre principal del registro que muestre mediante un tooltip o atributo `title` los datos de creación y última actualización.
