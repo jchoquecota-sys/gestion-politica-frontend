@@ -26,7 +26,7 @@ export interface Actividad {
   estado: ActividadEstado;
   created_by?: number;
   created_at?: string;
-  tipo?: TipoActividad;
+  tipo_actividad?: TipoActividad;
   sujetos?: SujetoActividad[];
 }
 
@@ -44,4 +44,7 @@ export interface UpdateActividadDTO extends Partial<CreateActividadDTO> {}
 export interface ActividadFilters {
   tipo_actividad_id?: number;
   estado?: ActividadEstado;
+  sector_id?: number | null;
+  base_id?: number | null;
+  search?: string;
 }

@@ -74,7 +74,7 @@ export function Sidebar({ className }: SidebarProps) {
       icon: FileText,
       href: '/reports',
       active: pathname.includes('/reports'),
-      show: true, 
+      show: false, // TODO: Implementar módulo de reportes
     },
   ];
 

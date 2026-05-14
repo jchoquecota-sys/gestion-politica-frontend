@@ -8,6 +8,7 @@ interface User {
   roles: string[];
   permissions: string[];
   allowed_sectors?: number[];
+  allowed_bases?: number[];
 }
 
 interface AuthState {

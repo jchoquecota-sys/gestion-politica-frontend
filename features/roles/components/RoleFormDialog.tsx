@@ -52,6 +52,16 @@ export function RoleFormDialog({ isOpen, onClose, role }: RoleFormDialogProps) {
 
   const selectedPermissions = watch('permissions') || [];
 
+  // Agrupar permisos por módulo
+  const groupedPermissions = availablePermissions?.reduce((acc, perm) => {
+    const [moduleName] = perm.split(':');
+    if (!acc[moduleName]) {
+      acc[moduleName] = [];
+    }
+    acc[moduleName].push(perm);
+    return acc;
+  }, {} as Record<string, string[]>) || {};
+
   // Resetear el formulario cuando se abre/cierra o cambia el rol
   useEffect(() => {
     if (isOpen) {
@@ -121,27 +131,36 @@ export function RoleFormDialog({ isOpen, onClose, role }: RoleFormDialogProps) {
                 <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border">
-                {availablePermissions?.map((perm) => (
-                  <div key={perm} className="flex flex-row items-start space-x-3 space-y-0">
-                    <Checkbox
-                      id={`perm-${perm}`}
-                      checked={selectedPermissions.includes(perm)}
-                      onCheckedChange={(checked) => togglePermission(perm, checked as boolean)}
-                      disabled={isPending}
-                    />
-                    <div className="space-y-1 leading-none">
-                      <Label
-                        htmlFor={`perm-${perm}`}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {perm}
-                      </Label>
+              <div className="space-y-4">
+                {Object.entries(groupedPermissions).map(([moduleName, perms]) => (
+                  <div key={moduleName} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border">
+                    <h4 className="font-medium text-sm text-slate-800 capitalize mb-3 border-b pb-2">
+                      Módulo: {moduleName}
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {perms.map((perm) => (
+                        <div key={perm} className="flex flex-row items-start space-x-3 space-y-0">
+                          <Checkbox
+                            id={`perm-${perm}`}
+                            checked={selectedPermissions.includes(perm)}
+                            onCheckedChange={(checked) => togglePermission(perm, checked as boolean)}
+                            disabled={isPending}
+                          />
+                          <div className="space-y-1 leading-none">
+                            <Label
+                              htmlFor={`perm-${perm}`}
+                              className="text-sm font-normal cursor-pointer"
+                            >
+                              {perm.split(':')[1] || perm}
+                            </Label>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))}
                 {(!availablePermissions || availablePermissions.length === 0) && (
-                  <p className="text-sm text-slate-500 col-span-2">No se encontraron permisos disponibles.</p>
+                  <p className="text-sm text-slate-500">No se encontraron permisos disponibles.</p>
                 )}
               </div>
             )}

@@ -14,16 +14,30 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Edit2, 
-  Trash2, 
-  Loader2, 
-  Calendar, 
-  Users, 
-  MapPin, 
+import {
+  Edit2,
+  Trash2,
+  Loader2,
+  Calendar,
+  Users,
+  MapPin,
   MoreHorizontal,
-  Plus
+  Plus,
+  Search,
+  FolderOpen
 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { useDebounce } from '@/hooks/useDebounce';
+import { DataTablePagination } from '@/components/shared/DataTablePagination';
+import {
+  Select as UISelect,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useSectoresOpciones } from '@/features/sectores/hooks/useSectores';
+import { useBasesOpciones } from '@/features/bases/hooks/useBases';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import {
@@ -51,13 +65,39 @@ const statusConfig: Record<ActividadEstado, { label: string; className: string }
 
 export function ActividadesTable() {
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  
-  const { data: response, isLoading } = useActividades({ page, search, per_page: 15 });
+  const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 500);
+
+  const [selectedSectorId, setSelectedSectorId] = useState<number | null>(null);
+  const [selectedBaseId, setSelectedBaseId] = useState<number | null>(null);
+
+  const { data: sectores } = useSectoresOpciones();
+  const { data: bases } = useBasesOpciones(selectedSectorId);
+
+  const { data: response, isLoading } = useActividades({ 
+    page, 
+    search: debouncedSearch, 
+    per_page: 15,
+    sector_id: selectedSectorId,
+    base_id: selectedBaseId
+  });
   const { mutate: deleteActividad, isPending: isDeleting } = useDeleteActividad();
-  
+
   const hasPermission = useAuthStore((state) => state.hasPermission);
-  
+  const user = useAuthStore((state) => state.user);
+
+  const hasManageAll = hasPermission('actividades:manage-all');
+  const hasManageSector = hasPermission('actividades:manage-sector');
+  const hasManageBase = hasPermission('actividades:manage-base');
+  const allowedSectors = user?.allowed_sectors || [];
+
+  const visibleSectores = hasManageAll 
+    ? sectores 
+    : sectores?.filter(s => allowedSectors.includes(s.id));
+
+  const showSectorFilter = hasManageAll || hasManageSector;
+  const showBaseFilter = showSectorFilter || hasManageBase;
+
   const [actividadIdToEdit, setActividadIdToEdit] = useState<number | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [actividadToDelete, setActividadToDelete] = useState<Actividad | null>(null);
@@ -101,10 +141,67 @@ export function ActividadesTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-slate-800">Listado de Actividades</h2>
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-3 flex-1 w-full">
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+            <Input
+              placeholder="Buscar por título o descripción..."
+              className="pl-9"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+          
+          <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+            {showSectorFilter && (
+              <UISelect 
+                onValueChange={(val) => {
+                  setSelectedSectorId(val === 'all' ? null : parseInt(val));
+                  setSelectedBaseId(null);
+                  setPage(1);
+                }}
+                value={selectedSectorId?.toString() || 'all'}
+              >
+                <SelectTrigger className="w-full sm:w-[180px] h-9">
+                  <SelectValue placeholder="Todos los Sectores" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los Sectores</SelectItem>
+                  {visibleSectores?.map(s => (
+                    <SelectItem key={s.id} value={s.id.toString()}>{s.nombre}</SelectItem>
+                  ))}
+                </SelectContent>
+              </UISelect>
+            )}
+
+            {showBaseFilter && (
+              <UISelect 
+                onValueChange={(val) => {
+                  setSelectedBaseId(val === 'all' ? null : parseInt(val));
+                  setPage(1);
+                }}
+                value={selectedBaseId?.toString() || 'all'}
+              >
+                <SelectTrigger className="w-full sm:w-[180px] h-9">
+                  <SelectValue placeholder="Todas las Bases" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas las Bases</SelectItem>
+                  {bases?.map(b => (
+                    <SelectItem key={b.id} value={b.id.toString()}>{b.nombre}</SelectItem>
+                  ))}
+                </SelectContent>
+              </UISelect>
+            )}
+          </div>
+        </div>
+
         {hasPermission('actividades:create') && (
-          <Button onClick={handleCreate} className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2">
+          <Button onClick={handleCreate} className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 w-full xl:w-auto shrink-0">
             <Plus className="h-4 w-4" />
             Nueva Actividad
           </Button>
@@ -144,7 +241,7 @@ export function ActividadesTable() {
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline" className="font-normal bg-indigo-50/30 text-indigo-700 border-indigo-100">
-                    {actividad.tipo?.nombre || 'General'}
+                    {actividad.tipo_actividad?.nombre || 'General'}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -161,9 +258,9 @@ export function ActividadesTable() {
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
                     {canEdit && (
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => handleEdit(actividad.id)}
                         className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                       >
@@ -171,9 +268,9 @@ export function ActividadesTable() {
                       </Button>
                     )}
                     {canDelete && (
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setActividadToDelete(actividad)}
                         className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
@@ -188,7 +285,7 @@ export function ActividadesTable() {
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-12">
                   <div className="flex flex-col items-center gap-2">
-                    <Loader2 className="h-8 w-8 text-slate-200" />
+                    <FolderOpen className="h-8 w-8 text-slate-300" />
                     <p className="text-slate-500">No se encontraron actividades registradas.</p>
                   </div>
                 </TableCell>
@@ -196,12 +293,18 @@ export function ActividadesTable() {
             )}
           </TableBody>
         </Table>
+
+        {response?.meta && response.meta.last_page > 1 && (
+          <div className="border-t">
+            <DataTablePagination meta={response.meta} onPageChange={setPage} />
+          </div>
+        )}
       </div>
 
-      <ActividadFormDialog 
-        isOpen={isFormOpen} 
-        onClose={() => setIsFormOpen(false)} 
-        actividadId={actividadIdToEdit} 
+      <ActividadFormDialog
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        actividadId={actividadIdToEdit}
       />
 
       <Dialog open={!!actividadToDelete} onOpenChange={(open) => !open && setActividadToDelete(null)}>

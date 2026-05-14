@@ -27,6 +27,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+} from '@/components/ui/dialog';
 
 interface PersonasTableProps {
   onAdd: () => void;
@@ -39,6 +43,7 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSectorId, setSelectedSectorId] = useState<number | null>(null);
   const [selectedBaseId, setSelectedBaseId] = useState<number | null>(null);
+  const [personaToDelete, setPersonaToDelete] = useState<number | null>(null);
 
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const user = useAuthStore((state) => state.user);
@@ -73,9 +78,11 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
     setCurrentPage(1);
   }, [debouncedSearch, selectedSectorId, selectedBaseId]);
 
-  const handleDelete = (id: number) => {
-    if (confirm('¿Está seguro de eliminar a esta persona?')) {
-      deletePersona(id);
+  const handleDeleteConfirm = () => {
+    if (personaToDelete !== null) {
+      deletePersona(personaToDelete, {
+        onSuccess: () => setPersonaToDelete(null)
+      });
     }
   };
 
@@ -206,9 +213,8 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          onClick={() => handleDelete(p.id)} 
+                          onClick={() => setPersonaToDelete(p.id)} 
                           className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                          disabled={isDeleting}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -226,6 +232,41 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
           </div>
         )}
       </div>
+
+      <Dialog open={personaToDelete !== null} onOpenChange={(open) => !open && setPersonaToDelete(null)}>
+        <DialogContent>
+          <div className="flex flex-col items-center gap-4 py-4 text-center">
+            <div className="bg-red-50 p-3 rounded-full">
+              <Trash2 className="h-8 w-8 text-red-600" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold text-slate-900">¿Eliminar persona?</h3>
+              <p className="text-sm text-slate-500">
+                Esta acción moverá a la persona a la papelera. Podrá ser restaurada por un administrador si es necesario.
+              </p>
+            </div>
+            <div className="flex w-full gap-3 mt-4">
+              <Button 
+                variant="outline" 
+                className="flex-1" 
+                onClick={() => setPersonaToDelete(null)}
+                disabled={isDeleting}
+              >
+                Cancelar
+              </Button>
+              <Button 
+                variant="destructive" 
+                className="flex-1"
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting}
+              >
+                {isDeleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Eliminar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

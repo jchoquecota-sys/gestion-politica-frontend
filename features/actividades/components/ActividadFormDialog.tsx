@@ -9,6 +9,7 @@ import { useCreateActividad, useUpdateActividad, useActividad, useTiposActividad
 import { useSectoresOpciones } from '@/features/sectores/hooks/useSectores';
 import { useBasesOpciones } from '@/features/bases/hooks/useBases';
 import { usePersonasOpciones } from '@/features/personas/hooks/usePersonas';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   Dialog,
   DialogContent,
@@ -62,6 +63,10 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
   const { data: sectores, isLoading: isLoadingSectores } = useSectoresOpciones();
   const { data: bases, isLoading: isLoadingBases } = useBasesOpciones();
   const { data: personas, isLoading: isLoadingPersonas } = usePersonasOpciones();
+
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const hasSectorAccess = hasPermission('actividades:manage-all') || hasPermission('actividades:manage-sector');
+  const hasBaseAccess = hasSectorAccess || hasPermission('actividades:manage-base');
 
   const { mutate: createActividad, isPending: isCreating } = useCreateActividad();
   const { mutate: updateActividad, isPending: isUpdating } = useUpdateActividad(actividadId || 0);
@@ -260,8 +265,12 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="persona"><div className="flex items-center gap-2"><User className="h-3.5 w-3.5" /> Persona</div></SelectItem>
-                              <SelectItem value="base"><div className="flex items-center gap-2"><Home className="h-3.5 w-3.5" /> Base</div></SelectItem>
-                              <SelectItem value="sector"><div className="flex items-center gap-2"><Map className="h-3.5 w-3.5" /> Sector</div></SelectItem>
+                              {hasBaseAccess && (
+                                <SelectItem value="base"><div className="flex items-center gap-2"><Home className="h-3.5 w-3.5" /> Base</div></SelectItem>
+                              )}
+                              {hasSectorAccess && (
+                                <SelectItem value="sector"><div className="flex items-center gap-2"><Map className="h-3.5 w-3.5" /> Sector</div></SelectItem>
+                              )}
                             </SelectContent>
                           </Select>
                         </div>
