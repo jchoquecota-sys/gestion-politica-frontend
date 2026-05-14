@@ -3,11 +3,23 @@ import api from '@/lib/axios';
 import { Cargo, CargoFormData } from '../types';
 import { toast } from 'sonner';
 
-export const useCargos = () => {
+import { PaginatedResponse, PaginationParams } from '@/types/pagination';
+
+export const useCargos = (params?: PaginationParams) => {
   return useQuery({
-    queryKey: ['cargos'],
-    queryFn: async (): Promise<Cargo[]> => {
-      const { data } = await api.get('/cargos');
+    queryKey: ['cargos', params],
+    queryFn: async (): Promise<PaginatedResponse<Cargo>> => {
+      const { data } = await api.get('/cargos', { params });
+      return data;
+    },
+  });
+};
+
+export const useCargosOpciones = () => {
+  return useQuery({
+    queryKey: ['opciones', 'cargos'],
+    queryFn: async (): Promise<{ id: number; nombre: string }[]> => {
+      const { data } = await api.get('/opciones/cargos');
       return data.data;
     },
   });

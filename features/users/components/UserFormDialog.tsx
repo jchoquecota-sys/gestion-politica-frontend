@@ -6,7 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { User } from '../types';
 import { useCreateUser, useUpdateUser } from '../hooks/useUsers';
-import { useRoles } from '@/features/roles/hooks/useRoles';
+import { useRolesOpciones } from '@/features/roles/hooks/useRoles';
+import { usePersonasOpciones } from '@/features/personas/hooks/usePersonas';
 import {
   Dialog,
   DialogContent,
@@ -19,13 +20,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, ShieldCheck } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, ShieldCheck, User as UserIcon } from 'lucide-react';
 
 const userSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres').max(100),
   email: z.string().email('Ingresa un correo electrónico válido'),
   password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres').optional().or(z.literal('')),
   roles: z.array(z.string()),
+  persona_id: z.coerce.number().optional().nullable(),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -39,7 +48,8 @@ interface UserFormDialogProps {
 export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
   const isEditing = !!user;
   
-  const { data: availableRoles, isLoading: isLoadingRoles } = useRoles();
+  const { data: availableRoles, isLoading: isLoadingRoles } = useRolesOpciones();
+  const { data: personas, isLoading: isLoadingPersonas } = usePersonasOpciones();
   const { mutate: createUser, isPending: isCreating } = useCreateUser();
   const { mutate: updateUser, isPending: isUpdating } = useUpdateUser();
 
@@ -52,6 +62,7 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
       email: '',
       password: '',
       roles: [],
+      persona_id: null,
     },
   });
 
@@ -65,6 +76,7 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
           email: user.email,
           password: '',
           roles: user.roles,
+          persona_id: user.persona?.id || null,
         });
       } else {
         reset({
@@ -72,6 +84,7 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
           email: '',
           password: '',
           roles: [],
+          persona_id: null,
         });
       }
     }
@@ -140,6 +153,33 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
               />
               {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="persona_id" className="flex items-center gap-2">
+              <UserIcon className="h-4 w-4 text-indigo-600" />
+              Vincular a Persona Física (Opcional)
+            </Label>
+            <Select 
+              value={watch('persona_id')?.toString() || "none"} 
+              onValueChange={(val) => setValue('persona_id', val === "none" ? null : Number(val), { shouldDirty: true })}
+              disabled={isPending || isLoadingPersonas}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={isLoadingPersonas ? "Cargando personas..." : "Selecciona una persona"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sin vincular</SelectItem>
+                {personas?.map(persona => (
+                  <SelectItem key={persona.id} value={persona.id.toString()}>
+                    {persona.nombre_completo || `${persona.nombres} ${persona.apellidos}`} - {persona.dni}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-slate-500">
+              Vincular a una persona le otorgará permisos sobre su sector o base correspondiente.
+            </p>
           </div>
 
           <div className="space-y-2">

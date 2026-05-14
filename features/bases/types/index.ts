@@ -14,6 +14,23 @@ export interface BasePersona {
   cargo?: string;
 }
 
+export interface BasePersonal {
+  id: number;
+  persona: {
+    id: number;
+    nombre_completo: string;
+    dni: string;
+    celular?: string;
+  };
+  cargo: {
+    id: number;
+    nombre: string;
+  };
+  es_principal: boolean;
+  fecha_inicio: string;
+  observaciones: string | null;
+}
+
 export interface Base {
   id: number;
   sector_id: number;
@@ -48,11 +65,19 @@ export interface BaseFormData {
   direccion?: string;
   latitud: number;
   longitud: number;
-  personas: {
+  personas?: {
     persona_id: number;
     cargo_id: number;
     es_principal: boolean;
     fecha_inicio?: string;
     observaciones?: string;
   }[];
+}
+
+export interface BasePersonalFormData {
+  persona_id: number;
+  cargo_id: number;
+  es_principal: boolean;
+  fecha_inicio: string;
+  observaciones?: string;
 }

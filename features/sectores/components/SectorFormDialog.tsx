@@ -6,8 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Sector } from '../types';
 import { useCreateSector, useUpdateSector, useSector } from '../hooks/useSectores';
-import { usePersonas } from '@/features/personas/hooks/usePersonas';
-import { useCargos } from '@/features/cargos/hooks/useCargos';
+import { usePersonasOpciones } from '@/features/personas/hooks/usePersonas';
+import { useCargosOpciones } from '@/features/cargos/hooks/useCargos';
 import {
   Dialog,
   DialogContent,
@@ -54,8 +54,8 @@ interface SectorFormDialogProps {
 export function SectorFormDialog({ isOpen, onClose, sectorId }: SectorFormDialogProps) {
   const isEditing = !!sectorId;
   const { data: sectorDetails, isLoading: isLoadingDetails } = useSector(sectorId || null);
-  const { data: personas } = usePersonas();
-  const { data: cargos } = useCargos();
+  const { data: personas } = usePersonasOpciones();
+  const { data: cargos } = useCargosOpciones();
   
   const { mutate: createSector, isPending: isCreating } = useCreateSector();
   const { mutate: updateSector, isPending: isUpdating } = useUpdateSector();
@@ -217,7 +217,7 @@ export function SectorFormDialog({ isOpen, onClose, sectorId }: SectorFormDialog
                         <SelectContent>
                           {personas?.map(p => (
                             <SelectItem key={p.id} value={p.id.toString()}>
-                              {p.nombres} {p.apellidos} ({p.dni})
+                              {p.nombre_completo} ({p.dni})
                             </SelectItem>
                           ))}
                         </SelectContent>

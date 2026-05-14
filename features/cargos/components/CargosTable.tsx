@@ -13,8 +13,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Loader2, Plus, Search, Pencil, Trash2, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useDebounce } from '@/hooks/useDebounce';
+import { DataTablePagination } from '@/components/shared/DataTablePagination';
 
 interface CargosTableProps {
   onAdd: () => void;
@@ -22,15 +24,25 @@ interface CargosTableProps {
 }
 
 export function CargosTable({ onAdd, onEdit }: CargosTableProps) {
-  const { data: cargos, isLoading } = useCargos();
-  const { mutate: deleteCargo, isPending: isDeleting } = useDeleteCargo();
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 500);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const { data: response, isLoading } = useCargos({
+    page: currentPage,
+    search: debouncedSearch,
+  });
+
+  const cargos = response?.data || [];
+  const meta = response?.meta;
+
+  const { mutate: deleteCargo, isPending: isDeleting } = useDeleteCargo();
   const hasPermission = useAuthStore((state) => state.hasPermission);
 
-  const filteredCargos = cargos?.filter((cargo) =>
-    cargo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cargo.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
 
   const handleDelete = (id: number) => {
     if (confirm('¿Está seguro de eliminar este cargo?')) {
@@ -58,10 +70,10 @@ export function CargosTable({ onAdd, onEdit }: CargosTableProps) {
         )}
       </div>
 
-      <div className="rounded-md border bg-white overflow-hidden">
+      <div className="rounded-md border bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50/50">
+            <TableRow className="bg-slate-50/50 dark:bg-slate-900/50">
               <TableHead className="w-[80px]">ID</TableHead>
               <TableHead>Cargo</TableHead>
               <TableHead>Descripción</TableHead>
@@ -78,25 +90,25 @@ export function CargosTable({ onAdd, onEdit }: CargosTableProps) {
                   </div>
                 </TableCell>
               </TableRow>
-            ) : filteredCargos?.length === 0 ? (
+            ) : cargos.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="h-24 text-center text-slate-500">
                   No se encontraron cargos registrados.
                 </TableCell>
               </TableRow>
             ) : (
-              filteredCargos?.map((cargo) => (
-                <TableRow key={cargo.id} className="hover:bg-slate-50/50 transition-colors">
+              cargos.map((cargo) => (
+                <TableRow key={cargo.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
                   <TableCell className="font-medium text-slate-500">#{cargo.id}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-slate-900">{cargo.nombre}</span>
+                      <span className="font-semibold text-slate-900 dark:text-slate-100">{cargo.nombre}</span>
                       <span title={`Creado por: ${cargo.auditoria.creado_por} el ${cargo.auditoria.creado_el}\nActualizado por: ${cargo.auditoria.actualizado_por || 'N/A'} ${cargo.auditoria.actualizado_el ? 'el ' + cargo.auditoria.actualizado_el : ''}`}>
                         <Info className="h-3.5 w-3.5 text-slate-300 cursor-help" />
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-slate-500 text-sm italic">
+                  <TableCell className="text-slate-500 dark:text-slate-400 text-sm italic">
                     {cargo.descripcion || 'Sin descripción'}
                   </TableCell>
                   <TableCell className="text-right">
@@ -129,6 +141,11 @@ export function CargosTable({ onAdd, onEdit }: CargosTableProps) {
             )}
           </TableBody>
         </Table>
+        {meta && meta.last_page > 1 && (
+          <div className="border-t">
+            <DataTablePagination meta={meta} onPageChange={setCurrentPage} />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,11 +3,23 @@ import api from '@/lib/axios';
 import { Persona, PersonaFormData } from '../types';
 import { toast } from 'sonner';
 
-export const usePersonas = () => {
+import { PaginatedResponse, PaginationParams } from '@/types/pagination';
+
+export const usePersonas = (params?: PaginationParams & { sector_id?: number | null; base_id?: number | null }) => {
   return useQuery({
-    queryKey: ['personas'],
-    queryFn: async (): Promise<Persona[]> => {
-      const { data } = await api.get('/personas');
+    queryKey: ['personas', params],
+    queryFn: async (): Promise<PaginatedResponse<Persona>> => {
+      const { data } = await api.get('/personas', { params });
+      return data;
+    },
+  });
+};
+
+export const usePersonasOpciones = () => {
+  return useQuery({
+    queryKey: ['opciones', 'personas'],
+    queryFn: async (): Promise<{ id: number; nombre_completo: string; dni: string }[]> => {
+      const { data } = await api.get('/opciones/personas');
       return data.data;
     },
   });
@@ -17,7 +29,18 @@ export const useCreatePersona = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (newPersona: PersonaFormData) => {
-      const { data } = await api.post('/personas', newPersona);
+      const formData = new FormData();
+      Object.entries(newPersona).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, value instanceof File ? value : String(value));
+        }
+      });
+
+      const { data } = await api.post('/personas', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       return data;
     },
     onSuccess: () => {
@@ -25,8 +48,12 @@ export const useCreatePersona = () => {
       queryClient.invalidateQueries({ queryKey: ['personas'] });
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Error al registrar persona';
-      toast.error(message);
+      if (error.response?.status === 403) {
+        toast.error("No tiene permiso para crear esta persona.");
+      } else {
+        const message = error.response?.data?.message || 'Error al registrar persona';
+        toast.error(message);
+      }
     },
   });
 };
@@ -35,7 +62,20 @@ export const useUpdatePersona = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: PersonaFormData }) => {
-      const response = await api.put(`/personas/${id}`, data);
+      const formData = new FormData();
+      formData.append('_method', 'PUT');
+      
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          formData.append(key, value instanceof File ? value : String(value));
+        }
+      });
+
+      const response = await api.post(`/personas/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       return response.data;
     },
     onSuccess: () => {
@@ -43,8 +83,12 @@ export const useUpdatePersona = () => {
       queryClient.invalidateQueries({ queryKey: ['personas'] });
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Error al actualizar datos';
-      toast.error(message);
+      if (error.response?.status === 403) {
+        toast.error("No tiene permiso para gestionar esta persona.");
+      } else {
+        const message = error.response?.data?.message || 'Error al actualizar datos';
+        toast.error(message);
+      }
     },
   });
 };
@@ -60,8 +104,12 @@ export const useDeletePersona = () => {
       queryClient.invalidateQueries({ queryKey: ['personas'] });
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Error al eliminar persona';
-      toast.error(message);
+      if (error.response?.status === 403) {
+        toast.error("No tiene permiso para gestionar esta persona.");
+      } else {
+        const message = error.response?.data?.message || 'Error al eliminar persona';
+        toast.error(message);
+      }
     },
   });
 };

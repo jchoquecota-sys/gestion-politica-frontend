@@ -3,16 +3,27 @@ import api from '@/lib/axios';
 import { Base, BaseFormData } from '../types';
 import { toast } from 'sonner';
 
-export const useBases = (sectorId?: number | null) => {
+import { PaginatedResponse, PaginationParams } from '@/types/pagination';
+
+export const useBases = (params?: PaginationParams & { sector_id?: number | null }) => {
   return useQuery({
-    queryKey: ['bases', sectorId],
-    queryFn: async (): Promise<Base[]> => {
-      const params = sectorId ? { sector_id: sectorId } : {};
+    queryKey: ['bases', params],
+    queryFn: async (): Promise<PaginatedResponse<Base>> => {
       const { data } = await api.get('/bases', { params });
+      return data;
+    },
+    enabled: true, 
+  });
+};
+
+export const useBasesOpciones = (sectorId?: number | null) => {
+  return useQuery({
+    queryKey: ['opciones', 'bases', sectorId],
+    queryFn: async (): Promise<{ id: number; nombre: string; sector_id: number }[]> => {
+      const params = sectorId ? { sector_id: sectorId } : {};
+      const { data } = await api.get('/opciones/bases', { params });
       return data.data;
     },
-    // Solo habilitar si tenemos sectorId o permiso list-all (esto último se maneja en el componente generalmente)
-    enabled: true, 
   });
 };
 

@@ -7,6 +7,7 @@ interface User {
   email: string;
   roles: string[];
   permissions: string[];
+  allowed_sectors?: number[];
 }
 
 interface AuthState {

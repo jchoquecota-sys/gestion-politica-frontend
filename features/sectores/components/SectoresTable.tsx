@@ -13,9 +13,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { Loader2, Plus, Search, Pencil, Trash2, MapPin, UserCheck } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Badge } from '@/components/ui/badge';
+import { useDebounce } from '@/hooks/useDebounce';
+import { DataTablePagination } from '@/components/shared/DataTablePagination';
 
 interface SectoresTableProps {
   onAdd: () => void;
@@ -23,15 +25,25 @@ interface SectoresTableProps {
 }
 
 export function SectoresTable({ onAdd, onEdit }: SectoresTableProps) {
-  const { data: sectores, isLoading } = useSectores();
-  const { mutate: deleteSector, isPending: isDeleting } = useDeleteSector();
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 500);
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const { data: response, isLoading } = useSectores({
+    page: currentPage,
+    search: debouncedSearch,
+  });
+  
+  const sectores = response?.data || [];
+  const meta = response?.meta;
+
+  const { mutate: deleteSector, isPending: isDeleting } = useDeleteSector();
   const hasPermission = useAuthStore((state) => state.hasPermission);
 
-  const filteredSectores = sectores?.filter((s) =>
-    s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.codigo.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
 
   const handleDelete = (id: number) => {
     if (confirm('¿Está seguro de eliminar este sector? Esta acción no se puede deshacer.')) {
@@ -59,10 +71,10 @@ export function SectoresTable({ onAdd, onEdit }: SectoresTableProps) {
         )}
       </div>
 
-      <div className="rounded-md border bg-white overflow-hidden shadow-sm">
+      <div className="rounded-md border bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50/50">
+            <TableRow className="bg-slate-50/50 dark:bg-slate-900/50">
               <TableHead className="w-[120px]">Código</TableHead>
               <TableHead>Nombre del Sector</TableHead>
               <TableHead>Responsable Principal</TableHead>
@@ -80,34 +92,34 @@ export function SectoresTable({ onAdd, onEdit }: SectoresTableProps) {
                   </div>
                 </TableCell>
               </TableRow>
-            ) : filteredSectores?.length === 0 ? (
+            ) : sectores.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center text-slate-500">
                   No se encontraron sectores registrados.
                 </TableCell>
               </TableRow>
             ) : (
-              filteredSectores?.map((s) => (
-                <TableRow key={s.id} className="hover:bg-slate-50/50 transition-colors">
+              sectores.map((s) => (
+                <TableRow key={s.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
                   <TableCell>
-                    <Badge variant="secondary" className="font-mono bg-indigo-50 text-indigo-700 border-indigo-100 uppercase">
+                    <Badge variant="secondary" className="font-mono bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-slate-900 dark:text-indigo-400 dark:border-indigo-900 uppercase">
                       {s.codigo}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <div>
-                      <p className="font-bold text-slate-900">{s.nombre}</p>
-                      <p className="text-xs text-slate-500 truncate max-w-[200px]">{s.descripcion || 'Sin descripción'}</p>
+                      <p className="font-bold text-slate-900 dark:text-slate-100">{s.nombre}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">{s.descripcion || 'Sin descripción'}</p>
                     </div>
                   </TableCell>
                   <TableCell>
                     {s.responsable ? (
                       <div className="flex items-center gap-2">
                         <UserCheck className="h-4 w-4 text-emerald-500" />
-                        <span className="text-sm font-medium text-slate-700">
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                           {s.responsable.nombre_completo}
                         </span>
-                        <Badge variant="outline" className="text-[10px] py-0 h-4 bg-emerald-50 text-emerald-700 border-emerald-100">
+                        <Badge variant="outline" className="text-[10px] py-0 h-4 bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900">
                           {s.responsable.cargo}
                         </Badge>
                       </div>
@@ -146,6 +158,11 @@ export function SectoresTable({ onAdd, onEdit }: SectoresTableProps) {
             )}
           </TableBody>
         </Table>
+        {meta && meta.last_page > 1 && (
+          <div className="border-t">
+            <DataTablePagination meta={meta} onPageChange={setCurrentPage} />
+          </div>
+        )}
       </div>
     </div>
   );

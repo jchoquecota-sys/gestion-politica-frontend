@@ -13,6 +13,16 @@ export const useRoles = () => {
   });
 };
 
+export const useRolesOpciones = () => {
+  return useQuery({
+    queryKey: ['opciones', 'roles'],
+    queryFn: async (): Promise<{ id: number; name: string }[]> => {
+      const { data } = await api.get('/opciones/roles');
+      return data.data;
+    },
+  });
+};
+
 export const usePermissions = () => {
   return useQuery({
     queryKey: ['permissions'],

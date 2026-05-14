@@ -3,11 +3,23 @@ import api from '@/lib/axios';
 import { Sector, SectorFormData } from '../types';
 import { toast } from 'sonner';
 
-export const useSectores = () => {
+import { PaginatedResponse, PaginationParams } from '@/types/pagination';
+
+export const useSectores = (params?: PaginationParams) => {
   return useQuery({
-    queryKey: ['sectores'],
-    queryFn: async (): Promise<Sector[]> => {
-      const { data } = await api.get('/sectores');
+    queryKey: ['sectores', params],
+    queryFn: async (): Promise<PaginatedResponse<Sector>> => {
+      const { data } = await api.get('/sectores', { params });
+      return data;
+    },
+  });
+};
+
+export const useSectoresOpciones = () => {
+  return useQuery({
+    queryKey: ['opciones', 'sectores'],
+    queryFn: async (): Promise<{ id: number; nombre: string }[]> => {
+      const { data } = await api.get('/opciones/sectores');
       return data.data;
     },
   });

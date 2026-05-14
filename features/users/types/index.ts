@@ -5,6 +5,10 @@ export interface User {
   roles: string[];
   permissions: string[];
   created_at: string;
+  persona?: {
+    id: number;
+    nombre_completo: string;
+  };
 }
 
 export interface UserFormData {
@@ -12,4 +16,5 @@ export interface UserFormData {
   email: string;
   password?: string;
   roles: string[];
+  persona_id?: number | null;
 }

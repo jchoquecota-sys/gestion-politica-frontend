@@ -11,11 +11,22 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, Plus, Search, Pencil, Trash2, User } from 'lucide-react';
+import { Loader2, Plus, Search, Pencil, Trash2, User, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Badge } from '@/components/ui/badge';
+import { useSectoresOpciones } from '@/features/sectores/hooks/useSectores';
+import { useBasesOpciones } from '@/features/bases/hooks/useBases';
+import { useDebounce } from '@/hooks/useDebounce';
+import { DataTablePagination } from '@/components/shared/DataTablePagination';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface PersonasTableProps {
   onAdd: () => void;
@@ -23,15 +34,44 @@ interface PersonasTableProps {
 }
 
 export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
-  const { data: personas, isLoading } = usePersonas();
-  const { mutate: deletePersona, isPending: isDeleting } = useDeletePersona();
   const [searchTerm, setSearchTerm] = useState('');
-  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const debouncedSearch = useDebounce(searchTerm, 500);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedSectorId, setSelectedSectorId] = useState<number | null>(null);
+  const [selectedBaseId, setSelectedBaseId] = useState<number | null>(null);
 
-  const filteredPersonas = personas?.filter((p) =>
-    `${p.nombres} ${p.apellidos}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.dni.includes(searchTerm)
-  );
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const user = useAuthStore((state) => state.user);
+  
+  const hasListAll = hasPermission('personas:list-all');
+  const hasListOnlySector = hasPermission('personas:list-only-sector');
+  const allowedSectors = user?.allowed_sectors || [];
+
+  const { data: sectores } = useSectoresOpciones();
+  const { data: bases } = useBasesOpciones(selectedSectorId);
+  
+  const { data: response, isLoading } = usePersonas({
+    page: currentPage,
+    search: debouncedSearch,
+    sector_id: selectedSectorId,
+    base_id: selectedBaseId,
+  });
+  
+  const personas = response?.data || [];
+  const meta = response?.meta;
+
+  const { mutate: deletePersona, isPending: isDeleting } = useDeletePersona();
+
+  const visibleSectores = hasListAll 
+    ? sectores 
+    : sectores?.filter(s => allowedSectors.includes(s.id));
+
+  const showSectorFilter = hasListAll || hasListOnlySector;
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, selectedSectorId, selectedBaseId]);
 
   const handleDelete = (id: number) => {
     if (confirm('¿Está seguro de eliminar a esta persona?')) {
@@ -41,28 +81,67 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-          <Input
-            placeholder="Buscar por nombre o DNI..."
-            className="pl-9"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-3 flex-1">
+          <div className="relative w-full md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+            <Input
+              placeholder="Buscar por nombre o DNI..."
+              className="pl-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+            {showSectorFilter && (
+              <Select 
+                onValueChange={(val) => {
+                  setSelectedSectorId(val === 'all' ? null : parseInt(val));
+                  setSelectedBaseId(null);
+                }}
+                value={selectedSectorId?.toString() || 'all'}
+              >
+                <SelectTrigger className="w-full sm:w-[180px] h-9">
+                  <SelectValue placeholder="Todos los Sectores" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los Sectores</SelectItem>
+                  {visibleSectores?.map(s => (
+                    <SelectItem key={s.id} value={s.id.toString()}>{s.nombre}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            <Select 
+              onValueChange={(val) => setSelectedBaseId(val === 'all' ? null : parseInt(val))}
+              value={selectedBaseId?.toString() || 'all'}
+            >
+              <SelectTrigger className="w-full sm:w-[180px] h-9">
+                <SelectValue placeholder="Todas las Bases" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las Bases</SelectItem>
+                {bases?.map(b => (
+                  <SelectItem key={b.id} value={b.id.toString()}>{b.nombre}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         {hasPermission('personas:create') && (
-          <Button onClick={onAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+          <Button onClick={onAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white shrink-0">
             <Plus className="h-4 w-4 mr-2" />
             Nueva Persona
           </Button>
         )}
       </div>
 
-      <div className="rounded-md border bg-white overflow-hidden">
+      <div className="rounded-md border bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50/50">
+            <TableRow className="bg-slate-50/50 dark:bg-slate-900/50">
               <TableHead>Persona</TableHead>
               <TableHead>DNI</TableHead>
               <TableHead>Contacto</TableHead>
@@ -79,23 +158,31 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
                   </div>
                 </TableCell>
               </TableRow>
-            ) : filteredPersonas?.length === 0 ? (
+            ) : personas.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="h-24 text-center text-slate-500">
                   No se encontraron personas registradas.
                 </TableCell>
               </TableRow>
             ) : (
-              filteredPersonas?.map((p) => (
-                <TableRow key={p.id} className="hover:bg-slate-50/50 transition-colors">
+              personas.map((p) => (
+                <TableRow key={p.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
-                        <User className="h-5 w-5" />
+                      <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 overflow-hidden border border-slate-200">
+                        {p.foto_url ? (
+                          <img 
+                            src={p.foto_url} 
+                            alt={`${p.nombres} ${p.apellidos}`} 
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-5 w-5" />
+                        )}
                       </div>
                       <div>
-                        <p className="font-semibold text-slate-900">{p.nombres} {p.apellidos}</p>
-                        <p className="text-xs text-slate-500">{p.direccion || 'Sin dirección'}</p>
+                        <p className="font-semibold text-slate-900 dark:text-slate-100">{p.nombres} {p.apellidos}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{p.direccion || 'Sin dirección'}</p>
                       </div>
                     </div>
                   </TableCell>
@@ -104,8 +191,8 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">
-                      <p className="text-slate-700">{p.celular || '-'}</p>
-                      <p className="text-xs text-slate-500">{p.email || '-'}</p>
+                      <p className="text-slate-700 dark:text-slate-300">{p.celular || '-'}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{p.email || '-'}</p>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
@@ -133,6 +220,11 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
             )}
           </TableBody>
         </Table>
+        {meta && meta.last_page > 1 && (
+          <div className="border-t">
+            <DataTablePagination meta={meta} onPageChange={setCurrentPage} />
+          </div>
+        )}
       </div>
     </div>
   );

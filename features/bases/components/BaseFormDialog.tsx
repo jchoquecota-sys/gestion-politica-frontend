@@ -1,14 +1,13 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Base } from '../types';
 import { useCreateBase, useUpdateBase, useBase } from '../hooks/useBases';
-import { useSectores } from '@/features/sectores/hooks/useSectores';
-import { usePersonas } from '@/features/personas/hooks/usePersonas';
-import { useCargos } from '@/features/cargos/hooks/useCargos';
+import { useSectoresOpciones } from '@/features/sectores/hooks/useSectores';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   Dialog,
   DialogContent,
@@ -28,8 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Plus, Trash2, UserPlus, MapPin, Navigation } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Loader2, MapPin, Navigation } from 'lucide-react';
 import MapPicker from './MapPicker';
 
 const baseSchema = z.object({
@@ -39,13 +37,6 @@ const baseSchema = z.object({
   direccion: z.string().optional().or(z.literal('')),
   latitud: z.number(),
   longitud: z.number(),
-  personas: z.array(z.object({
-    persona_id: z.number().min(1, 'Seleccione una persona'),
-    cargo_id: z.number().min(1, 'Seleccione un cargo'),
-    es_principal: z.boolean(),
-    fecha_inicio: z.string().min(1, 'La fecha es requerida'),
-    observaciones: z.string().optional().or(z.literal('')),
-  })).min(1, 'Debe asignar al menos una persona a la base'),
 });
 
 type BaseFormValues = z.infer<typeof baseSchema>;
@@ -59,25 +50,33 @@ interface BaseFormDialogProps {
 export function BaseFormDialog({ isOpen, onClose, baseId }: BaseFormDialogProps) {
   const isEditing = !!baseId;
   const { data: baseDetails, isLoading: isLoadingDetails } = useBase(baseId || null);
-  const { data: sectores, isLoading: isLoadingSectores } = useSectores();
-  const { data: personas, isLoading: isLoadingPersonas } = usePersonas();
-  const { data: cargos, isLoading: isLoadingCargos } = useCargos();
+  const { data: sectores, isLoading: isLoadingSectores } = useSectoresOpciones();
   
   const { mutate: createBase, isPending: isCreating } = useCreateBase();
   const { mutate: updateBase, isPending: isUpdating } = useUpdateBase();
 
-  const isDictionariesLoading = isLoadingSectores || isLoadingPersonas || isLoadingCargos;
+  const isDictionariesLoading = isLoadingSectores;
   const isPending = isCreating || isUpdating || (isEditing && isLoadingDetails) || isDictionariesLoading;
+
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const user = useAuthStore((state) => state.user);
+  const hasListAll = hasPermission('bases:list-all');
+  const allowedSectors = user?.allowed_sectors || [];
+
+  const visibleSectores = hasListAll 
+    ? sectores 
+    : sectores?.filter(s => allowedSectors.includes(s.id));
+
+  const defaultSectorId = !hasListAll && allowedSectors.length === 1 ? allowedSectors[0] : 0;
 
   // 1. Definir valores por defecto puros
   const defaultFormValues: BaseFormValues = {
-    sector_id: 0,
+    sector_id: defaultSectorId,
     nombre: '',
     descripcion: '',
     direccion: '',
     latitud: -18.0117,
     longitud: -70.2536,
-    personas: [{ persona_id: 0, cargo_id: 0, es_principal: true, observaciones: '', fecha_inicio: new Date().toISOString().split('T')[0] }],
   };
 
   // 2. Computar valores reales cuando lleguen los datos asíncronos
@@ -90,73 +89,35 @@ export function BaseFormDialog({ isOpen, onClose, baseId }: BaseFormDialogProps)
         direccion: baseDetails.direccion || '',
         latitud: Number(baseDetails.coordenadas?.lat || baseDetails.latitud || -18.0117),
         longitud: Number(baseDetails.coordenadas?.lng || baseDetails.longitud || -70.2536),
-        personas: baseDetails.equipo?.length ? baseDetails.equipo.map(p => ({
-          persona_id: Number(p.persona_id || p.id || 0),
-          cargo_id: Number(p.cargo_id || 0),
-          es_principal: !!p.es_principal,
-          fecha_inicio: p.fecha_inicio ? p.fecha_inicio.split('T')[0] : new Date().toISOString().split('T')[0],
-          observaciones: p.observaciones || '',
-        })) : defaultFormValues.personas,
       };
     }
-    return undefined; // Crucial: devolver undefined mientras carga para no sobrescribir con defaults
+    return undefined;
   }, [isEditing, baseDetails]);
 
-  // 3. Inicializar el formulario con la propiedad 'values' reactiva
-  const { register, handleSubmit, formState: { errors }, reset, control, setValue, watch, clearErrors } = useForm<BaseFormValues>({
+  // 3. Inicializar el formulario
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch, clearErrors } = useForm<BaseFormValues>({
     resolver: zodResolver(baseSchema),
     defaultValues: defaultFormValues,
     values: isEditing ? computedFormValues : undefined, 
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "personas"
-  });
-
   const watchLat = watch("latitud");
   const watchLng = watch("longitud");
-  const watchPersonas = watch("personas");
 
-  // Limpiar el formulario y errores para evitar falsos positivos
+  // Limpiar el formulario y errores
   useEffect(() => {
     if (!isOpen) {
-      clearErrors(); // Limpiar errores al cerrar
+      clearErrors();
     } else if (isOpen && !isEditing) {
-      reset(defaultFormValues); // Resetear a valores por defecto al crear
-    } else if (isOpen && isEditing && baseDetails) {
-      clearErrors(); // IMPORTANTE: Radix UI dispara validaciones prematuras al montar. Limpiamos cuando los datos reales llegan.
+      reset(defaultFormValues);
     }
-  }, [isOpen, isEditing, reset, clearErrors, baseDetails]);
-
-  // ================= DEBUG =================
-  useEffect(() => {
-    if (isOpen) {
-      console.log('--- DEBUG: ESTADO DEL FORMULARIO DE BASES ---');
-      console.log('Cargando Diccionarios?:', isDictionariesLoading);
-      console.log('Cargando Detalles?:', isLoadingDetails);
-      console.log('Valor actual de sector_id (watch):', watch('sector_id'), 'Tipo:', typeof watch('sector_id'));
-      console.log('Errores en sector_id:', errors.sector_id);
-      console.log('Errores completos:', errors);
-      console.log('-------------------------------------------');
-    }
-  }, [isOpen, isDictionariesLoading, isLoadingDetails, watch('sector_id'), errors]);
-  // =========================================
+  }, [isOpen, isEditing, reset, clearErrors]);
 
   const onSubmit = (data: BaseFormValues) => {
-    const payload = {
-      ...data,
-      personas: data.personas.map(p => ({
-        ...p,
-        persona_id: Number(p.persona_id),
-        cargo_id: Number(p.cargo_id)
-      }))
-    };
-
     if (isEditing && baseId) {
-      updateBase({ id: baseId, data: payload as any }, { onSuccess: () => onClose() });
+      updateBase({ id: baseId, data: data as any }, { onSuccess: () => onClose() });
     } else {
-      createBase(payload as any, { onSuccess: () => onClose() });
+      createBase(data as any, { onSuccess: () => onClose() });
     }
   };
 
@@ -187,12 +148,13 @@ export function BaseFormDialog({ isOpen, onClose, baseId }: BaseFormDialogProps)
                       if (val) setValue('sector_id', Number(val), { shouldValidate: true });
                     }}
                     value={watch('sector_id') ? watch('sector_id').toString() : undefined}
+                    disabled={isPending || (!hasListAll && allowedSectors.length === 1)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione un sector" />
                     </SelectTrigger>
                     <SelectContent>
-                      {sectores?.map(s => (
+                      {visibleSectores?.map(s => (
                         <SelectItem key={s.id} value={s.id.toString()}>{s.nombre}</SelectItem>
                       ))}
                     </SelectContent>
@@ -241,116 +203,6 @@ export function BaseFormDialog({ isOpen, onClose, baseId }: BaseFormDialogProps)
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Sección de Personal Asignado */}
-            <div className="space-y-4 pt-4 border-t">
-              <div className="flex items-center justify-between">
-                <Label className="text-lg font-semibold flex items-center gap-2">
-                  <UserPlus className="h-5 w-5 text-indigo-600" />
-                  Personal de la Base
-                </Label>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => append({ persona_id: 0, cargo_id: 0, es_principal: false, observaciones: '', fecha_inicio: new Date().toISOString().split('T')[0] })}
-                  className="h-8"
-                >
-                  <Plus className="h-4 w-4 mr-1" /> Añadir
-                </Button>
-              </div>
-
-              {fields.map((field, index) => (
-                <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 bg-slate-50/50 rounded-lg border relative group">
-                  <div className="md:col-span-4 space-y-1">
-                    <Label className="text-[10px] uppercase text-slate-500 font-bold">Persona</Label>
-                    <Select 
-                      onValueChange={(val) => {
-                        if (val) setValue(`personas.${index}.persona_id`, Number(val), { shouldValidate: true });
-                      }}
-                      value={watchPersonas[index]?.persona_id ? watchPersonas[index]?.persona_id.toString() : undefined}
-                    >
-                      <SelectTrigger className="bg-white">
-                        <SelectValue placeholder="Seleccione persona" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {personas?.map(p => (
-                          <SelectItem key={p.id} value={p.id.toString()}>{p.nombres} {p.apellidos}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="md:col-span-3 space-y-1">
-                    <Label className="text-[10px] uppercase text-slate-500 font-bold">Cargo</Label>
-                    <Select 
-                      onValueChange={(val) => {
-                        if (val) setValue(`personas.${index}.cargo_id`, Number(val), { shouldValidate: true });
-                      }}
-                      value={watchPersonas[index]?.cargo_id ? watchPersonas[index]?.cargo_id.toString() : undefined}
-                    >
-                      <SelectTrigger className="bg-white">
-                        <SelectValue placeholder="Cargo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {cargos?.map(c => (
-                          <SelectItem key={c.id} value={c.id.toString()}>{c.nombre}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="md:col-span-2 space-y-1">
-                    <Label className="text-[10px] uppercase text-slate-500 font-bold">Fecha Inicio</Label>
-                    <Input 
-                      type="date" 
-                      className="bg-white"
-                      {...register(`personas.${index}.fecha_inicio`)} 
-                    />
-                  </div>
-
-                  <div className="md:col-span-2 flex items-center justify-center pt-6">
-                    <div className="flex items-center gap-2">
-                      <Checkbox 
-                        id={`main-${index}`}
-                        checked={watchPersonas[index]?.es_principal}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            watchPersonas.forEach((_, i) => setValue(`personas.${i}.es_principal`, i === index));
-                          } else {
-                            setValue(`personas.${index}.es_principal`, false);
-                          }
-                        }}
-                      />
-                      <Label htmlFor={`main-${index}`} className="text-xs font-medium cursor-pointer">Principal</Label>
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-1 flex items-center justify-end pt-6">
-                    {fields.length > 1 && (
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => remove(index)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-
-                  <div className="md:col-span-12">
-                    <Input 
-                      placeholder="Observaciones adicionales (opcional)" 
-                      className="bg-white text-xs h-8"
-                      {...register(`personas.${index}.observaciones`)} 
-                    />
-                  </div>
-                </div>
-              ))}
-              {errors.personas && <p className="text-sm text-red-500">{errors.personas.message}</p>}
             </div>
 
             <DialogFooter className="pt-6 border-t">

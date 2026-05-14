@@ -74,7 +74,7 @@ export function UsersTable() {
         </TableHeader>
         <TableBody>
           {users?.map((user) => (
-            <TableRow key={user.id} className="hover:bg-slate-50/50 transition-colors">
+            <TableRow key={user.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Avatar className="h-9 w-9 border border-indigo-100 dark:border-slate-800">

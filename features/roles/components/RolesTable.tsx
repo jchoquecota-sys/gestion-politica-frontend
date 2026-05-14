@@ -71,7 +71,7 @@ export function RolesTable() {
         </TableHeader>
         <TableBody>
           {roles?.map((role) => (
-            <TableRow key={role.id} className="hover:bg-slate-50/50 transition-colors">
+            <TableRow key={role.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
               <TableCell className="font-medium capitalize">
                 {role.name}
                 {role.name === 'super-admin' && (
