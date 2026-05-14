@@ -1,0 +1,37 @@
+'use client';
+
+import { ActividadesTable } from '@/features/actividades/components/ActividadesTable';
+import { useAuthStore } from '@/store/useAuthStore';
+import { ShieldAlert } from 'lucide-react';
+
+export default function ActividadesPage() {
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+
+  if (!hasPermission('actividades:list')) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <div className="bg-red-50 p-4 rounded-full mb-4">
+          <ShieldAlert className="h-12 w-12 text-red-600" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900">Acceso Denegado</h1>
+        <p className="text-slate-500 max-w-md mx-auto mt-2">
+          No tienes los permisos necesarios para acceder al módulo de actividades. 
+          Contacta con el administrador del sistema si crees que esto es un error.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Actividades</h1>
+        <p className="text-slate-500">
+          Administre el registro de actividades, mitines, reuniones y capacitaciones.
+        </p>
+      </div>
+
+      <ActividadesTable />
+    </div>
+  );
+}

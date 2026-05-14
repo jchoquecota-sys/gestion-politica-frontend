@@ -42,6 +42,13 @@ export function Sidebar({ className }: SidebarProps) {
       show: hasPermission('personas:list'),
     },
     {
+      label: 'Actividades',
+      icon: FileText,
+      href: '/actividades',
+      active: pathname.includes('/actividades'),
+      show: hasPermission('actividades:list'),
+    },
+    {
       label: 'Cargos',
       icon: ShieldCheck,
       href: '/cargos',
