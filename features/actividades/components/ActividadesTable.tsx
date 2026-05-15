@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useActividades, useDeleteActividad } from '../hooks';
 import { Actividad, ActividadEstado } from '../types';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useRouter } from 'next/navigation';
 import {
   Table,
   TableBody,
@@ -64,6 +65,7 @@ const statusConfig: Record<ActividadEstado, { label: string; className: string }
 };
 
 export function ActividadesTable() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearch = useDebounce(searchTerm, 500);
@@ -257,6 +259,15 @@ export function ActividadesTable() {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => router.push(`/actividades/${actividad.id}`)}
+                      className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                      title="Ver Detalles y Evidencias"
+                    >
+                      <Search className="h-4 w-4" />
+                    </Button>
                     {canEdit && (
                       <Button
                         variant="ghost"

@@ -74,3 +74,43 @@ export const useDeleteActividad = () => {
     },
   });
 };
+
+// --- Gestión de Sujetos/Participantes ---
+
+export const useAsignarSujeto = (actividadId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { sujeto_id: number; sujeto_type: string; descripcion_ejecucion?: string }) => {
+      const { data } = await api.post(`/actividad-sujetos/${actividadId}/asignar`, payload);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actividad', actividadId] });
+    },
+  });
+};
+
+export const useUpdateEjecucion = (actividadId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...payload }: { id: number; descripcion_ejecucion?: string; evidencias?: string[] }) => {
+      const { data } = await api.put(`/actividad-sujetos/${id}`, payload);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actividad', actividadId] });
+    },
+  });
+};
+
+export const useDesvincularSujeto = (actividadId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (asignacionId: number) => {
+      await api.delete(`/actividad-sujetos/${asignacionId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actividad', actividadId] });
+    },
+  });
+};

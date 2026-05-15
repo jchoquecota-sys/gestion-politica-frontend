@@ -3,14 +3,11 @@
 import { useState } from 'react';
 import { BasesTable } from '@/features/bases/components/BasesTable';
 import { BaseFormDialog } from '@/features/bases/components/BaseFormDialog';
-import { BasePersonalDialog } from '@/features/bases/components/BasePersonalDialog';
 import { Base } from '@/features/bases/types';
 
 export default function BasesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isPersonalDialogOpen, setIsPersonalDialogOpen] = useState(false);
   const [selectedBaseId, setSelectedBaseId] = useState<number | null>(null);
-  const [selectedBase, setSelectedBase] = useState<Base | null>(null);
 
   const handleEdit = (base: Base) => {
     setSelectedBaseId(base.id);
@@ -20,11 +17,6 @@ export default function BasesPage() {
   const handleAdd = () => {
     setSelectedBaseId(null);
     setIsDialogOpen(true);
-  };
-
-  const handleManagePersonal = (base: Base) => {
-    setSelectedBase(base);
-    setIsPersonalDialogOpen(true);
   };
 
   return (
@@ -40,18 +32,12 @@ export default function BasesPage() {
         </div>
       </div>
 
-      <BasesTable onAdd={handleAdd} onEdit={handleEdit} onManagePersonal={handleManagePersonal} />
+      <BasesTable onAdd={handleAdd} onEdit={handleEdit} onManagePersonal={() => {}} />
 
       <BaseFormDialog 
         isOpen={isDialogOpen} 
         onClose={() => setIsDialogOpen(false)} 
         baseId={selectedBaseId}
-      />
-
-      <BasePersonalDialog
-        isOpen={isPersonalDialogOpen}
-        onClose={() => setIsPersonalDialogOpen(false)}
-        base={selectedBase}
       />
     </div>
   );

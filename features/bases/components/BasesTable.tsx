@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useRouter } from 'next/navigation';
 
 interface BasesTableProps {
   onAdd: () => void;
@@ -34,6 +35,7 @@ interface BasesTableProps {
 }
 
 export function BasesTable({ onAdd, onEdit, onManagePersonal }: BasesTableProps) {
+  const router = useRouter();
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const user = useAuthStore((state) => state.user);
   const hasListAll = hasPermission('bases:list-all');
@@ -189,11 +191,11 @@ export function BasesTable({ onAdd, onEdit, onManagePersonal }: BasesTableProps)
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            onClick={() => onManagePersonal(b)} 
+                            onClick={() => router.push(`/bases/${b.id}`)} 
                             className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
-                            title="Gestionar Personal"
+                            title="Ver Detalles y Personal"
                           >
-                            <Users className="h-4 w-4" />
+                            <Search className="h-4 w-4" />
                           </Button>
                         )}
                         {hasPermission('bases:edit') && (

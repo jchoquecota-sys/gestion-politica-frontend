@@ -1,15 +1,12 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useEffect, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Actividad, ActividadEstado, SujetoType, SujetoActividad } from '../types';
+import { ActividadEstado } from '../types';
 import { useCreateActividad, useUpdateActividad, useActividad, useTiposActividad } from '../hooks';
-import { useSectoresOpciones } from '@/features/sectores/hooks/useSectores';
-import { useBasesOpciones } from '@/features/bases/hooks/useBases';
-import { usePersonasOpciones } from '@/features/personas/hooks/usePersonas';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -29,22 +26,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Plus, Trash2, User, Home, Map } from 'lucide-react';
+import { Loader2, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { toast } from 'sonner';
-
-const sujetoSchema = z.object({
-  sujeto_id: z.number().min(1, 'Seleccione un sujeto'),
-  sujeto_type: z.enum(['persona', 'base', 'sector']),
-  descripcion_ejecucion: z.string().optional(),
-});
 
 const actividadSchema = z.object({
   titulo: z.string().min(3, 'El título es requerido').max(200),
   descripcion: z.string().min(10, 'Proporcione una descripción más detallada'),
-  fecha_actividad: z.string().min(1, 'La fecha es requerida'),
+  fecha: z.string().min(1, 'La fecha es requerida'),
+  hora: z.string().min(1, 'La hora es requerida'),
   tipo_actividad_id: z.number().min(1, 'El tipo es requerido'),
   estado: z.enum(['borrador', 'creada', 'cancelada']),
-  sujetos: z.array(sujetoSchema).min(1, 'Debe asignar al menos un sujeto (Persona, Base o Sector)'),
 });
 
 type ActividadFormValues = z.infer<typeof actividadSchema>;
@@ -56,47 +47,35 @@ interface ActividadFormDialogProps {
 }
 
 export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadFormDialogProps) {
+  const router = useRouter();
   const isEditing = !!actividadId;
   const { data: actividad, isLoading: isLoadingDetails } = useActividad(actividadId || undefined);
   const { data: tipos, isLoading: isLoadingTipos } = useTiposActividad();
   
-  const { data: sectores, isLoading: isLoadingSectores } = useSectoresOpciones();
-  const { data: bases, isLoading: isLoadingBases } = useBasesOpciones();
-  const { data: personas, isLoading: isLoadingPersonas } = usePersonasOpciones();
-
-  const hasPermission = useAuthStore((state) => state.hasPermission);
-  const hasSectorAccess = hasPermission('actividades:manage-all') || hasPermission('actividades:manage-sector');
-  const hasBaseAccess = hasSectorAccess || hasPermission('actividades:manage-base');
-
   const { mutate: createActividad, isPending: isCreating } = useCreateActividad();
   const { mutate: updateActividad, isPending: isUpdating } = useUpdateActividad(actividadId || 0);
 
-  const isDictionariesLoading = isLoadingTipos || isLoadingSectores || isLoadingBases || isLoadingPersonas;
+  const isDictionariesLoading = isLoadingTipos;
 
-  // 1. Valores por defecto iniciales
   const defaultFormValues: ActividadFormValues = {
     titulo: '',
     descripcion: '',
-    fecha_actividad: '',
+    fecha: '',
+    hora: '09:00',
     tipo_actividad_id: 0,
     estado: 'creada',
-    sujetos: [],
   };
 
-  // 2. Valores computados reactivos para edición
   const computedFormValues = useMemo(() => {
     if (isEditing && actividad) {
+      const fullDate = actividad.fecha_actividad || '';
       return {
         titulo: actividad.titulo || '',
         descripcion: actividad.descripcion || '',
-        fecha_actividad: actividad.fecha_actividad ? actividad.fecha_actividad.replace(' ', 'T').slice(0, 16) : '',
+        fecha: fullDate.split(' ')[0] || '',
+        hora: fullDate.split(' ')[1]?.slice(0, 5) || '09:00',
         tipo_actividad_id: actividad.tipo_actividad?.id || 0,
         estado: actividad.estado || 'creada',
-        sujetos: actividad.sujetos?.map(s => ({
-          sujeto_id: s.sujeto_id,
-          sujeto_type: s.sujeto_type,
-          descripcion_ejecucion: s.descripcion_ejecucion || '',
-        })) || [],
       };
     }
     return undefined;
@@ -104,7 +83,6 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
 
   const {
     register,
-    control,
     handleSubmit,
     reset,
     setValue,
@@ -117,11 +95,6 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
     values: isEditing ? computedFormValues : undefined,
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'sujetos',
-  });
-
   useEffect(() => {
     if (!isOpen) {
       clearErrors();
@@ -131,10 +104,13 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
   }, [isOpen, isEditing, reset, clearErrors]);
 
   const onSubmit = (data: ActividadFormValues) => {
-    // Convert date back to SQL format
+    // Combinar fecha y hora para el backend
     const formattedData = {
-      ...data,
-      fecha_actividad: data.fecha_actividad.replace('T', ' ') + ':00',
+      titulo: data.titulo,
+      descripcion: data.descripcion,
+      fecha_actividad: `${data.fecha} ${data.hora}:00`,
+      tipo_actividad_id: data.tipo_actividad_id,
+      estado: data.estado,
     };
 
     if (isEditing && actividadId) {
@@ -146,9 +122,10 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
       });
     } else {
       createActividad(formattedData, {
-        onSuccess: () => {
+        onSuccess: (newActividad) => {
           toast.success('Actividad registrada correctamente');
           onClose();
+          router.push(`/actividades/${newActividad.id}`);
         }
       });
     }
@@ -158,18 +135,20 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[700px] max-h-[95vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Editar Actividad' : 'Nueva Actividad'}</DialogTitle>
           <DialogDescription>
-            Registre los detalles de la actividad política y asigne los sujetos responsables.
+            {isEditing 
+              ? 'Actualice la información básica de la actividad.' 
+              : 'Registre los detalles de la actividad política. Podrá gestionar los participantes y evidencias después de crearla.'}
           </DialogDescription>
         </DialogHeader>
 
         {isPending && (isEditing || isDictionariesLoading) ? (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-            <p className="text-sm text-slate-500 font-medium">Cargando datos y catálogos...</p>
+            <p className="text-sm text-slate-500 font-medium">Cargando datos...</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
@@ -187,9 +166,19 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fecha_actividad">Fecha y Hora</Label>
-                <Input id="fecha_actividad" type="datetime-local" {...register('fecha_actividad')} />
-                {errors.fecha_actividad && <p className="text-xs text-red-500 font-medium">{errors.fecha_actividad.message}</p>}
+                <Label htmlFor="fecha" className="flex items-center gap-2">
+                  <CalendarIcon className="h-3.5 w-3.5 text-slate-400" /> Fecha
+                </Label>
+                <Input id="fecha" type="date" {...register('fecha')} />
+                {errors.fecha && <p className="text-xs text-red-500 font-medium">{errors.fecha.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="hora" className="flex items-center gap-2">
+                  <Clock className="h-3.5 w-3.5 text-slate-400" /> Hora
+                </Label>
+                <Input id="hora" type="time" {...register('hora')} />
+                {errors.hora && <p className="text-xs text-red-500 font-medium">{errors.hora.message}</p>}
               </div>
 
               <div className="space-y-2">
@@ -212,7 +201,7 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="estado">Estado Inicial</Label>
+                <Label htmlFor="estado">Estado</Label>
                 <Select 
                   onValueChange={(val) => setValue('estado', val as ActividadEstado)}
                   value={watch('estado')}
@@ -230,99 +219,6 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
               </div>
             </div>
 
-            <div className="space-y-4 pt-4 border-t">
-              <div className="flex justify-between items-center">
-                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-                  <Plus className="h-4 w-4 text-indigo-600" />
-                  Sujetos Responsables / Participantes
-                </h3>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => append({ sujeto_id: 0, sujeto_type: 'persona', descripcion_ejecucion: '' })}
-                  className="h-8 border-dashed border-slate-300"
-                >
-                  Añadir Sujeto
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                {fields.map((field, index) => (
-                  <div key={field.id} className="p-3 border rounded-lg bg-slate-50/50 space-y-3 animate-in fade-in slide-in-from-top-1">
-                    <div className="flex items-start gap-3">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-                        <div className="space-y-1.5">
-                          <Select 
-                            onValueChange={(val) => {
-                              setValue(`sujetos.${index}.sujeto_type`, val as SujetoType);
-                              setValue(`sujetos.${index}.sujeto_id`, 0); 
-                            }}
-                            value={watch(`sujetos.${index}.sujeto_type`)}
-                          >
-                            <SelectTrigger className="h-9">
-                              <SelectValue placeholder="Tipo de Sujeto" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="persona"><div className="flex items-center gap-2"><User className="h-3.5 w-3.5" /> Persona</div></SelectItem>
-                              {hasBaseAccess && (
-                                <SelectItem value="base"><div className="flex items-center gap-2"><Home className="h-3.5 w-3.5" /> Base</div></SelectItem>
-                              )}
-                              {hasSectorAccess && (
-                                <SelectItem value="sector"><div className="flex items-center gap-2"><Map className="h-3.5 w-3.5" /> Sector</div></SelectItem>
-                              )}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-1.5">
-                          <Select 
-                            onValueChange={(val) => setValue(`sujetos.${index}.sujeto_id`, Number(val))}
-                            value={watch(`sujetos.${index}.sujeto_id`)?.toString()}
-                          >
-                            <SelectTrigger className="h-9">
-                              <SelectValue placeholder="Seleccionar..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {watch(`sujetos.${index}.sujeto_type`) === 'persona' && personas?.map(p => (
-                                <SelectItem key={p.id} value={p.id.toString()}>{p.nombre_completo}</SelectItem>
-                              ))}
-                              {watch(`sujetos.${index}.sujeto_type`) === 'base' && bases?.map(b => (
-                                <SelectItem key={b.id} value={b.id.toString()}>{b.nombre}</SelectItem>
-                              ))}
-                              {watch(`sujetos.${index}.sujeto_type`) === 'sector' && sectores?.map(s => (
-                                <SelectItem key={s.id} value={s.id.toString()}>{s.nombre}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
-                        onClick={() => remove(index)}
-                        className="h-9 w-9 text-slate-400 hover:text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <Input 
-                      {...register(`sujetos.${index}.descripcion_ejecucion`)} 
-                      placeholder="Rol o acción realizada (opcional)" 
-                      className="h-8 text-xs"
-                    />
-                  </div>
-                ))}
-                {errors.sujetos && <p className="text-xs text-red-500 font-medium">{errors.sujetos.message}</p>}
-                {fields.length === 0 && (
-                  <div className="text-center py-6 border border-dashed rounded-lg bg-slate-50">
-                    <p className="text-xs text-slate-400">No hay sujetos asignados a esta actividad.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
             <DialogFooter className="pt-6 border-t">
               <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
                 Cancelar
@@ -331,7 +227,7 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
                 {isPending ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Procesando...</>
                 ) : (
-                  isEditing ? 'Guardar Cambios' : 'Registrar Actividad'
+                  isEditing ? 'Guardar Cambios' : 'Continuar a Detalles'
                 )}
               </Button>
             </DialogFooter>

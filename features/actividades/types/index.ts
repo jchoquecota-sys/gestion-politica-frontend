@@ -36,7 +36,7 @@ export interface CreateActividadDTO {
   fecha_actividad: string;
   tipo_actividad_id: number;
   estado: ActividadEstado;
-  sujetos: SujetoActividad[];
+  sujetos?: SujetoActividad[];
 }
 
 export interface UpdateActividadDTO extends Partial<CreateActividadDTO> {}
