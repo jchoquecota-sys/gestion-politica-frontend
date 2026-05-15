@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Landmark, LayoutDashboard, ShieldCheck, Users, FileText, MapPin } from 'lucide-react';
+import { Landmark, LayoutDashboard, ShieldCheck, Users, FileText, MapPin, Globe } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -19,6 +19,13 @@ export function Sidebar({ className }: SidebarProps) {
       href: '/dashboard',
       active: pathname === '/dashboard',
       show: true,
+    },
+    {
+      label: 'Página Pública',
+      icon: Globe,
+      href: '/landing-config',
+      active: pathname.includes('/landing-config'),
+      show: hasPermission('landing:view'),
     },
     {
       label: 'Sectores',

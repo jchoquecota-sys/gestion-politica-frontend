@@ -24,6 +24,9 @@ export interface Actividad {
   fecha_actividad: string;
   tipo_actividad_id: number;
   estado: ActividadEstado;
+  es_publica: boolean;
+  foto_portada_path?: string | null;
+  foto_portada_url?: string | null;
   created_by?: number;
   created_at?: string;
   tipo_actividad?: TipoActividad;
@@ -36,6 +39,9 @@ export interface CreateActividadDTO {
   fecha_actividad: string;
   tipo_actividad_id: number;
   estado: ActividadEstado;
+  es_publica?: boolean;
+  foto_portada_path?: string;
+  foto_portada?: File | null;
   sujetos?: SujetoActividad[];
 }
 

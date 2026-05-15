@@ -16,11 +16,15 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.12 0.01 285.8);
   
-  --primary: oklch(0.35 0.05 264); /* Deep Professional Indigo/Navy */
+  --primary: oklch(0.32 0.18 264); /* Brand Primary: #042f98 */
   --primary-foreground: oklch(0.98 0.01 264);
   
   --secondary: oklch(0.96 0.005 285.8);
   --secondary-foreground: oklch(0.2 0.01 285.8);
+  
+  /* Brand Secondary: #ac2c42 */
+  --brand-secondary: oklch(0.45 0.18 15);
+  --brand-secondary-foreground: oklch(0.98 0.01 15);
   
   --muted: oklch(0.96 0.005 285.8);
   --muted-foreground: oklch(0.45 0.01 285.8);
@@ -28,8 +32,8 @@
   --accent: oklch(0.94 0.005 285.8);
   --accent-foreground: oklch(0.15 0.01 285.8);
   
-  --destructive: oklch(0.55 0.18 25);
-  --destructive-foreground: oklch(0.98 0.01 25);
+  --destructive: oklch(0.45 0.18 15); /* Using brand secondary for destructive too for consistency */
+  --destructive-foreground: oklch(0.98 0.01 15);
   
   --border: oklch(0.91 0.005 285.8);
   --input: oklch(0.91 0.005 285.8);
@@ -58,11 +62,15 @@
   --popover: oklch(0.17 0.01 285.8);
   --popover-foreground: oklch(0.98 0.01 285.8);
   
-  --primary: oklch(0.65 0.05 264); /* Softer Indigo for Dark Mode */
-  --primary-foreground: oklch(0.1 0.01 264);
+  --primary: oklch(0.55 0.15 264); /* Adjusted Brand Primary for Dark Mode */
+  --primary-foreground: oklch(0.98 0.01 264);
   
   --secondary: oklch(0.22 0.01 285.8);
   --secondary-foreground: oklch(0.98 0.01 285.8);
+  
+  /* Brand Secondary: #ac2c42 */
+  --brand-secondary: oklch(0.55 0.18 15);
+  --brand-secondary-foreground: oklch(0.98 0.01 15);
   
   --muted: oklch(0.22 0.01 285.8);
   --muted-foreground: oklch(0.65 0.01 285.8);
@@ -70,12 +78,12 @@
   --accent: oklch(0.25 0.01 285.8);
   --accent-foreground: oklch(0.98 0.01 285.8);
   
-  --destructive: oklch(0.55 0.18 25);
-  --destructive-foreground: oklch(0.98 0.01 25);
+  --destructive: oklch(0.55 0.18 15);
+  --destructive-foreground: oklch(0.98 0.01 15);
   
   --border: oklch(0.25 0.01 285.8);
   --input: oklch(0.25 0.01 285.8);
-  --ring: oklch(0.65 0.05 264);
+  --ring: oklch(0.55 0.15 264);
   
   --sidebar: oklch(0.16 0.01 285.8);
   --sidebar-foreground: oklch(0.98 0.01 285.8);
@@ -109,6 +117,8 @@
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
+  --color-brand-secondary-foreground: var(--brand-secondary-foreground);
+  --color-brand-secondary: var(--brand-secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-popover-foreground: var(--popover-foreground);

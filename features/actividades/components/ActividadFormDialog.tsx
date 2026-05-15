@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -26,8 +26,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Loader2, Calendar as CalendarIcon, Clock, Globe, Upload, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 const actividadSchema = z.object({
   titulo: z.string().min(3, 'El título es requerido').max(200),
@@ -36,6 +38,8 @@ const actividadSchema = z.object({
   hora: z.string().min(1, 'La hora es requerida'),
   tipo_actividad_id: z.number().min(1, 'El tipo es requerido'),
   estado: z.enum(['borrador', 'creada', 'cancelada']),
+  es_publica: z.boolean().default(false),
+  foto_portada: z.any().optional(), // File object
 });
 
 type ActividadFormValues = z.infer<typeof actividadSchema>;
@@ -64,6 +68,8 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
     hora: '09:00',
     tipo_actividad_id: 0,
     estado: 'creada',
+    es_publica: false,
+    foto_portada: undefined,
   };
 
   const computedFormValues = useMemo(() => {
@@ -76,6 +82,8 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
         hora: fullDate.split(' ')[1]?.slice(0, 5) || '09:00',
         tipo_actividad_id: actividad.tipo_actividad?.id || 0,
         estado: actividad.estado || 'creada',
+        es_publica: actividad.es_publica ?? false,
+        foto_portada: undefined, // Reset file on load
       };
     }
     return undefined;
@@ -95,22 +103,39 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
     values: isEditing ? computedFormValues : undefined,
   });
 
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const selectedFile = watch('foto_portada');
+
+  useEffect(() => {
+    if (selectedFile instanceof File) {
+      const url = URL.createObjectURL(selectedFile);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else if (isEditing && actividad?.foto_portada_url) {
+      setPreviewUrl(actividad.foto_portada_url);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [selectedFile, isEditing, actividad?.foto_portada_url]);
+
   useEffect(() => {
     if (!isOpen) {
       clearErrors();
     } else if (isOpen && !isEditing) {
       reset(defaultFormValues);
+      setPreviewUrl(null);
     }
   }, [isOpen, isEditing, reset, clearErrors]);
 
   const onSubmit = (data: ActividadFormValues) => {
-    // Combinar fecha y hora para el backend
     const formattedData = {
       titulo: data.titulo,
       descripcion: data.descripcion,
       fecha_actividad: `${data.fecha} ${data.hora}:00`,
       tipo_actividad_id: data.tipo_actividad_id,
       estado: data.estado,
+      es_publica: data.es_publica,
+      foto_portada: data.foto_portada instanceof File ? data.foto_portada : null,
     };
 
     if (isEditing && actividadId) {
@@ -135,7 +160,7 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[600px] max-h-[95vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[650px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Editar Actividad' : 'Nueva Actividad'}</DialogTitle>
           <DialogDescription>
@@ -216,6 +241,83 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
                   </SelectContent>
                 </Select>
                 {errors.estado && <p className="text-xs text-red-500 font-medium">{errors.estado.message}</p>}
+              </div>
+
+              {/* Visibilidad pública y Foto */}
+              <div className="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="es_publica" className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-blue-600" />
+                      Publicar en Landing Page
+                    </Label>
+                    <p className="text-xs text-slate-500">
+                      Hace que la actividad sea visible para el público en general.
+                    </p>
+                  </div>
+                  <Switch
+                    id="es_publica"
+                    checked={watch('es_publica')}
+                    onCheckedChange={(val) => setValue('es_publica', val)}
+                  />
+                </div>
+
+                {watch('es_publica') && (
+                  <div className="space-y-4 pt-4 border-t border-slate-200">
+                    <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Imagen de Portada</Label>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                      {/* Preview area */}
+                      <div className="relative aspect-video rounded-lg overflow-hidden border-2 border-dashed border-slate-300 bg-slate-100 flex items-center justify-center group">
+                        {previewUrl ? (
+                          <>
+                            <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                              <Button 
+                                type="button" 
+                                size="sm" 
+                                variant="destructive" 
+                                className="h-8 w-8 p-0"
+                                onClick={() => setValue('foto_portada', null)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-center p-4">
+                            <Upload className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+                            <p className="text-[10px] text-slate-500 uppercase font-bold">Sin imagen</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Upload button area */}
+                      <div className="space-y-2">
+                        <Label 
+                          htmlFor="foto_portada" 
+                          className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/50 hover:bg-blue-50 cursor-pointer transition-colors"
+                        >
+                          <Upload className="h-5 w-5 text-blue-600" />
+                          <div className="text-center">
+                            <p className="text-xs font-bold text-blue-700">Subir nueva foto</p>
+                            <p className="text-[10px] text-blue-500 mt-1">PNG, JPG hasta 5MB</p>
+                          </div>
+                        </Label>
+                        <input 
+                          id="foto_portada"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) setValue('foto_portada', file);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

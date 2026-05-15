@@ -40,7 +40,24 @@ export const useCreateActividad = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: CreateActividadDTO) => {
-      const { data } = await api.post<{ status: string; data: Actividad }>('/actividades', payload);
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (key === 'sujetos' && value) {
+          formData.append(key, JSON.stringify(value));
+        } else if (value !== undefined && value !== null) {
+          if (key === 'foto_portada' && value instanceof File) {
+            formData.append(key, value);
+          } else if (typeof value === 'boolean') {
+            formData.append(key, value ? '1' : '0');
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+
+      const { data } = await api.post<{ status: string; data: Actividad }>('/actividades', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       return data.data;
     },
     onSuccess: () => {
@@ -53,7 +70,26 @@ export const useUpdateActividad = (id: number) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: UpdateActividadDTO) => {
-      const { data } = await api.put<{ status: string; data: Actividad }>(`/actividades/${id}`, payload);
+      const formData = new FormData();
+      formData.append('_method', 'PUT'); // Laravel requirement for multipart PUT
+      
+      Object.entries(payload).forEach(([key, value]) => {
+        if (key === 'sujetos' && value) {
+          formData.append(key, JSON.stringify(value));
+        } else if (value !== undefined && value !== null) {
+          if (key === 'foto_portada' && value instanceof File) {
+            formData.append(key, value);
+          } else if (typeof value === 'boolean') {
+            formData.append(key, value ? '1' : '0');
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+
+      const { data } = await api.post<{ status: string; data: Actividad }>(`/actividades/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       return data.data;
     },
     onSuccess: () => {

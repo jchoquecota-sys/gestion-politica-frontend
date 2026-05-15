@@ -34,7 +34,7 @@ const userSchema = z.object({
   email: z.string().email('Ingresa un correo electrónico válido'),
   password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres').optional().or(z.literal('')),
   roles: z.array(z.string()),
-  persona_id: z.coerce.number().optional().nullable(),
+  persona_id: z.number().optional().nullable(),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -172,7 +172,7 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
                 <SelectItem value="none">Sin vincular</SelectItem>
                 {personas?.map(persona => (
                   <SelectItem key={persona.id} value={persona.id.toString()}>
-                    {persona.nombre_completo || `${persona.nombres} ${persona.apellidos}`} - {persona.dni}
+                    {persona.nombre_completo} - {persona.dni}
                   </SelectItem>
                 ))}
               </SelectContent>

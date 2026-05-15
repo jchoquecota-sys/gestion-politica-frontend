@@ -1,4 +1,30 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  images: {
+    // En desarrollo, desactivamos la optimización para evitar problemas con el proxy de Next.js y localhost.
+    // Esto hace que las imágenes se carguen directamente desde la URL del backend.
+    unoptimized: process.env.NODE_ENV === 'development',
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/storage/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8000',
+        pathname: '/storage/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '[::1]',
+        port: '8000',
+        pathname: '/storage/**',
+      },
+    ],
+  },
+};
 
-export default nextConfig
+export default nextConfig;
