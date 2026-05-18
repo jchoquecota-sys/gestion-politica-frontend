@@ -80,7 +80,7 @@ export function PublicCharts({ distribucionSectores, crecimientoMensual, isLoadi
                   </Pie>
                   <Tooltip
                     contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
-                    formatter={(value: number) => [value.toLocaleString('es-PE'), 'Simpatizantes']}
+                    formatter={(value: any) => [(Number(value) || 0).toLocaleString('es-PE'), 'Simpatizantes']}
                   />
                   <Legend iconType="circle" iconSize={8} formatter={(v) => <span className="text-xs text-slate-600 font-medium">{v}</span>} />
                 </PieChart>

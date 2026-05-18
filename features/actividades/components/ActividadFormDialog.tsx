@@ -38,7 +38,7 @@ const actividadSchema = z.object({
   hora: z.string().min(1, 'La hora es requerida'),
   tipo_actividad_id: z.number().min(1, 'El tipo es requerido'),
   estado: z.enum(['borrador', 'creada', 'cancelada']),
-  es_publica: z.boolean().default(false),
+  es_publica: z.boolean(),
   foto_portada: z.any().optional(), // File object
 });
 
