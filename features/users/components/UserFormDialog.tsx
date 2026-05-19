@@ -26,7 +26,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectValue,
 } from '@/components/ui/select';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Loader2, ShieldCheck, User as UserIcon } from 'lucide-react';
@@ -49,7 +48,7 @@ interface UserFormDialogProps {
 
 export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
   const isEditing = !!user;
-  
+
   const { data: availableRoles, isLoading: isLoadingRoles } = useRolesOpciones();
   const { data: personas, isLoading: isLoadingPersonas } = usePersonasOpciones();
   const { mutate: createUser, isPending: isCreating } = useCreateUser();
@@ -102,7 +101,7 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
 
   const onSubmit = (data: UserFormValues) => {
     const formattedData = { ...data };
-    
+
     // Si estamos editando y el password está vacío, lo eliminamos para que el backend no intente cambiarlo
     if (isEditing && !formattedData.password) {
       delete formattedData.password;
@@ -125,7 +124,7 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Editar Usuario' : 'Crear Nuevo Usuario'}</DialogTitle>
           <DialogDescription>
-            {isEditing 
+            {isEditing
               ? 'Actualiza los datos básicos y roles del usuario.'
               : 'Registra un nuevo usuario y asígnale sus roles iniciales.'}
           </DialogDescription>
@@ -135,9 +134,9 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nombre Completo <span className="text-red-500">*</span></Label>
-              <Input 
-                id="name" 
-                placeholder="Ej: Juan Pérez" 
+              <Input
+                id="name"
+                placeholder="Ej: Juan Pérez"
                 {...register('name')}
                 disabled={isPending}
               />
@@ -146,10 +145,10 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
 
             <div className="space-y-2">
               <Label htmlFor="email">Correo Electrónico <span className="text-red-500">*</span></Label>
-              <Input 
-                id="email" 
+              <Input
+                id="email"
                 type="email"
-                placeholder="juan@ejemplo.com" 
+                placeholder="juan@ejemplo.com"
                 {...register('email')}
                 disabled={isPending}
               />
@@ -181,10 +180,10 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
             <Label htmlFor="password">
               Contraseña {isEditing ? '(Dejar vacío para no cambiar)' : <span className="text-red-500">*</span>}
             </Label>
-            <Input 
-              id="password" 
+            <Input
+              id="password"
               type="password"
-              placeholder="••••••••" 
+              placeholder="••••••••"
               {...register('password')}
               disabled={isPending}
             />
