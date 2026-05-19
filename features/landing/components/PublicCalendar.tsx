@@ -24,7 +24,7 @@ function isUpcoming(dateStr: string): boolean {
 
 export function PublicCalendar({ eventos, isLoading }: PublicCalendarProps) {
   return (
-    <section id="calendario" className="relative py-24 bg-[#070d1a] overflow-hidden">
+    <section id="calendario" className="relative py-24 bg-background dark:bg-[#070d1a] overflow-hidden">
       {/* Decorative glow */}
       <div className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
 
@@ -33,9 +33,9 @@ export function PublicCalendar({ eventos, isLoading }: PublicCalendarProps) {
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-14">
-          <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: '#c06060' }}>Agenda</p>
-          <h2 className="text-4xl font-black text-white">Próximos Eventos</h2>
-          <p className="text-slate-400 mt-3 max-w-xl mx-auto">
+          <p className="text-sm font-bold uppercase tracking-widest mb-3 text-primary dark:text-[#c06060]">Agenda</p>
+          <h2 className="text-4xl font-black text-foreground dark:text-white">Próximos Eventos</h2>
+          <p className="text-muted-foreground dark:text-slate-400 mt-3 max-w-xl mx-auto">
             Calendario de actividades públicas de la campaña. ¡Tu participación suma!
           </p>
         </div>
@@ -43,11 +43,11 @@ export function PublicCalendar({ eventos, isLoading }: PublicCalendarProps) {
         {isLoading ? (
           <div className="max-w-3xl mx-auto space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex gap-4 bg-slate-900 rounded-2xl p-5 animate-pulse border border-slate-800">
-                <div className="w-16 h-16 rounded-xl bg-slate-800 flex-shrink-0" />
+              <div key={i} className="flex gap-4 bg-card dark:bg-slate-900 rounded-2xl p-5 animate-pulse border border-border dark:border-slate-800">
+                <div className="w-16 h-16 rounded-xl bg-muted dark:bg-slate-800 flex-shrink-0" />
                 <div className="flex-1 space-y-2 pt-1">
-                  <div className="h-5 bg-slate-800 rounded w-3/4" />
-                  <div className="h-4 bg-slate-800 rounded w-1/2" />
+                  <div className="h-5 bg-muted dark:bg-slate-800 rounded w-3/4" />
+                  <div className="h-4 bg-muted dark:bg-slate-800 rounded w-1/2" />
                 </div>
               </div>
             ))}
@@ -66,8 +66,8 @@ export function PublicCalendar({ eventos, isLoading }: PublicCalendarProps) {
               return (
                 <div
                   key={`evento-${evento.id}-${idx}`}
-                  className={`group relative flex gap-5 bg-slate-900 rounded-2xl p-5 border transition-all duration-300 hover:border-[#893030]/30 hover:shadow-xl hover:shadow-[#893030]/5 hover:-translate-y-0.5 ${
-                    upcoming ? 'border-slate-800' : 'border-slate-800 opacity-60'
+                  className={`group relative flex gap-5 bg-card dark:bg-slate-900 rounded-2xl p-5 border transition-all duration-300 hover:border-[#893030]/30 hover:shadow-xl hover:shadow-[#893030]/5 hover:-translate-y-0.5 ${
+                    upcoming ? 'border-border dark:border-slate-800' : 'border-border dark:border-slate-800 opacity-60'
                   }`}
                 >
                   {/* Left accent border on upcoming events */}
@@ -77,8 +77,8 @@ export function PublicCalendar({ eventos, isLoading }: PublicCalendarProps) {
                   {/* Date badge */}
                   <div className={`flex-shrink-0 w-16 h-16 rounded-xl flex flex-col items-center justify-center ${
                     upcoming
-                      ? 'bg-primary text-white shadow-lg shadow-primary/20'
-                      : 'bg-slate-800 text-slate-500'
+                      ? 'bg-primary text-primary-foreground dark:text-white shadow-lg shadow-primary/20'
+                      : 'bg-muted dark:bg-slate-800 text-muted-foreground dark:text-slate-500'
                   }`}>
                     <span className="text-xl font-black leading-none">{dia}</span>
                     <span className="text-[10px] font-bold tracking-wider mt-0.5">{mes}</span>
@@ -87,7 +87,7 @@ export function PublicCalendar({ eventos, isLoading }: PublicCalendarProps) {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4">
-                      <h3 className="font-bold text-white text-base leading-snug group-hover:text-primary transition-colors">
+                      <h3 className="font-bold text-foreground dark:text-white text-base leading-snug group-hover:text-primary transition-colors">
                         {evento.titulo}
                       </h3>
                       {!upcoming && (
@@ -98,14 +98,14 @@ export function PublicCalendar({ eventos, isLoading }: PublicCalendarProps) {
                     </div>
 
                     {evento.descripcion && (
-                      <p className="text-sm text-slate-400 mt-1 line-clamp-2 leading-relaxed">{evento.descripcion}</p>
+                      <p className="text-sm text-muted-foreground dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed">{evento.descripcion}</p>
                     )}
 
                     <div className="flex flex-wrap items-center gap-4 mt-3">
-                      <span className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-slate-500 font-medium">
                         <CalendarDays className="h-3.5 w-3.5" /> {fullDate}
                       </span>
-                      <span className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                      <span className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-slate-500 font-medium">
                         <Clock className="h-3.5 w-3.5" /> {hora}
                       </span>
                       {evento.tipo && (

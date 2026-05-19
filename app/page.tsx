@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { usePublicLanding } from '@/features/landing/hooks/usePublicLanding';
 import type {
@@ -56,10 +57,21 @@ export default function LandingPage() {
 
       {/* Mapa de bases */}
       <section id="mapa" className="relative py-28 overflow-hidden">
-        {/* Primary brand background — same family as KPIs */}
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/images/bg-mapa.jpg"
+            alt="Fondo de Mapa"
+            fill
+            className="object-cover"
+            quality={90}
+          />
+        </div>
+
+        {/* Dark overlay for all modes */}
         <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(135deg, #042f98 0%, #031e6b 50%, #020e3d 100%)' }}
+          className="absolute inset-0 z-0"
+          style={{ background: 'linear-gradient(135deg, rgba(4, 47, 152, 0.65) 0%, rgba(3, 30, 107, 0.75) 50%, rgba(2, 14, 61, 0.85) 100%)' }}
         />
 
         {/* Decorative orbs */}
@@ -77,7 +89,7 @@ export default function LandingPage() {
 
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-12">
-            <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: '#c06060' }}>Presencia Territorial</p>
+            <p className="text-sm font-bold uppercase tracking-widest mb-3 text-[#c06060]">Presencia Territorial</p>
             <h2 className="text-4xl font-black text-white">Nuestras Bases</h2>
             <p className="text-white/50 mt-3 max-w-xl mx-auto">
               Estamos presentes en cada rincón del distrito con puntos de apoyo organizados.
@@ -100,7 +112,7 @@ export default function LandingPage() {
           {/* Bases count badge */}
           {mapa.length > 0 && (
             <div className="flex justify-center mt-8">
-              <div className="inline-flex items-center gap-2.5 bg-white/8 backdrop-blur-sm border border-white/12 rounded-full px-5 py-2.5">
+              <div className="inline-flex items-center gap-2.5 bg-white/8 backdrop-blur-sm border border-white/12 rounded-full px-5 py-2.5 shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-[#893030] animate-pulse" />
                 <span className="text-white/70 text-sm font-medium">
                   <span className="text-white font-bold">{mapa.length}</span>{' '}

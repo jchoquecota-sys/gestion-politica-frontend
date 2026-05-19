@@ -175,9 +175,9 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
       </div>
 
       {/* Wave divider */}
-      <div className="absolute bottom-0 left-0 right-0">
+      <div className="absolute bottom-0 left-0 right-0 text-background dark:text-[#070d1a]">
         <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-          <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#070d1a"/>
+          <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="currentColor"/>
         </svg>
       </div>
     </section>

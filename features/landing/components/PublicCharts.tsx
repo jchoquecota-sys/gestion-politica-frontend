@@ -82,11 +82,11 @@ const PieValueLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, va
 export function PublicCharts({ distribucionSectores, crecimientoMensual, isLoading }: PublicChartsProps) {
   if (isLoading) {
     return (
-      <section className="py-24 bg-[#070d1a]">
+      <section className="py-24 bg-background dark:bg-[#070d1a]">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="h-80 bg-slate-900 rounded-2xl animate-pulse border border-slate-800" />
-            <div className="h-80 bg-slate-900 rounded-2xl animate-pulse border border-slate-800" />
+            <div className="h-80 bg-muted dark:bg-slate-900 rounded-2xl animate-pulse border border-border dark:border-slate-800" />
+            <div className="h-80 bg-muted dark:bg-slate-900 rounded-2xl animate-pulse border border-border dark:border-slate-800" />
           </div>
         </div>
       </section>
@@ -94,7 +94,7 @@ export function PublicCharts({ distribucionSectores, crecimientoMensual, isLoadi
   }
 
   return (
-    <section id="graficos" className="relative py-24 bg-[#070d1a] overflow-hidden">
+    <section id="graficos" className="relative py-24 bg-background dark:bg-[#070d1a] overflow-hidden">
       {/* Decorative glow */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#893030]/5 rounded-full blur-3xl pointer-events-none" />
@@ -105,20 +105,20 @@ export function PublicCharts({ distribucionSectores, crecimientoMensual, isLoadi
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-14">
           {/* Eyebrow in secondary color */}
-          <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: '#c06060' }}>Análisis Territorial</p>
-          <h2 className="text-4xl font-black text-white">Distribución de apoyo</h2>
-          <p className="text-slate-400 mt-3 max-w-xl mx-auto">
+          <p className="text-sm font-bold uppercase tracking-widest mb-3 text-primary dark:text-[#c06060]">Análisis Territorial</p>
+          <h2 className="text-4xl font-black text-foreground dark:text-white">Distribución de apoyo</h2>
+          <p className="text-muted-foreground dark:text-slate-400 mt-3 max-w-xl mx-auto">
             Así está organizada nuestra red de simpatizantes en el distrito.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Crecimiento mensual */}
-          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <div className="bg-card dark:bg-slate-900 rounded-2xl p-6 border border-border dark:border-slate-800">
             {/* Title with secondary accent */}
             <div className="flex items-center gap-2 mb-6">
-              <span className="w-1 h-5 rounded-full bg-[#893030]" />
-              <h3 className="font-bold text-white text-lg">Crecimiento de Simpatizantes</h3>
+              <span className="w-1 h-5 rounded-full bg-primary dark:bg-[#893030]" />
+              <h3 className="font-bold text-foreground dark:text-white text-lg">Crecimiento de Simpatizantes</h3>
             </div>
             {crecimientoMensual.length > 0 ? (
               <ResponsiveContainer width="100%" height={280}>
@@ -156,11 +156,11 @@ export function PublicCharts({ distribucionSectores, crecimientoMensual, isLoadi
           </div>
 
           {/* Distribución por sector */}
-          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+          <div className="bg-card dark:bg-slate-900 rounded-2xl p-6 border border-border dark:border-slate-800">
             {/* Title with secondary accent */}
             <div className="flex items-center gap-2 mb-4">
-              <span className="w-1 h-5 rounded-full bg-[#893030]" />
-              <h3 className="font-bold text-white text-lg">Distribución por Sector</h3>
+              <span className="w-1 h-5 rounded-full bg-primary dark:bg-[#893030]" />
+              <h3 className="font-bold text-foreground dark:text-white text-lg">Distribución por Sector</h3>
             </div>
             {distribucionSectores.length > 0 ? (
               <ResponsiveContainer width="100%" height={290}>
