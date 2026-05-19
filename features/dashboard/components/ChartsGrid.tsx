@@ -1,14 +1,14 @@
 'use client';
 
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer, 
-  LineChart, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
   Line,
   PieChart,
   Pie,
@@ -23,7 +23,7 @@ interface ChartsGridProps {
   isLoading: boolean;
 }
 
-const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+const COLORS = ['#042f98', '#893030', '#334155', '#0f766e', '#b45309', '#4c1d95'];
 
 export function ChartsGrid({ stats, isLoading }: ChartsGridProps) {
   if (isLoading) {
@@ -47,28 +47,28 @@ export function ChartsGrid({ stats, isLoading }: ChartsGridProps) {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={stats?.crecimiento_mensual}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis 
-                dataKey="mes" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{fontSize: 12, fill: '#94a3b8'}}
+              <XAxis
+                dataKey="mes"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#94a3b8' }}
                 dy={10}
               />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{fontSize: 12, fill: '#94a3b8'}}
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#94a3b8' }}
               />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="total" 
-                stroke="#4f46e5" 
-                strokeWidth={4} 
-                dot={{r: 6, fill: '#4f46e5', strokeWidth: 2, stroke: '#fff'}}
-                activeDot={{r: 8, strokeWidth: 0}}
+              <Line
+                type="monotone"
+                dataKey="total"
+                stroke="#042f98"
+                strokeWidth={4}
+                dot={{ r: 6, fill: '#042f98', strokeWidth: 2, stroke: '#fff' }}
+                activeDot={{ r: 8, strokeWidth: 0 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -97,10 +97,10 @@ export function ChartsGrid({ stats, isLoading }: ChartsGridProps) {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
               />
-              <Legend verticalAlign="bottom" height={36}/>
+              <Legend verticalAlign="bottom" height={36} />
             </PieChart>
           </ResponsiveContainer>
         </CardContent>
@@ -116,38 +116,38 @@ export function ChartsGrid({ stats, isLoading }: ChartsGridProps) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={stats?.actividades_estados}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis 
-                dataKey="estado" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{fontSize: 12, fill: '#94a3b8'}}
+              <XAxis
+                dataKey="estado"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#94a3b8' }}
                 dy={10}
               />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{fontSize: 12, fill: '#94a3b8'}}
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#94a3b8' }}
               />
-              <Tooltip 
-                cursor={{fill: '#f8fafc'}}
+              <Tooltip
+                cursor={{ fill: '#f8fafc' }}
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
               />
-              <Bar 
-                dataKey="total" 
-                fill="#4f46e5" 
+              <Bar
+                dataKey="total"
+                fill="#4f46e5"
                 radius={[6, 6, 0, 0]}
                 barSize={60}
               >
                 {stats?.actividades_estados.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
+                  <Cell
+                    key={`cell-${index}`}
                     fill={
-                      entry.estado === 'borrador' ? '#94a3b8' : 
-                      entry.estado === 'creada' ? '#4f46e5' : 
-                      entry.estado === 'en_proceso' ? '#0ea5e9' : 
-                      entry.estado === 'ejecutada' ? '#10b981' : 
-                      '#ef4444'
-                    } 
+                      entry.estado === 'borrador' ? '#94a3b8' :
+                        entry.estado === 'creada' ? '#042f98' :
+                          entry.estado === 'en_proceso' ? '#075985' :
+                            entry.estado === 'ejecutada' ? '#166534' :
+                              '#893030'
+                    }
                   />
                 ))}
               </Bar>
@@ -165,28 +165,28 @@ export function ChartsGrid({ stats, isLoading }: ChartsGridProps) {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={stats?.actividades_crecimiento}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-              <XAxis 
-                dataKey="month" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{fontSize: 12, fill: '#94a3b8'}}
+              <XAxis
+                dataKey="month"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#94a3b8' }}
                 dy={10}
               />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{fontSize: 12, fill: '#94a3b8'}}
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#94a3b8' }}
               />
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="total" 
-                stroke="#10b981" 
-                strokeWidth={4} 
-                dot={{r: 6, fill: '#10b981', strokeWidth: 2, stroke: '#fff'}}
-                activeDot={{r: 8, strokeWidth: 0}}
+              <Line
+                type="monotone"
+                dataKey="total"
+                stroke="#166534"
+                strokeWidth={4}
+                dot={{ r: 6, fill: '#166534', strokeWidth: 2, stroke: '#fff' }}
+                activeDot={{ r: 8, strokeWidth: 0 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -203,21 +203,21 @@ export function ChartsGrid({ stats, isLoading }: ChartsGridProps) {
             <BarChart data={stats?.personas_por_base} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
               <XAxis type="number" hide />
-              <YAxis 
-                dataKey="base" 
-                type="category" 
-                axisLine={false} 
-                tickLine={false} 
+              <YAxis
+                dataKey="base"
+                type="category"
+                axisLine={false}
+                tickLine={false}
                 width={100}
-                tick={{fontSize: 10, fill: '#94a3b8'}}
+                tick={{ fontSize: 10, fill: '#94a3b8' }}
               />
-              <Tooltip 
-                cursor={{fill: '#f8fafc'}}
+              <Tooltip
+                cursor={{ fill: '#f8fafc' }}
                 contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
               />
-              <Bar 
-                dataKey="total" 
-                fill="#8b5cf6" 
+              <Bar
+                dataKey="total"
+                fill="#042f98"
                 radius={[0, 6, 6, 0]}
                 barSize={20}
               />

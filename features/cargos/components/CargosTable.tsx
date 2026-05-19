@@ -63,7 +63,7 @@ export function CargosTable({ onAdd, onEdit }: CargosTableProps) {
           />
         </div>
         {hasPermission('cargos:create') && (
-          <Button onClick={onAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+          <Button onClick={onAdd} className="bg-primary hover:bg-primary/90 text-white">
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Cargo
           </Button>
@@ -118,7 +118,7 @@ export function CargosTable({ onAdd, onEdit }: CargosTableProps) {
                           variant="ghost" 
                           size="icon" 
                           onClick={() => onEdit(cargo)} 
-                          className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -128,7 +128,7 @@ export function CargosTable({ onAdd, onEdit }: CargosTableProps) {
                           variant="ghost" 
                           size="icon" 
                           onClick={() => handleDelete(cargo.id)} 
-                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="h-8 w-8 text-brand-secondary hover:text-brand-secondary hover:bg-brand-secondary/10"
                           disabled={isDeleting}
                         >
                           <Trash2 className="h-4 w-4" />

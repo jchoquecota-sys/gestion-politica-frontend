@@ -36,6 +36,17 @@ export const useActividad = (id: number | string | undefined) => {
   });
 };
 
+export const useActividadBasica = (id: number | string | undefined) => {
+  return useQuery({
+    queryKey: ['actividad_basica', id],
+    queryFn: async () => {
+      const { data } = await api.get<{ status: string; data: Actividad }>(`/public/actividades/${id}/basico`);
+      return data.data;
+    },
+    enabled: !!id,
+  });
+};
+
 export const useCreateActividad = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -144,6 +155,34 @@ export const useDesvincularSujeto = (actividadId: number) => {
   return useMutation({
     mutationFn: async (asignacionId: number) => {
       await api.delete(`/actividad-sujetos/${asignacionId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actividad', actividadId] });
+    },
+  });
+};
+
+// --- Asistencias (QR y Manual) ---
+
+export const useMarcarAsistenciaManual = (actividadId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (personaId: number) => {
+      const { data } = await api.post(`/actividades/${actividadId}/asistencias/admin`, { persona_id: personaId });
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actividad', actividadId] });
+    },
+  });
+};
+
+export const useMarcarAsistenciaQR = (actividadId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { latitud_usuario: number; longitud_usuario: number; browser_fingerprint: string }) => {
+      const { data } = await api.post(`/actividades/${actividadId}/asistencias/self-register`, payload);
+      return data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['actividad', actividadId] });

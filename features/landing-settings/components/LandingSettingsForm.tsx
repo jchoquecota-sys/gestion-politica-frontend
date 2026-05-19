@@ -59,7 +59,7 @@ function mapSettingToForm(s: LandingSetting | null): FormValues {
     redes_twitter: s?.redes_sociales?.twitter ?? '',
     redes_whatsapp: s?.redes_sociales?.whatsapp ?? '',
     color_primario: s?.color_primario ?? '#042f98',
-    color_secundario: s?.color_secundario ?? '#ac2c42',
+    color_secundario: s?.color_secundario ?? '#893030',
     meta_titulo: s?.meta_titulo ?? '',
     meta_descripcion: s?.meta_descripcion ?? '',
   };
@@ -197,7 +197,7 @@ export function LandingSettingsForm() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -218,12 +218,12 @@ export function LandingSettingsForm() {
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-indigo-600 font-medium hover:underline"
+            className="inline-flex items-center gap-2 text-sm text-primary font-medium hover:underline"
           >
             <Globe className="h-4 w-4" /> Ver página pública
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
-          <Button type="submit" disabled={isPending} className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[140px]">
+          <Button type="submit" disabled={isPending} className="bg-primary hover:bg-primary/90 text-white min-w-[140px]">
             {isPending ? (
               <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Guardando...</>
             ) : (
@@ -287,7 +287,7 @@ export function LandingSettingsForm() {
                         {...register('color_primario')}
                         className="h-10 w-16 rounded-lg border border-slate-200 cursor-pointer p-1"
                       />
-                      <Input {...register('color_primario')} className="font-mono text-sm" placeholder="#1e40af" />
+                      <Input {...register('color_primario')} className="font-mono text-sm" placeholder="#042f98" />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -299,7 +299,7 @@ export function LandingSettingsForm() {
                         {...register('color_secundario')}
                         className="h-10 w-16 rounded-lg border border-slate-200 cursor-pointer p-1"
                       />
-                      <Input {...register('color_secundario')} className="font-mono text-sm" placeholder="#dc2626" />
+                      <Input {...register('color_secundario')} className="font-mono text-sm" placeholder="#893030" />
                     </div>
                   </div>
                 </div>

@@ -26,12 +26,12 @@ export default function DashboardPage() {
   if (!hasPermission('dashboard:view')) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <div className="bg-red-50 p-4 rounded-full mb-4">
-          <ShieldAlert className="h-12 w-12 text-red-600" />
+        <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-full mb-4">
+          <ShieldAlert className="h-12 w-12 text-red-600 dark:text-red-500" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900">Acceso Restringido</h1>
-        <p className="text-slate-500 max-w-md mx-auto mt-2 mb-6">
-          No tiene los permisos necesarios para visualizar el panel de control estadístico. 
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Acceso Restringido</h1>
+        <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-2 mb-6">
+          No tiene los permisos necesarios para visualizar el panel de control estadístico.
           Contacte con su administrador regional.
         </p>
         <Button onClick={() => router.back()} variant="outline">
@@ -55,9 +55,9 @@ export default function DashboardPage() {
         <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
           <LayoutDashboard size={160} />
         </div>
-        
+
         <div className="space-y-1 relative z-10">
-          <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs uppercase tracking-widest mb-1">
+          <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest mb-1">
             <LayoutDashboard className="h-4 w-4" /> Panel de Control Principal
           </div>
           <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
@@ -82,12 +82,12 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Charts Section */}
         <div className="space-y-8">
-           <ChartsGrid stats={stats} isLoading={isLoadingStats} />
+          <ChartsGrid stats={stats} isLoading={isLoadingStats} />
         </div>
 
         {/* Map Section - Normal flow */}
         <div className="h-[650px]">
-           <BasesMap points={mapPoints} isLoading={isLoadingMap} />
+          <BasesMap points={mapPoints} isLoading={isLoadingMap} />
         </div>
       </div>
     </div>

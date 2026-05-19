@@ -10,6 +10,8 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { QRCodeSVG } from 'qrcode.react';
+import { useMarcarAsistenciaManual } from '../hooks';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,6 +39,10 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { QrCode, UserCheck } from 'lucide-react';
 
 interface ActividadSujetosCardProps {
   actividadId: number;
@@ -45,7 +51,10 @@ interface ActividadSujetosCardProps {
 
 export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosCardProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isQRDialogOpen, setIsQRDialogOpen] = useState(false);
+  const [isManualDialogOpen, setIsManualDialogOpen] = useState(false);
   const [selectedSujeto, setSelectedSujeto] = useState<{ id: number; type: SujetoType }>({ id: 0, type: 'persona' });
+  const [manualPersonaId, setManualPersonaId] = useState<number>(0);
   const [reportingSujeto, setReportingSujeto] = useState<SujetoActividad | null>(null);
 
   const { data: sectores } = useSectoresOpciones();
@@ -54,9 +63,11 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
 
   const { mutate: asignar, isPending: isAsignando } = useAsignarSujeto(actividadId);
   const { mutate: desvincular } = useDesvincularSujeto(actividadId);
+  const { mutate: marcarAsistencia, isPending: isMarcando } = useMarcarAsistenciaManual(actividadId);
 
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const canManage = hasPermission('actividades:edit') || hasPermission('actividades:manage-all');
+  const canMarkAttendance = hasPermission('actividades:asistencia-manual') || canManage;
 
   const handleAsignar = () => {
     if (selectedSujeto.id === 0) {
@@ -79,6 +90,23 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
     });
   };
 
+  const handleManualAttendance = () => {
+    if (manualPersonaId === 0) {
+      toast.error('Seleccione una persona');
+      return;
+    }
+    marcarAsistencia(manualPersonaId, {
+      onSuccess: () => {
+        toast.success('Asistencia registrada correctamente');
+        setIsManualDialogOpen(false);
+        setManualPersonaId(0);
+      },
+      onError: (error: any) => {
+        toast.error(error.response?.data?.message || 'Error al marcar asistencia');
+      }
+    });
+  };
+
   const getSujetoIcon = (type: string) => {
     switch (type) {
       case 'persona': return <User className="h-4 w-4" />;
@@ -89,32 +117,45 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
   };
 
   return (
-    <Card className="shadow-sm border-slate-200">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+    <Card className="shadow-sm border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+      <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4 space-y-0">
         <div>
-          <CardTitle>Participantes Asignados</CardTitle>
-          <CardDescription>Gestione los sectores, bases y personas que forman parte de esta actividad.</CardDescription>
+          <CardTitle>Participantes y Asistencia</CardTitle>
+          <CardDescription>Gestione la participación y asistencia a esta actividad.</CardDescription>
         </div>
-        {canManage && (
-          <Button onClick={() => setIsAddDialogOpen(true)} className="bg-indigo-600 hover:bg-indigo-700">
-            <Plus className="h-4 w-4 mr-2" /> Añadir Participante
-          </Button>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {canMarkAttendance && (
+             <>
+               <Button onClick={() => setIsQRDialogOpen(true)} variant="outline" className="border-primary/20 text-primary hover:bg-primary/5">
+                 <QrCode className="h-4 w-4 mr-2" /> QR Asistencia
+               </Button>
+               <Button onClick={() => setIsManualDialogOpen(true)} variant="outline" className="border-emerald-500/20 text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/30">
+                 <UserCheck className="h-4 w-4 mr-2" /> Asistencia Manual
+               </Button>
+             </>
+          )}
+          {canManage && (
+            <Button onClick={() => setIsAddDialogOpen(true)} className="bg-primary hover:bg-primary/90">
+              <Plus className="h-4 w-4 mr-2" /> Añadir Participante
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         {sujetos.length === 0 ? (
-          <div className="text-center py-12 border-2 border-dashed rounded-lg bg-slate-50">
+          <div className="text-center py-12 border-2 border-dashed rounded-lg bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
             <Users className="h-12 w-12 text-slate-300 mx-auto mb-3" />
             <p className="text-slate-500 font-medium">No hay participantes asignados aún.</p>
             <p className="text-sm text-slate-400">Asigne sujetos para comenzar a registrar evidencias.</p>
           </div>
         ) : (
-          <div className="rounded-md border">
+          <div className="rounded-md border dark:border-slate-800">
             <Table>
               <TableHeader>
-                <TableRow className="bg-slate-50/50">
-                  <TableHead className="w-[250px]">Nombre / Tipo</TableHead>
-                  <TableHead>Estado de Ejecución / Observaciones</TableHead>
+                <TableRow className="bg-slate-50/50 dark:bg-slate-900/50 border-b dark:border-slate-800">
+                  <TableHead className="w-[200px]">Nombre / Tipo</TableHead>
+                  <TableHead className="w-[150px]">Asistencia</TableHead>
+                  <TableHead>Observaciones</TableHead>
                   <TableHead className="text-center">Evidencias</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
@@ -126,16 +167,30 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
                           {getSujetoIcon(s.sujeto_type)}
-                          <span className="text-slate-900">{s.nombre_sujeto}</span>
+                          <span className="text-slate-900 dark:text-white">{s.nombre_sujeto}</span>
                         </div>
-                        <Badge variant="outline" className="w-fit text-[10px] h-4 px-1.5 uppercase tracking-wider bg-slate-50">
+                        <Badge variant="outline" className="w-fit text-[10px] h-4 px-1.5 uppercase tracking-wider bg-slate-50 dark:bg-slate-900 dark:border-slate-800">
                           {s.sujeto_type}
                         </Badge>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <p className="text-sm text-slate-600 line-clamp-2 max-w-md italic">
-                        {s.descripcion_ejecucion || 'Sin registro de ejecución...'}
+                      {s.hora_asistencia ? (
+                        <div className="flex flex-col gap-1">
+                          <Badge variant="outline" className="w-fit bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50">
+                            Presente
+                          </Badge>
+                          <span className="text-xs text-slate-500">
+                            {format(new Date(s.hora_asistencia), 'HH:mm', { locale: es })} ({s.metodo_registro === 'qr_self_service' ? 'QR' : 'Manual'})
+                          </span>
+                        </div>
+                      ) : (
+                        <Badge variant="outline" className="w-fit text-slate-500">Ausente</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 max-w-[200px] italic">
+                        {s.descripcion_ejecucion || '...'}
                       </p>
                     </TableCell>
                     <TableCell className="text-center">
@@ -143,10 +198,10 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
                         {s.evidencias && s.evidencias.length > 0 ? (
                           <div className="flex -space-x-2">
                              {/* Mostramos hasta 3 miniaturas o un contador */}
-                             <div className="h-8 w-8 rounded-md bg-emerald-100 text-emerald-700 border border-emerald-200 flex items-center justify-center font-bold text-xs">
+                             <div className="h-8 w-8 rounded-md bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 flex items-center justify-center font-bold text-xs">
                                {s.evidencias.length}
                              </div>
-                             <div className="h-8 w-8 rounded-md bg-slate-100 text-slate-500 border border-slate-200 flex items-center justify-center">
+                             <div className="h-8 w-8 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
                                <ImageIcon className="h-3.5 w-3.5" />
                              </div>
                           </div>
@@ -160,7 +215,7 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="h-8 border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                          className="h-8 border-primary/20 dark:border-primary/40 text-primary hover:bg-primary/10"
                           onClick={() => setReportingSujeto(s)}
                         >
                           <FileEdit className="h-3.5 w-3.5 mr-1.5" /> Reportar
@@ -174,7 +229,7 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem 
-                              className="text-red-600 focus:text-red-600 cursor-pointer"
+                              className="text-brand-secondary focus:text-brand-secondary cursor-pointer"
                               onClick={() => {
                                 if (confirm('¿Está seguro de desvincular a este participante?')) {
                                   desvincular(s.id!);
@@ -223,31 +278,78 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
 
             <div className="space-y-2">
               <Label>Seleccionar</Label>
-              <Select 
-                value={selectedSujeto.id.toString()} 
+              <SearchableSelect
+                value={selectedSujeto.id.toString()}
                 onValueChange={(val) => setSelectedSujeto(prev => ({ ...prev, id: Number(val) }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Buscar..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {selectedSujeto.type === 'persona' && personas?.map(p => (
-                    <SelectItem key={p.id} value={p.id.toString()}>{p.nombre_completo}</SelectItem>
-                  ))}
-                  {selectedSujeto.type === 'base' && bases?.map(b => (
-                    <SelectItem key={b.id} value={b.id.toString()}>{b.nombre}</SelectItem>
-                  ))}
-                  {selectedSujeto.type === 'sector' && sectores?.map(s => (
-                    <SelectItem key={s.id} value={s.id.toString()}>{s.nombre}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder={`Seleccione ${selectedSujeto.type}...`}
+                options={
+                  selectedSujeto.type === 'persona' ? (personas?.map(p => ({ value: p.id.toString(), label: `${p.nombre_completo} - ${p.dni}` })) || [])
+                  : selectedSujeto.type === 'base' ? (bases?.map(b => ({ value: b.id.toString(), label: b.nombre })) || [])
+                  : (sectores?.map(s => ({ value: s.id.toString(), label: s.nombre })) || [])
+                }
+              />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={handleAsignar} disabled={isAsignando} className="bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleAsignar} disabled={isAsignando} className="bg-primary hover:bg-primary/90">
               Asignar Participante
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para Asistencia Manual */}
+      <Dialog open={isManualDialogOpen} onOpenChange={setIsManualDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Registro Manual de Asistencia</DialogTitle>
+            <DialogDescription>Busque y registre la asistencia de una persona que no puede usar el QR.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Persona (DNI o Nombre)</Label>
+              <SearchableSelect
+                value={manualPersonaId.toString()}
+                onValueChange={(val) => setManualPersonaId(Number(val))}
+                placeholder="Buscar persona..."
+                options={personas?.map(p => ({ value: p.id.toString(), label: `${p.nombre_completo} - ${p.dni}` })) || []}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsManualDialogOpen(false)}>Cancelar</Button>
+            <Button onClick={handleManualAttendance} disabled={isMarcando} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              Marcar Asistencia
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Generador QR */}
+      <Dialog open={isQRDialogOpen} onOpenChange={setIsQRDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>QR de Auto-registro</DialogTitle>
+            <DialogDescription>Imprima o muestre este código QR para que los asistentes registren su llegada.</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center py-6 space-y-6">
+            <div className="bg-white p-4 rounded-xl shadow-sm border">
+              <QRCodeSVG 
+                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/asistencia/${actividadId}`} 
+                size={256} 
+                level={"H"}
+                includeMargin={true}
+              />
+            </div>
+            <p className="text-sm text-center text-slate-500 font-mono bg-slate-100 dark:bg-slate-900 p-2 rounded-md break-all">
+              {`${typeof window !== 'undefined' ? window.location.origin : ''}/asistencia/${actividadId}`}
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsQRDialogOpen(false)}>Cerrar</Button>
+            <Button onClick={() => window.print()} className="bg-primary">
+              Imprimir
             </Button>
           </DialogFooter>
         </DialogContent>

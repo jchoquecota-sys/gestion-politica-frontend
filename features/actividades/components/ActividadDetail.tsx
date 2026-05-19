@@ -20,8 +20,8 @@ export function ActividadDetail({ id }: ActividadDetailProps) {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-4">
-        <div className="h-10 w-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-500 font-medium">Cargando detalles de la actividad...</p>
+        <div className="h-10 w-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-slate-500 dark:text-slate-400 font-medium">Cargando detalles de la actividad...</p>
       </div>
     );
   }
@@ -29,8 +29,8 @@ export function ActividadDetail({ id }: ActividadDetailProps) {
   if (isError || !actividad) {
     return (
       <div className="text-center py-24">
-        <h2 className="text-xl font-bold text-slate-900">Actividad no encontrada</h2>
-        <p className="text-slate-500 mt-2">La actividad que intenta ver no existe o no tiene permisos.</p>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Actividad no encontrada</h2>
+        <p className="text-slate-500 dark:text-slate-400 mt-2">La actividad que intenta ver no existe o no tiene permisos.</p>
         <Button variant="outline" className="mt-4" onClick={() => router.push('/actividades')}>
           Volver al listado
         </Button>
@@ -40,10 +40,10 @@ export function ActividadDetail({ id }: ActividadDetailProps) {
 
   const getEstadoColor = (estado: string) => {
     switch (estado) {
-      case 'borrador': return 'bg-slate-100 text-slate-700 border-slate-200';
-      case 'creada': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-      case 'cancelada': return 'bg-red-50 text-red-700 border-red-200';
-      default: return 'bg-slate-100 text-slate-700';
+      case 'borrador': return 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
+      case 'creada': return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50';
+      case 'cancelada': return 'bg-brand-secondary/10 text-brand-secondary border-brand-secondary/20 dark:bg-brand-secondary/20 dark:text-brand-secondary dark:border-brand-secondary/30';
+      default: return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
     }
   };
 
@@ -52,9 +52,9 @@ export function ActividadDetail({ id }: ActividadDetailProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl border shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-950 p-6 rounded-xl border dark:border-slate-800 shadow-sm">
         <div className="space-y-1">
-          <div className="flex items-center gap-2 text-slate-500 text-sm mb-1">
+          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm mb-1">
             <Button variant="ghost" size="sm" className="h-8 px-2 -ml-2" onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4 mr-1" /> Volver
             </Button>
@@ -62,20 +62,20 @@ export function ActividadDetail({ id }: ActividadDetailProps) {
             <span>Detalle de Actividad</span>
           </div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-slate-900">{actividad.titulo}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{actividad.titulo}</h1>
             <Badge variant="outline" className={getEstadoColor(actividad.estado)}>
               {actividad.estado.toUpperCase()}
             </Badge>
           </div>
-          <p className="text-slate-500 max-w-2xl">{actividad.descripcion}</p>
+          <p className="text-slate-500 dark:text-slate-400 max-w-2xl">{actividad.descripcion}</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium border border-indigo-100">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium border border-primary/20 dark:border-primary/30">
             <Calendar className="h-4 w-4" />
             {format(fechaObj, "EEEE, d 'de' MMMM", { locale: es })}
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium border border-indigo-100">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium border border-primary/20 dark:border-primary/30">
             <Clock className="h-4 w-4" />
             {format(fechaObj, 'HH:mm')}
           </div>
@@ -85,9 +85,9 @@ export function ActividadDetail({ id }: ActividadDetailProps) {
       
       {/* Información del tipo de actividad en una fila destacada si es necesario, 
           o simplemente ir directo a los participantes */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border rounded-lg w-fit">
+      <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-900 border dark:border-slate-800 rounded-lg w-fit">
         <span className="text-xs font-bold text-slate-500 uppercase">Tipo:</span>
-        <Badge variant="secondary" className="bg-white border-slate-200 text-indigo-700">
+        <Badge variant="secondary" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-primary">
           {actividad.tipo_actividad?.nombre}
         </Badge>
       </div>

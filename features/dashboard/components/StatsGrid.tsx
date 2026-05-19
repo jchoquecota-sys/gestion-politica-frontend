@@ -25,24 +25,24 @@ export function StatsGrid({ stats, isLoading }: StatsGridProps) {
       title: 'Total Simpatizantes',
       value: stats?.stats.total_personas || 0,
       icon: Users,
-      color: 'text-blue-600',
-      bg: 'bg-blue-50',
+      color: 'text-primary',
+      bg: 'bg-primary/10',
       description: 'Personas registradas en el sistema'
     },
     {
       title: 'Bases Territoriales',
       value: stats?.stats.total_bases || 0,
       icon: Landmark,
-      color: 'text-indigo-600',
-      bg: 'bg-indigo-50',
+      color: 'text-brand-secondary',
+      bg: 'bg-brand-secondary/10',
       description: 'Puntos de control estratégico'
     },
     {
       title: 'Actividades Realizadas',
       value: stats?.stats.total_actividades || 0,
       icon: Activity,
-      color: 'text-amber-600',
-      bg: 'bg-amber-50',
+      color: 'text-slate-600 dark:text-slate-300',
+      bg: 'bg-slate-100 dark:bg-slate-800',
       description: 'Eventos y asambleas ejecutadas'
     }
   ];

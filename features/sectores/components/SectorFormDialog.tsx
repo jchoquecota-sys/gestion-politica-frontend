@@ -27,6 +27,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Loader2, Plus, Trash2, UserPlus } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -153,8 +154,8 @@ export function SectorFormDialog({ isOpen, onClose, sectorId }: SectorFormDialog
 
         {isEditing && isLoadingDetails ? (
           <div className="flex flex-col items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-600 mb-2" />
-            <p className="text-sm text-slate-500">Cargando detalles del sector...</p>
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
+            <p className="text-sm text-slate-500 dark:text-slate-400">Cargando detalles del sector...</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
@@ -181,10 +182,10 @@ export function SectorFormDialog({ isOpen, onClose, sectorId }: SectorFormDialog
               <Textarea id="descripcion" placeholder="Detalles adicionales sobre el sector..." {...register('descripcion')} disabled={isPending} rows={2} />
             </div>
 
-            <div className="space-y-4 border rounded-lg p-4 bg-slate-50/50">
+            <div className="space-y-4 border dark:border-slate-800 rounded-lg p-4 bg-slate-50/50 dark:bg-slate-900/50">
               <div className="flex items-center justify-between">
-                <Label className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <UserPlus className="h-4 w-4 text-indigo-600" />
+                <Label className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <UserPlus className="h-4 w-4 text-primary" />
                   Personal Asignado
                 </Label>
                 <Button 
@@ -203,29 +204,20 @@ export function SectorFormDialog({ isOpen, onClose, sectorId }: SectorFormDialog
 
               <div className="space-y-3">
                 {fields.map((field, index) => (
-                  <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 p-3 bg-white border rounded-md relative group">
+                  <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 p-3 bg-white dark:bg-slate-950 border dark:border-slate-800 rounded-md relative group">
                     <div className="md:col-span-5 space-y-1.5">
-                      <Label className="text-[11px] uppercase text-slate-500 font-bold">Persona</Label>
-                      <Select 
+                      <Label className="text-[11px] uppercase text-slate-500 dark:text-slate-400 font-bold">Persona</Label>
+                      <SearchableSelect
                         onValueChange={(val) => setValue(`personas.${index}.persona_id`, parseInt(val))}
-                        value={watchPersonas[index]?.persona_id?.toString()}
+                        value={watchPersonas[index]?.persona_id?.toString() || ''}
                         disabled={isPending}
-                      >
-                        <SelectTrigger className="h-9">
-                          <SelectValue placeholder="Seleccione..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {personas?.map(p => (
-                            <SelectItem key={p.id} value={p.id.toString()}>
-                              {p.nombre_completo} ({p.dni})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        placeholder="Seleccione..."
+                        options={personas?.map(p => ({ value: p.id.toString(), label: `${p.nombre_completo} (${p.dni})` })) || []}
+                      />
                     </div>
 
                     <div className="md:col-span-4 space-y-1.5">
-                      <Label className="text-[11px] uppercase text-slate-500 font-bold">Cargo</Label>
+                      <Label className="text-[11px] uppercase text-slate-500 dark:text-slate-400 font-bold">Cargo</Label>
                       <Select 
                         onValueChange={(val) => setValue(`personas.${index}.cargo_id`, parseInt(val))}
                         value={watchPersonas[index]?.cargo_id?.toString()}
@@ -245,7 +237,7 @@ export function SectorFormDialog({ isOpen, onClose, sectorId }: SectorFormDialog
                     </div>
 
                     <div className="md:col-span-2 flex flex-col items-center justify-center space-y-1.5 pt-2">
-                      <Label className="text-[11px] uppercase text-slate-500 font-bold">Principal</Label>
+                      <Label className="text-[11px] uppercase text-slate-500 dark:text-slate-400 font-bold">Principal</Label>
                       <Checkbox 
                         checked={watchPersonas[index]?.es_principal}
                         onCheckedChange={(val) => handlePrincipalChange(index, val as boolean)}
@@ -260,7 +252,7 @@ export function SectorFormDialog({ isOpen, onClose, sectorId }: SectorFormDialog
                         size="icon" 
                         onClick={() => remove(index)} 
                         disabled={isPending || fields.length === 1}
-                        className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50"
+                        className="h-8 w-8 text-slate-400 dark:text-slate-500 hover:text-brand-secondary hover:bg-brand-secondary/10"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -277,11 +269,11 @@ export function SectorFormDialog({ isOpen, onClose, sectorId }: SectorFormDialog
               </div>
             </div>
 
-            <DialogFooter className="pt-4 border-t">
+            <DialogFooter className="pt-4 border-t dark:border-slate-800">
               <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isPending} className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px]">
+              <Button type="submit" disabled={isPending} className="bg-primary hover:bg-primary/90 text-white min-w-[120px]">
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isEditing ? 'Actualizar Sector' : 'Guardar Sector'}
               </Button>

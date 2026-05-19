@@ -64,7 +64,7 @@ export function SectoresTable({ onAdd, onEdit }: SectoresTableProps) {
           />
         </div>
         {hasPermission('sectores:create') && (
-          <Button onClick={onAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+          <Button onClick={onAdd} className="bg-primary hover:bg-primary/90 text-white">
             <Plus className="h-4 w-4 mr-2" />
             Nuevo Sector
           </Button>
@@ -102,7 +102,7 @@ export function SectoresTable({ onAdd, onEdit }: SectoresTableProps) {
               sectores.map((s) => (
                 <TableRow key={s.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
                   <TableCell>
-                    <Badge variant="secondary" className="font-mono bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-slate-900 dark:text-indigo-400 dark:border-indigo-900 uppercase">
+                    <Badge variant="secondary" className="font-mono bg-primary/10 text-primary border-primary/20 dark:bg-slate-900 dark:text-primary/80 dark:border-primary/30 uppercase">
                       {s.codigo}
                     </Badge>
                   </TableCell>
@@ -136,7 +136,7 @@ export function SectoresTable({ onAdd, onEdit }: SectoresTableProps) {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       {hasPermission('sectores:edit') && (
-                        <Button variant="ghost" size="icon" onClick={() => onEdit(s)} className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                        <Button variant="ghost" size="icon" onClick={() => onEdit(s)} className="h-8 w-8 text-primary hover:bg-primary/10">
                           <Pencil className="h-4 w-4" />
                         </Button>
                       )}
@@ -145,7 +145,7 @@ export function SectoresTable({ onAdd, onEdit }: SectoresTableProps) {
                           variant="ghost" 
                           size="icon" 
                           onClick={() => handleDelete(s.id)} 
-                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="h-8 w-8 text-brand-secondary hover:bg-brand-secondary/10"
                           disabled={isDeleting}
                         >
                           <Trash2 className="h-4 w-4" />

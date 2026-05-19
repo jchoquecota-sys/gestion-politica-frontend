@@ -33,7 +33,7 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
   return (
     <section
       className="relative min-h-screen flex items-center overflow-hidden"
-      style={{ background: `linear-gradient(135deg, ${candidate?.color_primario ?? '#1e3a5f'} 0%, #0f1e33 60%, #0a1628 100%)` }}
+      style={{ background: `linear-gradient(135deg, ${candidate?.color_primario ?? '#042f98'} 0%, #031e6b 55%, #020d3a 100%)` }}
     >
       {/* Background Secondary Image Overlay */}
       {candidate?.foto_secundaria_url && (
@@ -49,8 +49,8 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
 
       {/* Decorative elements */}
       <div className="absolute inset-0 opacity-10 z-0" style={{
-        backgroundImage: `radial-gradient(circle at 20% 50%, ${candidate?.color_secundario ?? '#dc2626'} 0%, transparent 50%),
-                          radial-gradient(circle at 80% 20%, ${candidate?.color_primario ?? '#1e40af'} 0%, transparent 40%)`
+      backgroundImage: `radial-gradient(circle at 20% 50%, ${candidate?.color_secundario ?? '#893030'} 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, ${candidate?.color_primario ?? '#042f98'} 0%, transparent 40%)`
       }} />
       <div className="absolute top-0 right-0 w-96 h-96 opacity-5 translate-x-1/3 -translate-y-1/3 z-0">
         <div className="w-full h-full rounded-full border-[60px] border-white" />
@@ -66,7 +66,7 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
                 <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-sm font-bold tracking-wider text-white/90 uppercase">
                   <span
                     className="w-2 h-2 rounded-full animate-pulse"
-                    style={{ backgroundColor: candidate?.color_secundario ?? '#dc2626' }}
+                    style={{ backgroundColor: candidate?.color_secundario ?? '#893030' }}
                   />
                   {candidate.cargo_candidatura}
                 </div>
@@ -80,7 +80,7 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
               {candidate?.eslogan && (
                 <div 
                   className="inline-block px-4 py-2 rounded-lg shadow-xl"
-                  style={{ backgroundColor: candidate?.color_secundario ?? '#dc2626' }}
+                  style={{ backgroundColor: candidate?.color_secundario ?? '#893030' }}
                 >
                   <p className="text-lg md:text-xl font-bold text-white italic">
                     "{candidate.eslogan}"
@@ -137,7 +137,7 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
             <div className="flex flex-wrap gap-4 pt-2">
               <a href="#noticias"
                 className="px-8 py-3 rounded-xl font-semibold text-white transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
-                style={{ backgroundColor: candidate?.color_secundario ?? '#dc2626' }}>
+                style={{ backgroundColor: candidate?.color_secundario ?? '#893030' }}>
                 Ver Actividades
               </a>
               <a href="#estadisticas"
@@ -153,7 +153,7 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
               {/* Decorative ring */}
               <div
                 className="absolute inset-0 rounded-[2rem] opacity-30 -rotate-3"
-                style={{ background: `linear-gradient(135deg, ${candidate?.color_secundario ?? '#dc2626'}, transparent)` }}
+                style={{ background: `linear-gradient(135deg, ${candidate?.color_secundario ?? '#893030'}, transparent)` }}
               />
               {candidate?.foto_principal_url ? (
                 <Image
@@ -176,8 +176,8 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
 
       {/* Wave divider */}
       <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#f8fafc"/>
+        <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+          <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#070d1a"/>
         </svg>
       </div>
     </section>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Users, MapPin, Building2, CalendarCheck } from 'lucide-react';
+import { Users, Building2, CalendarCheck } from 'lucide-react';
 import type { PublicStat } from '../types';
 
 interface PublicStatsGridProps {
@@ -15,44 +15,54 @@ const statItems = [
     label: 'Simpatizantes',
     sublabel: 'Red de apoyo activa',
     icon: Users,
-    gradient: 'from-blue-600 to-blue-700',
-  },
-  {
-    key: 'total_sectores' as const,
-    label: 'Sectores',
-    sublabel: 'Zonas organizadas',
-    icon: MapPin,
-    gradient: 'from-emerald-600 to-emerald-700',
   },
   {
     key: 'total_bases' as const,
-    label: 'Bases',
+    label: 'Bases Territoriales',
     sublabel: 'Puntos de apoyo',
     icon: Building2,
-    gradient: 'from-violet-600 to-violet-700',
   },
   {
     key: 'total_actividades' as const,
     label: 'Actividades',
     sublabel: 'Eventos programados',
     icon: CalendarCheck,
-    gradient: 'from-amber-500 to-orange-600',
   },
 ];
 
 export function PublicStatsGrid({ stats, isLoading }: PublicStatsGridProps) {
   return (
-    <section id="estadisticas" className="py-20 bg-slate-50">
-      <div className="container mx-auto px-6">
+    <section id="estadisticas" className="relative py-28 overflow-hidden">
+      {/* Primary blue brand background */}
+      <div
+        className="absolute inset-0"
+        style={{ background: 'linear-gradient(135deg, #042f98 0%, #031e6b 50%, #020e3d 100%)' }}
+      />
+
+      {/* Decorative orbs */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/2" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#893030]/15 rounded-full blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/2" />
+
+      {/* Decorative rings */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-white/5 rounded-full" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/5 rounded-full" />
+      </div>
+
+      {/* Secondary accent line at top */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#893030] to-transparent" />
+
+      <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-14">
-          <p className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-2">Nuestra Fuerza</p>
-          <h2 className="text-4xl font-black text-slate-900">La campaña en números</h2>
-          <p className="text-slate-500 mt-3 max-w-xl mx-auto">
+          {/* Eyebrow in secondary color */}
+          <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: '#c06060' }}>Nuestra Fuerza</p>
+          <h2 className="text-4xl font-black text-white">La campaña en números</h2>
+          <p className="text-white/50 mt-3 max-w-xl mx-auto text-sm">
             Una estructura territorial sólida, organizada y comprometida con el cambio.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
           {statItems.map((item) => {
             const Icon = item.icon;
             const value = stats?.[item.key] ?? 0;
@@ -60,28 +70,42 @@ export function PublicStatsGrid({ stats, isLoading }: PublicStatsGridProps) {
             return (
               <div
                 key={item.key}
-                className="group relative bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                className="group relative bg-white/8 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/12 hover:border-white/20 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
               >
-                {/* Background glow */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+                {/* Secondary accent: left border strip */}
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#893030]/80 via-[#893030]/40 to-transparent rounded-l-2xl" />
 
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center mb-4 shadow-md`}>
-                  <Icon className="h-6 w-6 text-white" />
-                </div>
+                {/* Inner glow top-right */}
+                <div className="absolute top-0 right-0 w-28 h-28 bg-white/4 rounded-full blur-2xl group-hover:bg-white/7 transition-all duration-500" />
 
                 {isLoading ? (
-                  <div className="space-y-2 animate-pulse">
-                    <div className="h-10 bg-slate-200 rounded w-3/4" />
-                    <div className="h-4 bg-slate-100 rounded w-full" />
+                  <div className="p-6 space-y-3 animate-pulse">
+                    <div className="h-10 bg-white/10 rounded w-3/4" />
+                    <div className="h-5 bg-white/5 rounded w-full" />
+                    <div className="h-4 bg-white/5 rounded w-2/3" />
                   </div>
                 ) : (
-                  <>
-                    <p className="text-4xl font-black text-slate-900 tabular-nums">
-                      {value.toLocaleString('es-PE')}
-                    </p>
-                    <p className="text-base font-semibold text-slate-700 mt-1">{item.label}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{item.sublabel}</p>
-                  </>
+                  <div className="p-6">
+                    {/* Number + Icon row — no gap */}
+                    <div className="flex items-end gap-3 leading-none">
+                      <p className="text-6xl font-black text-white tabular-nums leading-none">
+                        {value.toLocaleString('es-PE')}
+                      </p>
+                      {/* Icon badge next to number */}
+                      <div
+                        className="mb-1 w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: 'rgba(137, 48, 48, 0.35)', border: '1px solid rgba(137, 48, 48, 0.5)' }}
+                      >
+                        <Icon className="h-5 w-5 text-white" />
+                      </div>
+                    </div>
+
+                    {/* Divider in secondary color */}
+                    <div className="mt-4 mb-3 h-px w-12 bg-gradient-to-r from-[#893030]/70 to-transparent" />
+
+                    <p className="text-lg font-bold text-white/90 leading-tight">{item.label}</p>
+                    <p className="text-[11px] text-white/35 mt-1 uppercase tracking-widest font-semibold">{item.sublabel}</p>
+                  </div>
                 )}
               </div>
             );

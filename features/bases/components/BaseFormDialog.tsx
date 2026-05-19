@@ -133,8 +133,8 @@ export function BaseFormDialog({ isOpen, onClose, baseId }: BaseFormDialogProps)
 
         {(isLoadingDetails && isEditing) || isDictionariesLoading ? (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-            <p className="text-sm text-slate-500">Cargando datos del formulario...</p>
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-slate-500 dark:text-slate-400">Cargando datos del formulario...</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
@@ -182,7 +182,7 @@ export function BaseFormDialog({ isOpen, onClose, baseId }: BaseFormDialogProps)
               {/* Columna Derecha: Mapa */}
               <div className="space-y-4">
                 <Label className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-indigo-600" />
+                  <MapPin className="h-4 w-4 text-primary" />
                   Ubicación Geográfica (Tacna)
                 </Label>
                 <MapPicker 
@@ -194,7 +194,7 @@ export function BaseFormDialog({ isOpen, onClose, baseId }: BaseFormDialogProps)
                   }}
                   disabled={isPending}
                 />
-                <div className="flex gap-4 text-xs text-slate-500 bg-slate-50 p-2 rounded">
+                <div className="flex gap-4 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-2 rounded">
                   <div className="flex items-center gap-1">
                     <Navigation className="h-3 w-3" /> Lat: {watchLat?.toFixed(6) || '0.000000'}
                   </div>
@@ -205,11 +205,11 @@ export function BaseFormDialog({ isOpen, onClose, baseId }: BaseFormDialogProps)
               </div>
             </div>
 
-            <DialogFooter className="pt-6 border-t">
+            <DialogFooter className="pt-6 border-t dark:border-slate-800">
               <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isPending} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              <Button type="submit" disabled={isPending} className="bg-primary hover:bg-primary/90 text-white">
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isEditing ? 'Actualizar Base' : 'Registrar Base'}
               </Button>

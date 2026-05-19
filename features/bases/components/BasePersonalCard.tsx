@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { 
@@ -144,25 +145,25 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
       <Card className="shadow-sm border-slate-200">
         <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4 space-y-0">
           <div>
-            <CardTitle className="flex items-center gap-2 text-indigo-900">
-              <UserPlus className="h-5 w-5 text-indigo-600" />
+            <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white">
+              <UserPlus className="h-5 w-5 text-primary" />
               Personal de la Base
             </CardTitle>
-            <CardDescription>Gestione a los integrantes, asigne cargos y defina responsables principales.</CardDescription>
+            <CardDescription className="text-slate-500 dark:text-slate-400">Gestione a los integrantes, asigne cargos y defina responsables principales.</CardDescription>
           </div>
-          <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+          <Button onClick={() => { resetForm(); setIsDialogOpen(true); }} className="bg-primary hover:bg-primary/90 text-white">
             <Plus className="h-4 w-4 mr-2" /> Añadir Integrante
           </Button>
         </CardHeader>
         
         <CardContent className="space-y-6">
           {/* Filtros y Búsqueda */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 bg-slate-50/50 p-3 rounded-lg border border-slate-100">
+          <div className="flex flex-col sm:flex-row items-center gap-3 bg-slate-50/50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
             <div className="relative flex-1 w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input 
                 placeholder="Buscar por nombre o DNI..." 
-                className="pl-9 bg-white"
+                className="pl-9 bg-white dark:bg-slate-900"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -173,7 +174,7 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
                 value={filterCargoId?.toString() || 'all'} 
                 onValueChange={(val) => setFilterCargoId(val === 'all' ? null : Number(val))}
               >
-                <SelectTrigger className="w-full sm:w-[180px] bg-white">
+                <SelectTrigger className="w-full sm:w-[180px] bg-white dark:bg-slate-900">
                   <SelectValue placeholder="Filtrar por Cargo" />
                 </SelectTrigger>
                 <SelectContent>
@@ -187,15 +188,15 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
           </div>
 
           {/* Tabla de Personal */}
-          <div className="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-sm">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-950 shadow-sm">
             <Table>
-              <TableHeader className="bg-slate-50/80">
+              <TableHeader className="bg-slate-50/80 dark:bg-slate-900/80">
                 <TableRow>
-                  <TableHead className="py-4 px-6 font-bold text-slate-600">Integrante</TableHead>
-                  <TableHead className="font-bold text-slate-600">Cargo / Función</TableHead>
-                  <TableHead className="font-bold text-slate-600">Desde</TableHead>
-                  <TableHead className="text-center font-bold text-slate-600">Jerarquía</TableHead>
-                  <TableHead className="text-right px-6 font-bold text-slate-600">Acciones</TableHead>
+                  <TableHead className="py-4 px-6 font-bold text-slate-600 dark:text-slate-300">Integrante</TableHead>
+                  <TableHead className="font-bold text-slate-600 dark:text-slate-300">Cargo / Función</TableHead>
+                  <TableHead className="font-bold text-slate-600 dark:text-slate-300">Desde</TableHead>
+                  <TableHead className="text-center font-bold text-slate-600 dark:text-slate-300">Jerarquía</TableHead>
+                  <TableHead className="text-right px-6 font-bold text-slate-600 dark:text-slate-300">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -203,7 +204,7 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
                   <TableRow>
                     <TableCell colSpan={5} className="h-32 text-center">
                       <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
                         <p className="text-xs text-slate-400">Cargando personal de la base...</p>
                       </div>
                     </TableCell>
@@ -222,37 +223,37 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
                   </TableRow>
                 ) : (
                   filteredPersonal.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors">
+                    <TableRow key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors border-b dark:border-slate-800">
                       <TableCell className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs uppercase border border-slate-200">
+                          <div className="h-9 w-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 font-bold text-xs uppercase border border-slate-200 dark:border-slate-700">
                             {item.persona.nombre_completo.charAt(0)}
                           </div>
                           <div className="flex flex-col">
-                            <span className="font-bold text-slate-900">{item.persona.nombre_completo}</span>
-                            <span className="text-[11px] text-slate-400 font-medium">DNI: {item.persona.dni}</span>
+                            <span className="font-bold text-slate-900 dark:text-white">{item.persona.nombre_completo}</span>
+                            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">DNI: {item.persona.dni}</span>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="bg-indigo-50/50 text-indigo-700 border-indigo-100 font-medium">
+                        <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 dark:border-primary/30 font-medium">
                           {item.cargo.nombre}
                         </Badge>
                         {item.observaciones && (
-                          <p className="text-[10px] text-slate-400 mt-1 italic max-w-[200px] truncate" title={item.observaciones}>
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 italic max-w-[200px] truncate" title={item.observaciones}>
                             "{item.observaciones}"
                           </p>
                         )}
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1.5 text-xs text-slate-600">
-                          <CalendarIcon className="h-3 w-3 text-slate-400" />
+                        <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+                          <CalendarIcon className="h-3 w-3 text-slate-400 dark:text-slate-500" />
                           {item.fecha_inicio}
                         </div>
                       </TableCell>
                       <TableCell className="text-center">
                         {item.es_principal ? (
-                          <Badge className="bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200 shadow-none gap-1 py-0.5">
+                          <Badge className="bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-900/50 shadow-none gap-1 py-0.5">
                             <Shield className="h-3 w-3" /> Principal
                           </Badge>
                         ) : (
@@ -264,7 +265,7 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-8 w-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                            className="h-8 w-8 text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors"
                             onClick={() => startEdit(item)}
                             title="Editar Asignación"
                           >
@@ -278,7 +279,7 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem 
-                                className="text-red-600 focus:text-red-600 cursor-pointer"
+                                className="text-brand-secondary focus:text-brand-secondary cursor-pointer"
                                 onClick={() => {
                                   if (confirm('¿Está seguro de desvincular a esta persona de la base?')) {
                                     removeMutation.mutate(item.id);
@@ -305,7 +306,7 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {editingId ? <Edit2 className="h-5 w-5 text-indigo-600" /> : <UserPlus className="h-5 w-5 text-indigo-600" />}
+              {editingId ? <Edit2 className="h-5 w-5 text-primary" /> : <UserPlus className="h-5 w-5 text-primary" />}
               {editingId ? 'Editar Asignación' : 'Añadir Personal a la Base'}
             </DialogTitle>
             <DialogDescription>
@@ -315,33 +316,27 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
 
           <div className="space-y-5 py-4">
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Persona / Simpatizante</Label>
-              <Select 
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Persona / Simpatizante</Label>
+              <SearchableSelect
                 disabled={!!editingId}
                 onValueChange={(val) => setFormData(prev => ({ ...prev, persona_id: Number(val) }))}
                 value={formData.persona_id ? formData.persona_id.toString() : ''}
-              >
-                <SelectTrigger className="bg-white">
-                  <SelectValue placeholder="Seleccionar persona" />
-                </SelectTrigger>
-                <SelectContent>
-                  {personas?.map(p => (
-                    <SelectItem key={p.id} value={p.id.toString()}>
-                      {p.nombre_completo} {p.dni ? `(${p.dni})` : ''}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="Seleccionar persona"
+                options={personas?.map(p => ({
+                  value: p.id.toString(),
+                  label: `${p.nombre_completo} ${p.dni ? `(${p.dni})` : ''}`
+                })) || []}
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Cargo / Función</Label>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Cargo / Función</Label>
                 <Select 
                   onValueChange={(val) => setFormData(prev => ({ ...prev, cargo_id: Number(val) }))}
                   value={formData.cargo_id ? formData.cargo_id.toString() : ''}
                 >
-                  <SelectTrigger className="bg-white">
+                  <SelectTrigger className="bg-white dark:bg-slate-900">
                     <SelectValue placeholder="Cargo" />
                   </SelectTrigger>
                   <SelectContent>
@@ -353,12 +348,12 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Fecha de Inicio</Label>
+                <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Fecha de Inicio</Label>
                 <div className="relative">
-                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500 pointer-events-none" />
                   <Input 
                     type="date" 
-                    className="pl-9 bg-white"
+                    className="pl-9 bg-white dark:bg-slate-900"
                     value={formData.fecha_inicio}
                     onChange={(e) => setFormData(prev => ({ ...prev, fecha_inicio: e.target.value }))}
                   />
@@ -367,23 +362,23 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Observaciones</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Observaciones</Label>
               <Input 
                 placeholder="Ej: Encargado de logística" 
-                className="bg-white"
+                className="bg-white dark:bg-slate-900"
                 value={formData.observaciones}
                 onChange={(e) => setFormData(prev => ({ ...prev, observaciones: e.target.value }))}
               />
             </div>
 
-            <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-100 rounded-lg">
+            <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 rounded-lg">
               <Checkbox 
                 id="is_principal_base_dialog"
                 checked={formData.es_principal}
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, es_principal: !!checked }))}
                 className="data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
               />
-              <Label htmlFor="is_principal_base_dialog" className="text-xs font-bold text-amber-700 cursor-pointer flex items-center gap-1">
+              <Label htmlFor="is_principal_base_dialog" className="text-xs font-bold text-amber-700 dark:text-amber-500 cursor-pointer flex items-center gap-1">
                 <Shield className="h-3 w-3" /> MARCAR COMO RESPONSABLE PRINCIPAL DE LA BASE
               </Label>
             </div>
@@ -394,7 +389,7 @@ export function BasePersonalCard({ baseId }: BasePersonalCardProps) {
               Cancelar
             </Button>
             <Button 
-              className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px]"
+              className="bg-primary hover:bg-primary/90 text-white min-w-[120px]"
               onClick={() => editingId ? handleUpdate(editingId) : handleAdd()}
               disabled={isPending}
             >

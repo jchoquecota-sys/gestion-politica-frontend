@@ -51,7 +51,7 @@ export function RolesTable() {
   if (isLoading) {
     return (
       <div className="flex justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -83,7 +83,7 @@ export function RolesTable() {
               <TableCell>
                 <div className="flex flex-wrap gap-1 max-w-md">
                   {role.permissions.slice(0, 4).map((perm) => (
-                    <Badge key={perm} variant="secondary" className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100">
+                    <Badge key={perm} variant="secondary" className="text-xs bg-primary/10 text-primary hover:bg-primary/20">
                       {perm}
                     </Badge>
                   ))}
@@ -104,7 +104,7 @@ export function RolesTable() {
                       variant="ghost" 
                       size="icon" 
                       onClick={() => handleEditClick(role)}
-                      className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -114,7 +114,7 @@ export function RolesTable() {
                       variant="ghost" 
                       size="icon" 
                       onClick={() => setRoleToDelete(role)}
-                      className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="h-8 w-8 text-brand-secondary hover:text-brand-secondary hover:bg-brand-secondary/10"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

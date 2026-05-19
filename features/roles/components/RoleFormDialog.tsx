@@ -170,7 +170,7 @@ export function RoleFormDialog({ isOpen, onClose, role }: RoleFormDialogProps) {
             <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isPending} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Button type="submit" disabled={isPending} className="bg-primary hover:bg-primary/90 text-white">
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isEditing ? 'Guardar Cambios' : 'Crear Rol'}
             </Button>

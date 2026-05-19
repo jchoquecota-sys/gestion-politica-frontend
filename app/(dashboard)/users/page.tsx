@@ -28,7 +28,7 @@ export default function UsersPage() {
         {canCreate && (
           <Button 
             onClick={() => setIsCreateOpen(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-md transition-all"
+            className="bg-primary hover:bg-primary/90 text-white shadow-md transition-all"
           >
             <UserPlus className="mr-2 h-4 w-4" />
             Nuevo Usuario

@@ -38,11 +38,20 @@ const actividadSchema = z.object({
   hora: z.string().min(1, 'La hora es requerida'),
   tipo_actividad_id: z.number().min(1, 'El tipo es requerido'),
   estado: z.enum(['borrador', 'creada', 'cancelada']),
-  es_publica: z.boolean().default(false),
+  es_publica: z.boolean(),
   foto_portada: z.any().optional(), // File object
 });
 
-type ActividadFormValues = z.infer<typeof actividadSchema>;
+interface ActividadFormValues {
+  titulo: string;
+  descripcion: string;
+  fecha: string;
+  hora: string;
+  tipo_actividad_id: number;
+  estado: ActividadEstado;
+  es_publica: boolean;
+  foto_portada?: any;
+}
 
 interface ActividadFormDialogProps {
   isOpen: boolean;
@@ -172,7 +181,7 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
 
         {isPending && (isEditing || isDictionariesLoading) ? (
           <div className="flex flex-col items-center justify-center py-12 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="text-sm text-slate-500 font-medium">Cargando datos...</p>
           </div>
         ) : (
@@ -244,14 +253,14 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
               </div>
 
               {/* Visibilidad pública y Foto */}
-              <div className="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50/50 p-5 space-y-4">
+              <div className="md:col-span-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="es_publica" className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-blue-600" />
+                    <Label htmlFor="es_publica" className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-primary" />
                       Publicar en Landing Page
                     </Label>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       Hace que la actividad sea visible para el público en general.
                     </p>
                   </div>
@@ -263,12 +272,12 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
                 </div>
 
                 {watch('es_publica') && (
-                  <div className="space-y-4 pt-4 border-t border-slate-200">
-                    <Label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Imagen de Portada</Label>
+                  <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                    <Label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Imagen de Portada</Label>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                       {/* Preview area */}
-                      <div className="relative aspect-video rounded-lg overflow-hidden border-2 border-dashed border-slate-300 bg-slate-100 flex items-center justify-center group">
+                      <div className="relative aspect-video rounded-lg overflow-hidden border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 flex items-center justify-center group">
                         {previewUrl ? (
                           <>
                             <Image src={previewUrl} alt="Preview" fill className="object-cover" />
@@ -296,12 +305,12 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
                       <div className="space-y-2">
                         <Label 
                           htmlFor="foto_portada" 
-                          className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/50 hover:bg-blue-50 cursor-pointer transition-colors"
+                          className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-primary/20 dark:border-primary/40 bg-primary/5 hover:bg-primary/10 cursor-pointer transition-colors"
                         >
-                          <Upload className="h-5 w-5 text-blue-600" />
+                          <Upload className="h-5 w-5 text-primary" />
                           <div className="text-center">
-                            <p className="text-xs font-bold text-blue-700">Subir nueva foto</p>
-                            <p className="text-[10px] text-blue-500 mt-1">PNG, JPG hasta 5MB</p>
+                            <p className="text-xs font-bold text-primary">Subir nueva foto</p>
+                            <p className="text-[10px] text-primary/70 mt-1">PNG, JPG hasta 5MB</p>
                           </div>
                         </Label>
                         <input 
@@ -325,7 +334,7 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
               <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isPending} className="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[140px]">
+              <Button type="submit" disabled={isPending} className="bg-primary hover:bg-primary/90 text-white min-w-[140px]">
                 {isPending ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Procesando...</>
                 ) : (

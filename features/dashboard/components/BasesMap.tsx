@@ -46,8 +46,8 @@ export default function BasesMap({ points, isLoading }: BasesMapProps) {
     `}>
       <CardHeader className="pb-4 flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="bg-indigo-50 dark:bg-indigo-950 p-2 rounded-lg">
-            <MapPin className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+          <div className="bg-primary/10 dark:bg-primary/20 p-2 rounded-lg">
+            <MapPin className="h-4 w-4 text-primary" />
           </div>
           <div>
             <CardTitle className="text-lg font-bold">Mapa Estratégico Tacna</CardTitle>
@@ -79,7 +79,7 @@ export default function BasesMap({ points, isLoading }: BasesMapProps) {
               <Marker key={point.id} position={[point.lat, point.lng]}>
                 <Popup>
                   <div className="p-1">
-                    <h4 className="font-bold text-indigo-900 m-0 flex items-center gap-1">
+                    <h4 className="font-bold text-primary m-0 flex items-center gap-1">
                       <Landmark className="h-3 w-3" /> {point.nombre}
                     </h4>
                     <p className="text-[10px] uppercase font-bold text-slate-400 mt-1 mb-2 tracking-wider">

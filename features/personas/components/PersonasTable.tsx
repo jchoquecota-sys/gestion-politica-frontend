@@ -138,7 +138,7 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
           </div>
         </div>
         {hasPermission('personas:create') && (
-          <Button onClick={onAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white shrink-0">
+          <Button onClick={onAdd} className="bg-primary hover:bg-primary/90 text-white shrink-0">
             <Plus className="h-4 w-4 mr-2" />
             Nueva Persona
           </Button>
@@ -176,7 +176,7 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
                 <TableRow key={p.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 overflow-hidden border border-slate-200">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary overflow-hidden border border-slate-200">
                         {p.foto_url ? (
                           <img 
                             src={p.foto_url} 
@@ -205,7 +205,7 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       {hasPermission('personas:edit') && (
-                        <Button variant="ghost" size="icon" onClick={() => onEdit(p)} className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                        <Button variant="ghost" size="icon" onClick={() => onEdit(p)} className="h-8 w-8 text-primary hover:bg-primary/10">
                           <Pencil className="h-4 w-4" />
                         </Button>
                       )}
@@ -214,7 +214,7 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
                           variant="ghost" 
                           size="icon" 
                           onClick={() => setPersonaToDelete(p.id)} 
-                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="h-8 w-8 text-brand-secondary hover:bg-brand-secondary/10"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -236,8 +236,8 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
       <Dialog open={personaToDelete !== null} onOpenChange={(open) => !open && setPersonaToDelete(null)}>
         <DialogContent>
           <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <div className="bg-red-50 p-3 rounded-full">
-              <Trash2 className="h-8 w-8 text-red-600" />
+            <div className="bg-brand-secondary/10 p-3 rounded-full">
+              <Trash2 className="h-8 w-8 text-brand-secondary" />
             </div>
             <div className="space-y-2">
               <h3 className="text-xl font-semibold text-slate-900">¿Eliminar persona?</h3>

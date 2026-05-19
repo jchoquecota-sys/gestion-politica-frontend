@@ -2,12 +2,12 @@
 
 import dynamic from 'next/dynamic';
 import { usePublicLanding } from '@/features/landing/hooks/usePublicLanding';
-import type { 
-  MapaBase, 
-  PublicNoticia, 
-  PublicEvento, 
-  SectorDistribucion, 
-  CrecimientoMensual 
+import type {
+  MapaBase,
+  PublicNoticia,
+  PublicEvento,
+  SectorDistribucion,
+  CrecimientoMensual
 } from '@/features/landing/types';
 import { HeroSection } from '@/features/landing/components/HeroSection';
 import { PublicNavbar } from '@/features/landing/components/PublicNavbar';
@@ -28,7 +28,7 @@ export default function LandingPage() {
 
   const candidate = data?.candidate ?? null;
   const stats = data?.stats;
-  
+
   // Aseguramos que sean arrays (Laravel a veces envía objetos si las llaves no son correlativas)
   const mapa = (Array.isArray(data?.mapa_bases) ? data.mapa_bases : Object.values(data?.mapa_bases ?? {})) as MapaBase[];
   const noticias = (Array.isArray(data?.noticias) ? data.noticias : Object.values(data?.noticias ?? {})) as PublicNoticia[];
@@ -44,11 +44,74 @@ export default function LandingPage() {
       {/* Hero con foto del candidato */}
       <HeroSection candidate={candidate} isLoading={isLoading} />
 
+      {/* Noticias y actividades */}
+      <PublicNewsFeed noticias={noticias} isLoading={isLoading} />
+
       {/* KPIs */}
       <PublicStatsGrid stats={stats} isLoading={isLoading} />
 
-      {/* Noticias y actividades */}
-      <PublicNewsFeed noticias={noticias} isLoading={isLoading} />
+      {/* Calendario de eventos */}
+      <PublicCalendar eventos={calendario} isLoading={isLoading} />
+
+
+      {/* Mapa de bases */}
+      <section id="mapa" className="relative py-28 overflow-hidden">
+        {/* Primary brand background — same family as KPIs */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(135deg, #042f98 0%, #031e6b 50%, #020e3d 100%)' }}
+        />
+
+        {/* Decorative orbs */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-white/3 rounded-full blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/2" />
+        {/* Secondary accent detail — thin top line */}
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#893030] to-transparent" />
+
+        {/* Decorative concentric rings */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] border border-white/4 rounded-full" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] border border-white/4 rounded-full" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-white/4 rounded-full" />
+        </div>
+
+        <div className="container mx-auto px-6 relative z-10">
+          <div className="text-center mb-12">
+            <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: '#c06060' }}>Presencia Territorial</p>
+            <h2 className="text-4xl font-black text-white">Nuestras Bases</h2>
+            <p className="text-white/50 mt-3 max-w-xl mx-auto">
+              Estamos presentes en cada rincón del distrito con puntos de apoyo organizados.
+            </p>
+          </div>
+
+          {/* Map container with decorative frame */}
+          <div className="relative max-w-5xl mx-auto">
+            {/* Corner accents in secondary color */}
+            <div className="absolute -top-2 -left-2 w-8 h-8 border-t-2 border-l-2 border-[#893030] rounded-tl-lg z-20" />
+            <div className="absolute -top-2 -right-2 w-8 h-8 border-t-2 border-r-2 border-[#893030] rounded-tr-lg z-20" />
+            <div className="absolute -bottom-2 -left-2 w-8 h-8 border-b-2 border-l-2 border-[#893030] rounded-bl-lg z-20" />
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 border-b-2 border-r-2 border-[#893030] rounded-br-lg z-20" />
+
+            <div className="h-[480px] rounded-2xl overflow-hidden shadow-2xl border border-white/10 ring-1 ring-[#893030]/30">
+              <PublicBasesMap bases={mapa} isLoading={isLoading} />
+            </div>
+          </div>
+
+          {/* Bases count badge */}
+          {mapa.length > 0 && (
+            <div className="flex justify-center mt-8">
+              <div className="inline-flex items-center gap-2.5 bg-white/8 backdrop-blur-sm border border-white/12 rounded-full px-5 py-2.5">
+                <span className="w-2 h-2 rounded-full bg-[#893030] animate-pulse" />
+                <span className="text-white/70 text-sm font-medium">
+                  <span className="text-white font-bold">{mapa.length}</span>{' '}
+                  base{mapa.length !== 1 ? 's' : ''} activa{mapa.length !== 1 ? 's' : ''} en el distrito
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
 
       {/* Gráficos de distribución */}
       <PublicCharts
@@ -57,29 +120,6 @@ export default function LandingPage() {
         isLoading={isLoading}
       />
 
-      {/* Mapa de bases */}
-      <section id="mapa" className="py-20 bg-slate-50">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-14">
-            <p className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-2">Presencia Territorial</p>
-            <h2 className="text-4xl font-black text-slate-900">Nuestras Bases</h2>
-            <p className="text-slate-500 mt-3 max-w-xl mx-auto">
-              Estamos presentes en cada rincón del distrito con puntos de apoyo organizados.
-            </p>
-          </div>
-          <div className="h-[500px] rounded-2xl overflow-hidden shadow-lg border border-slate-200">
-            <PublicBasesMap bases={mapa} isLoading={isLoading} />
-          </div>
-          {mapa.length > 0 && (
-            <p className="text-center text-slate-400 text-sm mt-4">
-              {mapa.length} base{mapa.length !== 1 ? 's' : ''} activa{mapa.length !== 1 ? 's' : ''} en el distrito
-            </p>
-          )}
-        </div>
-      </section>
-
-      {/* Calendario de eventos */}
-      <PublicCalendar eventos={calendario} isLoading={isLoading} />
 
       {/* Footer */}
       <PublicFooter candidate={candidate} />

@@ -26,7 +26,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectValue,
 } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Loader2, ShieldCheck, User as UserIcon } from 'lucide-react';
 
 const userSchema = z.object({
@@ -157,26 +159,19 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
 
           <div className="space-y-2">
             <Label htmlFor="persona_id" className="flex items-center gap-2">
-              <UserIcon className="h-4 w-4 text-indigo-600" />
+              <UserIcon className="h-4 w-4 text-primary" />
               Vincular a Persona Física (Opcional)
             </Label>
-            <Select 
-              value={watch('persona_id')?.toString() || "none"} 
-              onValueChange={(val) => setValue('persona_id', val === "none" ? null : Number(val), { shouldDirty: true })}
+            <SearchableSelect
+              value={watch('persona_id')?.toString() || ""}
+              onValueChange={(val) => setValue('persona_id', val === "" ? null : Number(val), { shouldDirty: true })}
               disabled={isPending || isLoadingPersonas}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={isLoadingPersonas ? "Cargando personas..." : "Selecciona una persona"} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Sin vincular</SelectItem>
-                {personas?.map(persona => (
-                  <SelectItem key={persona.id} value={persona.id.toString()}>
-                    {persona.nombre_completo} - {persona.dni}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder={isLoadingPersonas ? "Cargando personas..." : "Selecciona una persona"}
+              options={personas?.map(persona => ({
+                value: persona.id.toString(),
+                label: `${persona.nombre_completo} - ${persona.dni}`
+              })) || []}
+            />
             <p className="text-xs text-slate-500">
               Vincular a una persona le otorgará permisos sobre su sector o base correspondiente.
             </p>
@@ -198,7 +193,7 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
 
           <div className="space-y-3">
             <Label className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-indigo-600" />
+              <ShieldCheck className="h-4 w-4 text-primary" />
               Asignación de Roles
             </Label>
             {isLoadingRoles ? (
@@ -235,7 +230,7 @@ export function UserFormDialog({ isOpen, onClose, user }: UserFormDialogProps) {
             <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isPending} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Button type="submit" disabled={isPending} className="bg-primary hover:bg-primary/90 text-white">
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isEditing ? 'Guardar Cambios' : 'Crear Usuario'}
             </Button>

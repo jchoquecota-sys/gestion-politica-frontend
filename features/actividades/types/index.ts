@@ -13,6 +13,8 @@ export interface SujetoActividad {
   sujeto_type: SujetoType;
   descripcion_ejecucion?: string;
   evidencias?: string[];
+  hora_asistencia?: string | null;
+  metodo_registro?: 'manual_admin' | 'qr_self_service' | null;
   // Campos informativos que pueden venir del backend en el detail
   nombre_sujeto?: string; 
 }
@@ -25,6 +27,9 @@ export interface Actividad {
   tipo_actividad_id: number;
   estado: ActividadEstado;
   es_publica: boolean;
+  latitud?: number | null;
+  longitud?: number | null;
+  radio_asistencia_metros?: number;
   foto_portada_path?: string | null;
   foto_portada_url?: string | null;
   created_by?: number;

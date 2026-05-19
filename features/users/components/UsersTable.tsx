@@ -53,7 +53,7 @@ export function UsersTable() {
   if (isLoading) {
     return (
       <div className="flex justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -77,8 +77,8 @@ export function UsersTable() {
             <TableRow key={user.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
               <TableCell>
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-9 w-9 border border-indigo-100 dark:border-slate-800">
-                    <AvatarFallback className="bg-indigo-50 text-indigo-700 dark:bg-slate-800 dark:text-slate-200">
+                  <Avatar className="h-9 w-9 border border-primary/10 dark:border-slate-800">
+                    <AvatarFallback className="bg-primary/5 text-primary dark:bg-slate-800 dark:text-slate-200">
                       {user.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -86,7 +86,7 @@ export function UsersTable() {
                     <span className="font-medium text-slate-900 dark:text-slate-100 flex items-center">
                       {user.name}
                       {currentUser?.id === user.id && (
-                        <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
+                        <Badge variant="outline" className="ml-2 bg-primary/10 text-primary border-primary/20">
                           Tú
                         </Badge>
                       )}
@@ -101,7 +101,7 @@ export function UsersTable() {
               <TableCell>
                 <div className="flex flex-wrap gap-1">
                   {user.roles.map((role) => (
-                    <Badge key={role} variant="secondary" className="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 flex items-center gap-1">
+                    <Badge key={role} variant="secondary" className="text-xs bg-primary/10 text-primary hover:bg-primary/20 flex items-center gap-1 border-none shadow-none">
                       <Shield className="h-3 w-3" />
                       {role}
                     </Badge>
@@ -121,7 +121,7 @@ export function UsersTable() {
                       variant="ghost" 
                       size="icon" 
                       onClick={() => handleEditClick(user)}
-                      className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      className="h-8 w-8 text-primary hover:bg-primary/10"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
@@ -131,7 +131,7 @@ export function UsersTable() {
                       variant="ghost" 
                       size="icon" 
                       onClick={() => setUserToDelete(user)}
-                      className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="h-8 w-8 text-brand-secondary hover:bg-brand-secondary/10"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

@@ -23,8 +23,17 @@ const nextConfig = {
         port: '8000',
         pathname: '/storage/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'gp-backend-test.loca.lt',
+        pathname: '/storage/**',
+      },
     ],
   },
+  allowedDevOrigins: [
+    '192.168.0.105',
+    'localhost:3000',
+  ],
 };
 
 export default nextConfig;

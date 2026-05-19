@@ -99,7 +99,7 @@ export function EjecucionEvidenceDialog({ actividadId, sujeto, isOpen, onClose }
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-indigo-600" />
+            <FileText className="h-5 w-5 text-primary" />
             Reporte de Ejecución - {sujeto.nombre_sujeto}
           </DialogTitle>
           <DialogDescription>
@@ -117,7 +117,7 @@ export function EjecucionEvidenceDialog({ actividadId, sujeto, isOpen, onClose }
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
             />
-            <p className="text-[11px] text-slate-400">Sea específico con las acciones y resultados obtenidos.</p>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500">Sea específico con las acciones y resultados obtenidos.</p>
           </div>
 
           <div className="space-y-4">
@@ -145,14 +145,14 @@ export function EjecucionEvidenceDialog({ actividadId, sujeto, isOpen, onClose }
             </div>
 
             {evidencias.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 border border-dashed rounded-lg bg-slate-50 text-slate-400">
+              <div className="flex flex-col items-center justify-center py-8 border border-dashed rounded-lg bg-slate-50 dark:bg-slate-900/50 dark:border-slate-800 text-slate-400 dark:text-slate-500">
                 <ImageIcon className="h-8 w-8 mb-2 opacity-20" />
                 <p className="text-xs italic">No hay evidencias adjuntas aún.</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {evidencias.map((path, index) => (
-                  <div key={index} className="relative group rounded-lg overflow-hidden border bg-white aspect-square shadow-sm">
+                  <div key={index} className="relative group rounded-lg overflow-hidden border dark:border-slate-800 bg-white dark:bg-slate-950 aspect-square shadow-sm">
                     {path && typeof path === 'string' && path.match(/\.(jpg|jpeg|png|gif)$/i) ? (
                       <img 
                         src={getFullUrl(path)} 
@@ -167,7 +167,7 @@ export function EjecucionEvidenceDialog({ actividadId, sujeto, isOpen, onClose }
                     )}
                     <button 
                       onClick={() => removeEvidence(path)}
-                      className="absolute top-1 right-1 h-6 w-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                      className="absolute top-1 right-1 h-6 w-6 bg-brand-secondary/100 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -182,7 +182,7 @@ export function EjecucionEvidenceDialog({ actividadId, sujeto, isOpen, onClose }
           <Button variant="outline" onClick={onClose} disabled={isUpdating || isUploading}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} disabled={isUpdating || isUploading} className="bg-indigo-600 hover:bg-indigo-700 min-w-[120px]">
+          <Button onClick={handleSave} disabled={isUpdating || isUploading} className="bg-primary hover:bg-primary/90 min-w-[120px]">
             {isUpdating ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Guardando...</> : 'Guardar Reporte'}
           </Button>
         </DialogFooter>

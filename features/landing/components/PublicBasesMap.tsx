@@ -18,12 +18,12 @@ L.Icon.Default.mergeOptions({
 const campaignIcon = new L.DivIcon({
   html: `
     <div style="
-      width: 32px; height: 32px;
-      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, #042f98, #1e3a8a);
       border-radius: 50% 50% 50% 0;
       transform: rotate(-45deg);
-      border: 3px solid white;
-      box-shadow: 0 4px 12px rgba(29,78,216,0.4);
+      border: 2px solid white;
+      box-shadow: 0 4px 10px rgba(4,47,152,0.3);
     "></div>
   `,
   className: '',
@@ -79,7 +79,7 @@ export default function PublicBasesMap({ bases, isLoading }: PublicBasesMapProps
             <div className="p-1 space-y-1 min-w-[160px]">
               <p className="font-bold text-slate-900 text-sm">{base.nombre}</p>
               {base.sector && (
-                <p className="text-xs text-blue-700 font-medium">Sector: {base.sector}</p>
+                <p className="text-xs text-primary font-medium">Sector: {base.sector}</p>
               )}
               {base.direccion && (
                 <p className="text-xs text-slate-500">{base.direccion}</p>

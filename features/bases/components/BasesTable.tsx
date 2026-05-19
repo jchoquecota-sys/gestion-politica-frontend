@@ -115,7 +115,7 @@ export function BasesTable({ onAdd, onEdit, onManagePersonal }: BasesTableProps)
         </div>
 
         {hasPermission('bases:create') && (
-          <Button onClick={onAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
+          <Button onClick={onAdd} className="bg-primary hover:bg-primary/90 text-white shadow-sm">
             <Plus className="h-4 w-4 mr-2" />
             Nueva Base
           </Button>
@@ -181,7 +181,7 @@ export function BasesTable({ onAdd, onEdit, onManagePersonal }: BasesTableProps)
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1 text-xs text-slate-600">
-                        <MapPin className="h-3 w-3 text-indigo-500" />
+                        <MapPin className="h-3 w-3 text-primary" />
                         <span>Ver en mapa</span>
                       </div>
                     </TableCell>
@@ -192,7 +192,7 @@ export function BasesTable({ onAdd, onEdit, onManagePersonal }: BasesTableProps)
                             variant="ghost" 
                             size="icon" 
                             onClick={() => router.push(`/bases/${b.id}`)} 
-                            className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                            className="h-8 w-8 text-primary hover:bg-primary/10"
                             title="Ver Detalles y Personal"
                           >
                             <Search className="h-4 w-4" />
@@ -203,7 +203,7 @@ export function BasesTable({ onAdd, onEdit, onManagePersonal }: BasesTableProps)
                             variant="ghost" 
                             size="icon" 
                             onClick={() => onEdit(b)} 
-                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            className="h-8 w-8 text-primary hover:bg-primary/10"
                             title="Editar Base"
                           >
                             <Pencil className="h-4 w-4" />
@@ -214,7 +214,7 @@ export function BasesTable({ onAdd, onEdit, onManagePersonal }: BasesTableProps)
                             variant="ghost" 
                             size="icon" 
                             onClick={() => handleDelete(b.id)} 
-                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-8 w-8 text-brand-secondary hover:bg-brand-secondary/10"
                             title="Eliminar Base"
                             disabled={isDeleting}
                           >

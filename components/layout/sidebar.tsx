@@ -86,11 +86,11 @@ export function Sidebar({ className }: SidebarProps) {
   ];
 
   return (
-    <div className={cn("min-h-screen border-r bg-slate-950 text-slate-400", className)}>
+    <div className={cn("min-h-screen border-r border-sidebar-border bg-sidebar text-sidebar-foreground", className)}>
       <div className="flex flex-col h-full">
-        <div className="h-16 flex items-center px-6 border-b border-slate-800">
-          <Landmark className="h-5 w-5 mr-2.5 text-indigo-400" />
-          <span className="font-bold tracking-tight text-sm uppercase text-slate-100" style={{ fontFamily: 'var(--font-heading)' }}>
+        <div className="h-16 flex items-center px-6 border-b border-sidebar-border">
+          <Landmark className="h-5 w-5 mr-2.5 text-white" />
+          <span className="font-bold tracking-tight text-sm uppercase text-white" style={{ fontFamily: 'var(--font-heading)' }}>
             Gestión Política
           </span>
         </div>
@@ -105,11 +105,11 @@ export function Sidebar({ className }: SidebarProps) {
                   className={cn(
                     "text-[13px] flex items-center py-2.5 px-3 w-full font-medium rounded-md transition-colors",
                     route.active 
-                      ? "text-white bg-slate-900" 
-                      : "text-slate-400 hover:text-slate-100 hover:bg-slate-900/50"
+                      ? "text-white bg-brand-secondary shadow-md" 
+                      : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50"
                   )}
                 >
-                  <route.icon className={cn("h-4 w-4 mr-3", route.active ? "text-indigo-400" : "text-slate-500")} />
+                  <route.icon className={cn("h-4 w-4 mr-3", route.active ? "text-white" : "text-sidebar-foreground/50")} />
                   {route.label}
                 </Link>
               ) : null

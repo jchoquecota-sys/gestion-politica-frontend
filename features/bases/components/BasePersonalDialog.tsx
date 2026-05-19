@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Plus, Trash2, Edit2, X, Check, UserPlus, Shield } from 'lucide-react';
@@ -107,7 +108,7 @@ export function BasePersonalDialog({ isOpen, onClose, base }: BasePersonalDialog
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <UserPlus className="h-5 w-5 text-indigo-600" />
+            <UserPlus className="h-5 w-5 text-primary" />
             Gestionar Personal: {base.nombre}
           </DialogTitle>
           <DialogDescription>
@@ -131,20 +132,13 @@ export function BasePersonalDialog({ isOpen, onClose, base }: BasePersonalDialog
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <div className="md:col-span-4 space-y-2">
                   <Label>Persona</Label>
-                  <Select 
+                  <SearchableSelect
                     disabled={!!editingId}
                     onValueChange={(val) => setFormData(prev => ({ ...prev, persona_id: Number(val) }))}
                     value={formData.persona_id ? formData.persona_id.toString() : ''}
-                  >
-                    <SelectTrigger className="bg-white">
-                      <SelectValue placeholder="Seleccionar persona" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {personas?.map(p => (
-                        <SelectItem key={p.id} value={p.id.toString()}>{p.nombre_completo}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder="Seleccionar persona..."
+                    options={personas?.map(p => ({ value: p.id.toString(), label: `${p.nombre_completo} - ${p.dni}` })) || []}
+                  />
                 </div>
 
                 <div className="md:col-span-3 space-y-2">
@@ -197,7 +191,7 @@ export function BasePersonalDialog({ isOpen, onClose, base }: BasePersonalDialog
 
                 <div className="md:col-span-2 flex items-end justify-end">
                   <Button 
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                    className="w-full bg-primary hover:bg-primary/90 text-white"
                     onClick={() => editingId ? handleUpdate(editingId) : handleAdd()}
                     disabled={addMutation.isPending || updateMutation.isPending}
                   >
@@ -229,7 +223,7 @@ export function BasePersonalDialog({ isOpen, onClose, base }: BasePersonalDialog
                 {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
-                      <Loader2 className="h-6 w-6 animate-spin mx-auto text-indigo-600" />
+                      <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
                     </TableCell>
                   </TableRow>
                 ) : personal?.length === 0 ? (
@@ -240,7 +234,7 @@ export function BasePersonalDialog({ isOpen, onClose, base }: BasePersonalDialog
                   </TableRow>
                 ) : (
                   personal?.map((item) => (
-                    <TableRow key={item.id} className={editingId === item.id ? "bg-indigo-50/50" : ""}>
+                    <TableRow key={item.id} className={editingId === item.id ? "bg-primary/10/50" : ""}>
                       <TableCell>
                         <div className="flex flex-col">
                           <span className="font-medium">{item.persona.nombre_completo}</span>
@@ -267,7 +261,7 @@ export function BasePersonalDialog({ isOpen, onClose, base }: BasePersonalDialog
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-8 w-8 text-slate-500 hover:text-indigo-600"
+                            className="h-8 w-8 text-slate-500 hover:text-primary"
                             onClick={() => startEdit(item)}
                           >
                             <Edit2 className="h-4 w-4" />
@@ -275,7 +269,7 @@ export function BasePersonalDialog({ isOpen, onClose, base }: BasePersonalDialog
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-8 w-8 text-slate-500 hover:text-red-600"
+                            className="h-8 w-8 text-slate-500 hover:text-brand-secondary"
                             onClick={() => {
                               if (confirm('¿Está seguro de desvincular a esta persona?')) {
                                 removeMutation.mutate(item.id);
@@ -297,7 +291,7 @@ export function BasePersonalDialog({ isOpen, onClose, base }: BasePersonalDialog
         <DialogFooter className="border-t pt-4">
           <Button variant="outline" onClick={onClose}>Cerrar</Button>
           {!isAdding && !editingId && (
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setIsAdding(true)}>
+            <Button className="bg-primary hover:bg-primary/90 text-white" onClick={() => setIsAdding(true)}>
               <Plus className="h-4 w-4 mr-1" /> Añadir Personal
             </Button>
           )}

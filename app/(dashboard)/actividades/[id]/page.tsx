@@ -13,11 +13,11 @@ export default function ActividadDetailPage() {
   if (!hasPermission('actividades:view')) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <div className="bg-red-50 p-4 rounded-full mb-4">
-          <ShieldAlert className="h-12 w-12 text-red-600" />
+        <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-full mb-4">
+          <ShieldAlert className="h-12 w-12 text-red-600 dark:text-red-500" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900">Acceso Denegado</h1>
-        <p className="text-slate-500 max-w-md mx-auto mt-2">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Acceso Denegado</h1>
+        <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-2">
           No tienes los permisos necesarios para ver los detalles de esta actividad.
         </p>
       </div>

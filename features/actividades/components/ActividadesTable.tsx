@@ -59,9 +59,9 @@ import {
 import { toast } from 'sonner';
 
 const statusConfig: Record<ActividadEstado, { label: string; className: string }> = {
-  borrador: { label: 'Borrador', className: 'bg-slate-100 text-slate-700 border-slate-200' },
-  creada: { label: 'Creada', className: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  cancelada: { label: 'Cancelada', className: 'bg-red-50 text-red-700 border-red-200' },
+  borrador: { label: 'Borrador', className: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700' },
+  creada: { label: 'Creada', className: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50' },
+  cancelada: { label: 'Cancelada', className: 'bg-brand-secondary/10 text-brand-secondary border-brand-secondary/20 dark:bg-brand-secondary/20 dark:text-brand-secondary dark:border-brand-secondary/30' },
 };
 
 export function ActividadesTable() {
@@ -131,7 +131,7 @@ export function ActividadesTable() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-3">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p className="text-sm text-slate-500 font-medium">Cargando actividades...</p>
       </div>
     );
@@ -203,7 +203,7 @@ export function ActividadesTable() {
         </div>
 
         {hasPermission('actividades:create') && (
-          <Button onClick={handleCreate} className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 w-full xl:w-auto shrink-0">
+          <Button onClick={handleCreate} className="bg-primary hover:bg-primary/90 text-white gap-2 w-full xl:w-auto shrink-0">
             <Plus className="h-4 w-4" />
             Nueva Actividad
           </Button>
@@ -224,30 +224,30 @@ export function ActividadesTable() {
           </TableHeader>
           <TableBody>
             {actividades.map((actividad) => (
-              <TableRow key={actividad.id} className="hover:bg-slate-50/50 transition-colors">
+              <TableRow key={actividad.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
                 <TableCell>
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-semibold text-slate-900 leading-tight">
+                    <span className="font-semibold text-slate-900 dark:text-white leading-tight">
                       {actividad.titulo}
                     </span>
-                    <span className="text-xs text-slate-500 line-clamp-1">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
                       {actividad.descripcion}
                     </span>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                     <Calendar className="h-3.5 w-3.5 text-slate-400" />
                     {format(new Date(actividad.fecha_actividad), "dd 'de' MMMM, HH:mm", { locale: es })}
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="font-normal bg-indigo-50/30 text-indigo-700 border-indigo-100">
+                  <Badge variant="outline" className="font-normal bg-primary/5 text-primary border-primary/20">
                     {actividad.tipo_actividad?.nombre || 'General'}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                  <div className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
                     <Users className="h-3.5 w-3.5 text-slate-400" />
                     {actividad.sujetos?.length || 0} sujetos
                   </div>
@@ -263,7 +263,7 @@ export function ActividadesTable() {
                       variant="ghost"
                       size="icon"
                       onClick={() => router.push(`/actividades/${actividad.id}`)}
-                      className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                      className="h-8 w-8 text-primary hover:bg-primary/10"
                       title="Ver Detalles y Evidencias"
                     >
                       <Search className="h-4 w-4" />
@@ -273,7 +273,7 @@ export function ActividadesTable() {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleEdit(actividad.id)}
-                        className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        className="h-8 w-8 text-primary hover:bg-primary/10"
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
@@ -283,7 +283,7 @@ export function ActividadesTable() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setActividadToDelete(actividad)}
-                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="h-8 w-8 text-brand-secondary hover:bg-brand-secondary/10"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

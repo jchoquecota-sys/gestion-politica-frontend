@@ -17,7 +17,9 @@ export const useAuth = () => {
     onSuccess: (data) => {
       setAuth(data.token, data.user);
       toast.success('Sesión iniciada correctamente');
-      window.location.href = '/roles'; // O a donde corresponda el dashboard principal
+      const params = new URLSearchParams(window.location.search);
+      const redirectUrl = params.get('redirect');
+      window.location.href = redirectUrl || '/roles';
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Error al iniciar sesión');

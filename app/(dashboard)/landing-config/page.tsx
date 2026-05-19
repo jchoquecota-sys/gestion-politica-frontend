@@ -16,8 +16,8 @@ export default function LandingConfigPage() {
         <div className="bg-red-50 p-4 rounded-full mb-4">
           <ShieldAlert className="h-12 w-12 text-red-600" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900">Acceso Restringido</h1>
-        <p className="text-slate-500 max-w-md mx-auto mt-2 mb-6">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Acceso Restringido</h1>
+        <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-2 mb-6">
           No tiene los permisos necesarios para gestionar la página pública. Contacte con el administrador.
         </p>
         <Button onClick={() => router.back()} variant="outline">Volver</Button>
@@ -33,7 +33,7 @@ export default function LandingConfigPage() {
           <Globe size={160} />
         </div>
         <div className="space-y-1 relative z-10">
-          <div className="flex items-center gap-2 text-indigo-600 font-bold text-xs uppercase tracking-widest mb-1">
+          <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest mb-1">
             <Globe className="h-4 w-4" /> Gestión de Página Pública
           </div>
           <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
@@ -47,7 +47,7 @@ export default function LandingConfigPage() {
           href="/"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-700 border border-indigo-200 rounded-xl px-4 py-2 hover:bg-indigo-50 transition-colors relative z-10"
+          className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary border border-indigo-200 rounded-xl px-4 py-2 hover:bg-primary/10 transition-colors relative z-10"
         >
           <Globe className="h-4 w-4" />
           Ver página pública
