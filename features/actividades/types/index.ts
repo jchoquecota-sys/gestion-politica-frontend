@@ -14,6 +14,7 @@ export interface SujetoActividad {
   descripcion_ejecucion?: string;
   evidencias?: string[];
   hora_asistencia?: string | null;
+  hora_salida?: string | null;
   metodo_registro?: 'manual_admin' | 'qr_self_service' | null;
   // Campos informativos que pueden venir del backend en el detail
   nombre_sujeto?: string; 

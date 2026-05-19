@@ -169,7 +169,7 @@ export const useMarcarAsistenciaManual = (actividadId: number) => {
   return useMutation({
     mutationFn: async (personaId: number) => {
       const { data } = await api.post(`/actividades/${actividadId}/asistencias/admin`, { persona_id: personaId });
-      return data.data;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['actividad', actividadId] });
@@ -182,7 +182,7 @@ export const useMarcarAsistenciaQR = (actividadId: number) => {
   return useMutation({
     mutationFn: async (payload: { latitud_usuario: number; longitud_usuario: number; browser_fingerprint: string }) => {
       const { data } = await api.post(`/actividades/${actividadId}/asistencias/self-register`, payload);
-      return data.data;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['actividad', actividadId] });

@@ -19,6 +19,8 @@ export default function AsistenciaPublicPage() {
 
   const [status, setStatus] = useState<'idle' | 'locating' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [successType, setSuccessType] = useState<'ingreso' | 'salida'>('ingreso');
 
   // Generar o recuperar Fingerprint
   const getFingerprint = () => {
@@ -48,7 +50,9 @@ export default function AsistenciaPublicPage() {
         };
 
         marcarQR(payload, {
-          onSuccess: () => {
+          onSuccess: (response: any) => {
+            setSuccessMessage(response.message || 'Asistencia registrada correctamente.');
+            setSuccessType(response.tipo || 'ingreso');
             setStatus('success');
           },
           onError: (error: any) => {
@@ -166,12 +170,28 @@ export default function AsistenciaPublicPage() {
 
           {status === 'success' && (
             <div className="space-y-6 py-4">
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-full inline-block">
-                <CheckCircle2 className="h-16 w-16 text-emerald-600 dark:text-emerald-500" />
+              <div className={`p-4 rounded-full inline-block ${
+                successType === 'ingreso' 
+                  ? 'bg-emerald-50 dark:bg-emerald-900/20' 
+                  : 'bg-blue-50 dark:bg-blue-900/20'
+              }`}>
+                {successType === 'ingreso' ? (
+                  <CheckCircle2 className="h-16 w-16 text-emerald-600 dark:text-emerald-500" />
+                ) : (
+                  <CheckCircle2 className="h-16 w-16 text-blue-600 dark:text-blue-500" />
+                )}
               </div>
               <div>
-                <h2 className="text-2xl font-black text-emerald-600 dark:text-emerald-400">¡Asistencia Confirmada!</h2>
-                <p className="text-slate-500 mt-2">Gracias por participar. Tu asistencia ha sido registrada exitosamente en el sistema.</p>
+                <h2 className={`text-2xl font-black ${
+                  successType === 'ingreso' 
+                    ? 'text-emerald-600 dark:text-emerald-400' 
+                    : 'text-blue-600 dark:text-blue-400'
+                }`}>
+                  {successType === 'ingreso' ? '¡Ingreso Confirmado!' : '¡Salida Confirmada!'}
+                </h2>
+                <p className="text-slate-500 mt-2">
+                  {successMessage || 'Gracias por participar. Tu asistencia ha sido registrada exitosamente.'}
+                </p>
               </div>
             </div>
           )}

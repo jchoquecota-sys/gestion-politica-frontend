@@ -96,8 +96,8 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
       return;
     }
     marcarAsistencia(manualPersonaId, {
-      onSuccess: () => {
-        toast.success('Asistencia registrada correctamente');
+      onSuccess: (response: any) => {
+        toast.success(response.message || 'Asistencia registrada correctamente');
         setIsManualDialogOpen(false);
         setManualPersonaId(0);
       },
@@ -176,12 +176,27 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
                     </TableCell>
                     <TableCell>
                       {s.hora_asistencia ? (
-                        <div className="flex flex-col gap-1">
-                          <Badge variant="outline" className="w-fit bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50">
-                            Presente
-                          </Badge>
-                          <span className="text-xs text-slate-500">
-                            {format(new Date(s.hora_asistencia), 'HH:mm', { locale: es })} ({s.metodo_registro === 'qr_self_service' ? 'QR' : 'Manual'})
+                        <div className="flex flex-col gap-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <Badge variant="outline" className="w-fit bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50 text-[10px] py-0.5 px-1.5 font-semibold">
+                              Ingreso
+                            </Badge>
+                            <span className="text-xs font-mono text-slate-700 dark:text-slate-300">
+                              {format(new Date(s.hora_asistencia), 'HH:mm', { locale: es })}
+                            </span>
+                          </div>
+                          {s.hora_salida && (
+                            <div className="flex items-center gap-1.5">
+                              <Badge variant="outline" className="w-fit bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50 text-[10px] py-0.5 px-1.5 font-semibold">
+                                Salida
+                              </Badge>
+                              <span className="text-xs font-mono text-slate-700 dark:text-slate-300">
+                                {format(new Date(s.hora_salida), 'HH:mm', { locale: es })}
+                              </span>
+                            </div>
+                          )}
+                          <span className="text-[10px] text-slate-400">
+                            Vía: {s.metodo_registro === 'qr_self_service' ? 'QR' : 'Manual'}
                           </span>
                         </div>
                       ) : (
