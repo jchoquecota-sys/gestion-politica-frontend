@@ -27,9 +27,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Calendar as CalendarIcon, Clock, Globe, Upload, Trash2 } from 'lucide-react';
+import { Loader2, Calendar as CalendarIcon, Clock, Globe, Upload, Trash2, MapPin, Navigation } from 'lucide-react';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import MapPicker from '@/features/bases/components/MapPicker';
 
 const actividadSchema = z.object({
   titulo: z.string().min(3, 'El título es requerido').max(200),
@@ -40,6 +41,9 @@ const actividadSchema = z.object({
   estado: z.enum(['borrador', 'creada', 'cancelada']),
   es_publica: z.boolean(),
   foto_portada: z.any().optional(), // File object
+  latitud: z.number().nullable().optional(),
+  longitud: z.number().nullable().optional(),
+  radio_asistencia_metros: z.number().min(1).optional(),
 });
 
 interface ActividadFormValues {
@@ -51,6 +55,9 @@ interface ActividadFormValues {
   estado: ActividadEstado;
   es_publica: boolean;
   foto_portada?: any;
+  latitud?: number | null;
+  longitud?: number | null;
+  radio_asistencia_metros?: number;
 }
 
 interface ActividadFormDialogProps {
@@ -79,6 +86,9 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
     estado: 'creada',
     es_publica: false,
     foto_portada: undefined,
+    latitud: null,
+    longitud: null,
+    radio_asistencia_metros: 100,
   };
 
   const computedFormValues = useMemo(() => {
@@ -93,6 +103,9 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
         estado: actividad.estado || 'creada',
         es_publica: actividad.es_publica ?? false,
         foto_portada: undefined, // Reset file on load
+        latitud: actividad.latitud,
+        longitud: actividad.longitud,
+        radio_asistencia_metros: actividad.radio_asistencia_metros || 100,
       };
     }
     return undefined;
@@ -111,6 +124,9 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
     defaultValues: defaultFormValues,
     values: isEditing ? computedFormValues : undefined,
   });
+
+  const watchLat = watch('latitud');
+  const watchLng = watch('longitud');
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const selectedFile = watch('foto_portada');
@@ -144,6 +160,9 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
       tipo_actividad_id: data.tipo_actividad_id,
       estado: data.estado,
       es_publica: data.es_publica,
+      latitud: data.latitud,
+      longitud: data.longitud,
+      radio_asistencia_metros: data.radio_asistencia_metros,
       foto_portada: data.foto_portada instanceof File ? data.foto_portada : null,
     };
 
@@ -169,7 +188,7 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[650px] max-h-[95vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[800px] lg:max-w-[900px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Editar Actividad' : 'Nueva Actividad'}</DialogTitle>
           <DialogDescription>
@@ -186,147 +205,184 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="titulo">Título de la Actividad</Label>
-                <Input id="titulo" {...register('titulo')} placeholder="Ej: Asamblea de Coordinación Regional" />
-                {errors.titulo && <p className="text-xs text-red-500 font-medium">{errors.titulo.message}</p>}
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="descripcion">Descripción</Label>
-                <Textarea id="descripcion" {...register('descripcion')} placeholder="Detalle los objetivos y resultados..." className="min-h-[100px]" />
-                {errors.descripcion && <p className="text-xs text-red-500 font-medium">{errors.descripcion.message}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="fecha" className="flex items-center gap-2">
-                  <CalendarIcon className="h-3.5 w-3.5 text-slate-400" /> Fecha
-                </Label>
-                <Input id="fecha" type="date" {...register('fecha')} />
-                {errors.fecha && <p className="text-xs text-red-500 font-medium">{errors.fecha.message}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="hora" className="flex items-center gap-2">
-                  <Clock className="h-3.5 w-3.5 text-slate-400" /> Hora
-                </Label>
-                <Input id="hora" type="time" {...register('hora')} />
-                {errors.hora && <p className="text-xs text-red-500 font-medium">{errors.hora.message}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tipo_actividad_id">Tipo de Actividad</Label>
-                <Select 
-                  key={isPending ? 'loading' : `ready-${watch('tipo_actividad_id')}`}
-                  onValueChange={(val) => setValue('tipo_actividad_id', Number(val))}
-                  value={watch('tipo_actividad_id')?.toString()}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione un tipo" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {tipos?.map(t => (
-                      <SelectItem key={t.id} value={t.id.toString()}>{t.nombre}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.tipo_actividad_id && <p className="text-xs text-red-500 font-medium">{errors.tipo_actividad_id.message}</p>}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="estado">Estado</Label>
-                <Select 
-                  onValueChange={(val) => setValue('estado', val as ActividadEstado)}
-                  value={watch('estado')}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Estado" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="borrador">Borrador</SelectItem>
-                    <SelectItem value="creada">Creada / Programada</SelectItem>
-                    <SelectItem value="cancelada">Cancelada</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.estado && <p className="text-xs text-red-500 font-medium">{errors.estado.message}</p>}
-              </div>
-
-              {/* Visibilidad pública y Foto */}
-              <div className="md:col-span-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="es_publica" className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-primary" />
-                      Publicar en Landing Page
-                    </Label>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Hace que la actividad sea visible para el público en general.
-                    </p>
-                  </div>
-                  <Switch
-                    id="es_publica"
-                    checked={watch('es_publica')}
-                    onCheckedChange={(val) => setValue('es_publica', val)}
-                  />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Columna Izquierda: Datos Básicos */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="titulo">Título de la Actividad</Label>
+                  <Input id="titulo" {...register('titulo')} placeholder="Ej: Asamblea de Coordinación Regional" />
+                  {errors.titulo && <p className="text-xs text-red-500 font-medium">{errors.titulo.message}</p>}
                 </div>
 
-                {watch('es_publica') && (
-                  <div className="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-                    <Label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Imagen de Portada</Label>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                      {/* Preview area */}
-                      <div className="relative aspect-video rounded-lg overflow-hidden border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 flex items-center justify-center group">
-                        {previewUrl ? (
-                          <>
-                            <Image src={previewUrl} alt="Preview" fill className="object-cover" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                              <Button 
-                                type="button" 
-                                size="sm" 
-                                variant="destructive" 
-                                className="h-8 w-8 p-0"
-                                onClick={() => setValue('foto_portada', null)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="text-center p-4">
-                            <Upload className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-                            <p className="text-[10px] text-slate-500 uppercase font-bold">Sin imagen</p>
-                          </div>
-                        )}
-                      </div>
+                <div className="space-y-2">
+                  <Label htmlFor="descripcion">Descripción</Label>
+                  <Textarea id="descripcion" {...register('descripcion')} placeholder="Detalle los objetivos y resultados..." className="min-h-[100px]" />
+                  {errors.descripcion && <p className="text-xs text-red-500 font-medium">{errors.descripcion.message}</p>}
+                </div>
 
-                      {/* Upload button area */}
-                      <div className="space-y-2">
-                        <Label 
-                          htmlFor="foto_portada" 
-                          className="flex flex-col items-center justify-center gap-2 p-4 rounded-lg border-2 border-dashed border-primary/20 dark:border-primary/40 bg-primary/5 hover:bg-primary/10 cursor-pointer transition-colors"
-                        >
-                          <Upload className="h-5 w-5 text-primary" />
-                          <div className="text-center">
-                            <p className="text-xs font-bold text-primary">Subir nueva foto</p>
-                            <p className="text-[10px] text-primary/70 mt-1">PNG, JPG hasta 5MB</p>
-                          </div>
-                        </Label>
-                        <input 
-                          id="foto_portada"
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) setValue('foto_portada', file);
-                          }}
-                        />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fecha" className="flex items-center gap-2">
+                      <CalendarIcon className="h-3.5 w-3.5 text-slate-400" /> Fecha
+                    </Label>
+                    <Input id="fecha" type="date" {...register('fecha')} />
+                    {errors.fecha && <p className="text-xs text-red-500 font-medium">{errors.fecha.message}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="hora" className="flex items-center gap-2">
+                      <Clock className="h-3.5 w-3.5 text-slate-400" /> Hora
+                    </Label>
+                    <Input id="hora" type="time" {...register('hora')} />
+                    {errors.hora && <p className="text-xs text-red-500 font-medium">{errors.hora.message}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tipo_actividad_id">Tipo</Label>
+                    <Select 
+                      key={isPending ? 'loading' : `ready-${watch('tipo_actividad_id')}`}
+                      onValueChange={(val) => setValue('tipo_actividad_id', Number(val))}
+                      value={watch('tipo_actividad_id')?.toString()}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {tipos?.map(t => (
+                          <SelectItem key={t.id} value={t.id.toString()}>{t.nombre}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.tipo_actividad_id && <p className="text-xs text-red-500 font-medium">{errors.tipo_actividad_id.message}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="estado">Estado</Label>
+                    <Select 
+                      onValueChange={(val) => setValue('estado', val as ActividadEstado)}
+                      value={watch('estado')}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Estado" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="borrador">Borrador</SelectItem>
+                        <SelectItem value="creada">Programada</SelectItem>
+                        <SelectItem value="cancelada">Cancelada</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.estado && <p className="text-xs text-red-500 font-medium">{errors.estado.message}</p>}
+                  </div>
+                </div>
+
+                {/* Visibilidad pública y Foto */}
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="es_publica" className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-primary" />
+                        Publicar en Landing Page
+                      </Label>
+                    </div>
+                    <Switch
+                      id="es_publica"
+                      checked={watch('es_publica')}
+                      onCheckedChange={(val) => setValue('es_publica', val)}
+                    />
+                  </div>
+
+                  {watch('es_publica') && (
+                    <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+                      <div className="grid grid-cols-2 gap-4 items-center">
+                        <div className="relative aspect-video rounded-lg overflow-hidden border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 flex items-center justify-center group">
+                          {previewUrl ? (
+                            <>
+                              <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <Button type="button" size="sm" variant="destructive" className="h-8 w-8 p-0" onClick={() => setValue('foto_portada', null)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-center p-2">
+                              <Upload className="h-6 w-6 text-slate-400 mx-auto mb-1" />
+                              <p className="text-[10px] text-slate-500 uppercase font-bold">Sin foto</p>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label 
+                            htmlFor="foto_portada" 
+                            className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg border-2 border-dashed border-primary/20 dark:border-primary/40 bg-primary/5 hover:bg-primary/10 cursor-pointer transition-colors text-center"
+                          >
+                            <Upload className="h-4 w-4 text-primary" />
+                            <p className="text-xs font-bold text-primary leading-tight">Subir foto</p>
+                          </Label>
+                          <input 
+                            id="foto_portada"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) setValue('foto_portada', file);
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Columna Derecha: Configuraciones */}
+              <div className="space-y-4">
+                {/* Geolocalización con Mapa */}
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-4 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <Label className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        Geolocalización
+                      </Label>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Mueva el pin en el mapa para fijar el evento.
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-1 items-end">
+                      <Label htmlFor="radio_asistencia_metros" className="text-xs">Radio (m)</Label>
+                      <Input 
+                        id="radio_asistencia_metros" 
+                        type="number" 
+                        className="w-20 h-8 text-xs"
+                        {...register('radio_asistencia_metros', { valueAsNumber: true })} 
+                      />
+                    </div>
                   </div>
-                )}
+
+                  <MapPicker 
+                    lat={watchLat || undefined} 
+                    lng={watchLng || undefined} 
+                    onChange={(lat, lng) => {
+                      setValue('latitud', lat);
+                      setValue('longitud', lng);
+                    }}
+                    disabled={isPending}
+                  />
+
+                  <div className="flex gap-4 text-xs text-slate-500 bg-white dark:bg-slate-950 p-2 rounded-md border border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center gap-1">
+                      <Navigation className="h-3 w-3" /> Lat: {watchLat?.toFixed(6) || 'N/A'}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Navigation className="h-3 w-3" /> Lng: {watchLng?.toFixed(6) || 'N/A'}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
