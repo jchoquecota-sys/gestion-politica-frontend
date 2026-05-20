@@ -26,7 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, User, Users, Home, Map, Trash2, FileEdit, MoreVertical, Image as ImageIcon } from 'lucide-react';
+import { Plus, User, Users, Home, Map, Trash2, FileEdit, MoreVertical, Image as ImageIcon, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { EjecucionEvidenceDialog } from './EjecucionEvidenceDialog';
 import {
@@ -56,6 +56,7 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
   const [selectedSujeto, setSelectedSujeto] = useState<{ id: number; type: SujetoType }>({ id: 0, type: 'persona' });
   const [manualPersonaId, setManualPersonaId] = useState<number>(0);
   const [reportingSujeto, setReportingSujeto] = useState<SujetoActividad | null>(null);
+  const [viewingSujeto, setViewingSujeto] = useState<SujetoActividad | null>(null);
 
   const { data: sectores } = useSectoresOpciones();
   const { data: bases } = useBasesOpciones();
@@ -153,109 +154,93 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50/50 dark:bg-slate-900/50 border-b dark:border-slate-800">
-                  <TableHead className="w-[200px]">Nombre / Tipo</TableHead>
-                  <TableHead className="w-[150px]">Asistencia</TableHead>
-                  <TableHead>Observaciones</TableHead>
-                  <TableHead className="text-center">Evidencias</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
+                  <TableHead className="w-[200px] h-9 py-2">Nombre / Tipo</TableHead>
+                  <TableHead className="w-[140px] h-9 py-2">Asistencia</TableHead>
+                  <TableHead className="h-9 py-2">Observaciones</TableHead>
+                  <TableHead className="text-center h-9 py-2 w-[80px]">Evidencias</TableHead>
+                  <TableHead className="text-right h-9 py-2 w-[120px]">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {sujetos.map((s) => (
                   <TableRow key={s.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                          {getSujetoIcon(s.sujeto_type)}
-                          <span className="text-slate-900 dark:text-white">{s.nombre_sujeto}</span>
-                        </div>
-                        <Badge variant="outline" className="w-fit text-[10px] h-4 px-1.5 uppercase tracking-wider bg-slate-50 dark:bg-slate-900 dark:border-slate-800">
-                          {s.sujeto_type}
+                    <TableCell className="font-medium py-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-slate-500">{getSujetoIcon(s.sujeto_type)}</span>
+                        <span className="text-sm text-slate-900 dark:text-white whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]" title={s.nombre_sujeto}>{s.nombre_sujeto}</span>
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 uppercase tracking-wider bg-slate-50 dark:bg-slate-900 dark:border-slate-800">
+                          {s.sujeto_type.substring(0, 3)}
                         </Badge>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      {s.hora_asistencia ? (
-                        <div className="flex flex-col gap-1.5">
-                          <div className="flex items-center gap-1.5">
-                            <Badge variant="outline" className="w-fit bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50 text-[10px] py-0.5 px-1.5 font-semibold">
-                              Ingreso
-                            </Badge>
-                            <span className="text-xs font-mono text-slate-700 dark:text-slate-300">
-                              {format(new Date(s.hora_asistencia), 'HH:mm', { locale: es })}
-                            </span>
-                          </div>
-                          {s.hora_salida && (
-                            <div className="flex items-center gap-1.5">
-                              <Badge variant="outline" className="w-fit bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50 text-[10px] py-0.5 px-1.5 font-semibold">
-                                Salida
-                              </Badge>
-                              <span className="text-xs font-mono text-slate-700 dark:text-slate-300">
-                                {format(new Date(s.hora_salida), 'HH:mm', { locale: es })}
-                              </span>
+                    <TableCell className="py-2">
+                      {s.hora_asistencia || s.hora_salida ? (
+                        <div className="flex items-center gap-2">
+                          {s.hora_asistencia && (
+                            <div className="flex items-center gap-1" title="Hora de ingreso">
+                              <span className="text-[10px] font-bold text-emerald-600">IN</span>
+                              <span className="text-xs font-mono">{format(new Date(s.hora_asistencia), 'HH:mm')}</span>
                             </div>
                           )}
-                          <span className="text-[10px] text-slate-400">
-                            Vía: {s.metodo_registro === 'qr_self_service' ? 'QR' : 'Manual'}
-                          </span>
+                          <div className="flex items-center gap-1" title="Hora de salida">
+                            <span className="text-[10px] font-bold text-blue-600">OUT</span>
+                            {s.hora_salida ? (
+                              <span className="text-xs font-mono">{format(new Date(s.hora_salida), 'HH:mm')}</span>
+                            ) : (
+                              <span className="text-[10px] italic text-slate-400">--:--</span>
+                            )}
+                          </div>
                         </div>
                       ) : (
-                        <Badge variant="outline" className="w-fit text-slate-500">Ausente</Badge>
+                        <span className="text-xs text-slate-500">Ausente</span>
                       )}
                     </TableCell>
-                    <TableCell>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2 max-w-[200px] italic">
-                        {s.descripcion_ejecucion || '...'}
+                    <TableCell className="py-2">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 truncate max-w-[150px] italic" title={s.descripcion_ejecucion || 'Sin observaciones'}>
+                        {s.descripcion_ejecucion || '-'}
                       </p>
                     </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex justify-center">
-                        {s.evidencias && s.evidencias.length > 0 ? (
-                          <div className="flex -space-x-2">
-                             {/* Mostramos hasta 3 miniaturas o un contador */}
-                             <div className="h-8 w-8 rounded-md bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 flex items-center justify-center font-bold text-xs">
-                               {s.evidencias.length}
-                             </div>
-                             <div className="h-8 w-8 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
-                               <ImageIcon className="h-3.5 w-3.5" />
-                             </div>
-                          </div>
-                        ) : (
-                          <Badge variant="ghost" className="text-slate-400 font-normal">Ninguna</Badge>
-                        )}
-                      </div>
+                    <TableCell className="text-center py-2">
+                      {s.evidencias && s.evidencias.length > 0 ? (
+                        <Badge variant="secondary" className="text-[10px] h-5 w-5 p-0 flex items-center justify-center mx-auto">{s.evidencias.length}</Badge>
+                      ) : (
+                        <span className="text-xs text-slate-400">-</span>
+                      )}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
+                    <TableCell className="text-right py-2">
+                      <div className="flex justify-end gap-1">
                         <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="h-8 border-primary/20 dark:border-primary/40 text-primary hover:bg-primary/10"
-                          onClick={() => setReportingSujeto(s)}
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-7 w-7 text-primary hover:text-primary hover:bg-primary/10"
+                          onClick={() => setViewingSujeto(s)}
+                          title="Ver Detalles"
                         >
-                          <FileEdit className="h-3.5 w-3.5 mr-1.5" /> Reportar
+                          <Eye className="h-4 w-4" />
                         </Button>
-                        
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem 
-                              className="text-brand-secondary focus:text-brand-secondary cursor-pointer"
-                              onClick={() => {
-                                if (confirm('¿Está seguro de desvincular a este participante?')) {
-                                  desvincular(s.id!);
-                                  toast.success('Participante desvinculado');
-                                }
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" /> Eliminar Asignación
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-7 w-7 text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/30"
+                          onClick={() => setReportingSujeto(s)}
+                          title="Reportar Evidencia"
+                        >
+                          <FileEdit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30"
+                          onClick={() => {
+                            if (confirm('¿Está seguro de desvincular a este participante?')) {
+                              desvincular(s.id!);
+                              toast.success('Participante desvinculado');
+                            }
+                          }}
+                          title="Eliminar Asignación"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -379,6 +364,83 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
           onClose={() => setReportingSujeto(null)}
         />
       )}
+
+      {/* Dialog para Ver Detalles */}
+      <Dialog open={!!viewingSujeto} onOpenChange={(open) => !open && setViewingSujeto(null)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Detalle de Participación</DialogTitle>
+            <DialogDescription>
+              Información detallada del participante en la actividad.
+            </DialogDescription>
+          </DialogHeader>
+          {viewingSujeto && (
+            <div className="space-y-4 py-4">
+              <div>
+                <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">Participante</h4>
+                <div className="flex items-center gap-2">
+                  {getSujetoIcon(viewingSujeto.sujeto_type)}
+                  <span className="font-medium">{viewingSujeto.nombre_sujeto}</span>
+                  <Badge variant="outline" className="text-[10px] uppercase">{viewingSujeto.sujeto_type}</Badge>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Registro de Asistencia</h4>
+                {viewingSujeto.hora_asistencia || viewingSujeto.hora_salida ? (
+                  <div className="flex flex-col gap-2 p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
+                    {viewingSujeto.hora_asistencia && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 w-16 justify-center">Ingreso</Badge>
+                        <span className="text-sm font-mono">{format(new Date(viewingSujeto.hora_asistencia), 'dd/MM/yyyy HH:mm', { locale: es })}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 w-16 justify-center">Salida</Badge>
+                      {viewingSujeto.hora_salida ? (
+                        <span className="text-sm font-mono">{format(new Date(viewingSujeto.hora_salida), 'dd/MM/yyyy HH:mm', { locale: es })}</span>
+                      ) : (
+                        <span className="text-sm italic text-slate-500">Pendiente</span>
+                      )}
+                    </div>
+                    <div className="mt-2 text-xs text-slate-500 border-t pt-2">
+                      Método de registro: <strong>{viewingSujeto.metodo_registro === 'qr_self_service' ? 'QR Autoregistro' : 'Registro Manual'}</strong>
+                    </div>
+                  </div>
+                ) : (
+                  <Badge variant="outline" className="text-slate-500">Ausente / Sin Registrar</Badge>
+                )}
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Observaciones / Reporte</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400 p-3 bg-slate-50 dark:bg-slate-900 rounded-md border min-h-[60px]">
+                  {viewingSujeto.descripcion_ejecucion || 'Sin observaciones registradas.'}
+                </p>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Evidencias Adjuntas</h4>
+                {viewingSujeto.evidencias && viewingSujeto.evidencias.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {viewingSujeto.evidencias.map((url, index) => (
+                      <a key={index} href={url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center h-20 w-20 bg-slate-100 dark:bg-slate-800 rounded-md border hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <ImageIcon className="h-6 w-6 text-slate-500 mb-1" />
+                        <span className="text-[10px] text-slate-500">Ver Archivo</span>
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500 italic p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">No se adjuntaron evidencias.</p>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewingSujeto(null)}>Cerrar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
