@@ -189,3 +189,16 @@ export const useMarcarAsistenciaQR = (actividadId: number) => {
     },
   });
 };
+
+export const useMarcarAsistenciaDNI = (actividadId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { dni: string; latitud_usuario: number; longitud_usuario: number; browser_fingerprint: string }) => {
+      const { data } = await api.post(`/public/actividades/${actividadId}/asistencias/dni`, payload);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actividad', actividadId] });
+    },
+  });
+};
