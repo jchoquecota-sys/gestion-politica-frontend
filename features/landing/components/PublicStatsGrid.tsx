@@ -1,6 +1,7 @@
 'use client';
 
 import { Users, Building2, CalendarCheck } from 'lucide-react';
+import Image from 'next/image';
 import type { PublicStat } from '../types';
 
 interface PublicStatsGridProps {
@@ -33,10 +34,21 @@ const statItems = [
 export function PublicStatsGrid({ stats, isLoading }: PublicStatsGridProps) {
   return (
     <section id="estadisticas" className="relative py-28 overflow-hidden">
-      {/* Primary blue brand background */}
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/bg-estadisticas.jpg"
+          alt="Fondo de Estadísticas"
+          fill
+          className="object-cover"
+          quality={90}
+        />
+      </div>
+
+      {/* Dark overlay for all modes */}
       <div
-        className="absolute inset-0"
-        style={{ background: 'linear-gradient(135deg, #042f98 0%, #031e6b 50%, #020e3d 100%)' }}
+        className="absolute inset-0 z-0"
+        style={{ background: 'linear-gradient(135deg, rgba(4, 47, 152, 0.65) 0%, rgba(3, 30, 107, 0.75) 50%, rgba(2, 14, 61, 0.85) 100%)' }}
       />
 
       {/* Decorative orbs */}
@@ -55,7 +67,7 @@ export function PublicStatsGrid({ stats, isLoading }: PublicStatsGridProps) {
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-14">
           {/* Eyebrow in secondary color */}
-          <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: '#c06060' }}>Nuestra Fuerza</p>
+          <p className="text-sm font-bold uppercase tracking-widest mb-3 text-[#c06060]">Nuestra Fuerza</p>
           <h2 className="text-4xl font-black text-white">La campaña en números</h2>
           <p className="text-white/50 mt-3 max-w-xl mx-auto text-sm">
             Una estructura territorial sólida, organizada y comprometida con el cambio.
@@ -70,7 +82,7 @@ export function PublicStatsGrid({ stats, isLoading }: PublicStatsGridProps) {
             return (
               <div
                 key={item.key}
-                className="group relative bg-white/8 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/12 hover:border-white/20 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                className="group relative bg-white/8 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/12 hover:border-white/20 transition-all duration-300 hover:-translate-y-1 overflow-hidden shadow-sm"
               >
                 {/* Secondary accent: left border strip */}
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#893030]/80 via-[#893030]/40 to-transparent rounded-l-2xl" />

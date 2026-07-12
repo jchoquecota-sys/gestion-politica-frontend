@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useActividadBasica, useMarcarAsistenciaQR } from '@/features/actividades/hooks';
+import { useActividadBasica, useMarcarAsistenciaQR, useMarcarAsistenciaDNI } from '@/features/actividades/hooks';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { MapPin, CheckCircle2, XCircle, Loader2, LogIn, UserCheck } from 'lucide-react';
 
 export default function AsistenciaPublicPage() {
@@ -15,12 +16,14 @@ export default function AsistenciaPublicPage() {
   const { user, token } = useAuthStore();
   const isAuthenticated = !!token;
   const { data: actividad, isLoading: isLoadingAct } = useActividadBasica(actividadId);
-  const { mutate: marcarQR, isPending } = useMarcarAsistenciaQR(actividadId);
+  const { mutate: marcarQR } = useMarcarAsistenciaQR(actividadId);
+  const { mutate: marcarDNI } = useMarcarAsistenciaDNI(actividadId);
 
   const [status, setStatus] = useState<'idle' | 'locating' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [successType, setSuccessType] = useState<'ingreso' | 'salida'>('ingreso');
+  const [dni, setDni] = useState('');
 
   // Generar o recuperar Fingerprint
   const getFingerprint = () => {
@@ -33,6 +36,12 @@ export default function AsistenciaPublicPage() {
   };
 
   const handleCheckIn = () => {
+    if (!isAuthenticated && !dni.trim()) {
+      setStatus('error');
+      setErrorMessage('Debes ingresar tu DNI para marcar asistencia.');
+      return;
+    }
+
     if (!navigator.geolocation) {
       setStatus('error');
       setErrorMessage('Tu navegador no soporta geolocalización.');
@@ -49,17 +58,22 @@ export default function AsistenciaPublicPage() {
           browser_fingerprint: getFingerprint(),
         };
 
-        marcarQR(payload, {
-          onSuccess: (response: any) => {
-            setSuccessMessage(response.message || 'Asistencia registrada correctamente.');
-            setSuccessType(response.tipo || 'ingreso');
-            setStatus('success');
-          },
-          onError: (error: any) => {
-            setStatus('error');
-            setErrorMessage(error.response?.data?.message || 'Error al registrar la asistencia.');
-          }
-        });
+        const onSuccess = (response: any) => {
+          setSuccessMessage(response.message || 'Asistencia registrada correctamente.');
+          setSuccessType(response.tipo || 'ingreso');
+          setStatus('success');
+        };
+
+        const onError = (error: any) => {
+          setStatus('error');
+          setErrorMessage(error.response?.data?.message || 'Error al registrar la asistencia.');
+        };
+
+        if (isAuthenticated) {
+          marcarQR(payload, { onSuccess, onError });
+        } else {
+          marcarDNI({ ...payload, dni: dni.trim() }, { onSuccess, onError });
+        }
       },
       (error) => {
         setStatus('error');
@@ -100,28 +114,6 @@ export default function AsistenciaPublicPage() {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 text-center">
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl max-w-sm w-full border border-slate-100 dark:border-slate-800">
-          <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
-            <LogIn className="h-8 w-8 text-primary" />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Inicia Sesión</h1>
-          <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">
-            Para registrar tu asistencia a <strong>{actividad.titulo}</strong>, necesitas iniciar sesión primero.
-          </p>
-          <Button 
-            className="w-full h-12 text-lg font-medium" 
-            onClick={() => router.push(`/login?redirect=/asistencia/${actividadId}`)}
-          >
-            Ir al Login
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
@@ -146,12 +138,46 @@ export default function AsistenciaPublicPage() {
                   El sistema verificará tu ubicación GPS para confirmar que te encuentras en el local.
                 </p>
               </div>
-              <Button 
-                onClick={handleCheckIn} 
-                className="w-full h-auto py-4 text-base sm:text-lg font-bold rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 whitespace-normal leading-tight"
-              >
-                Marcar Asistencia Ahora
-              </Button>
+
+              {!isAuthenticated ? (
+                <div className="space-y-4 mt-4">
+                  <div className="space-y-2 text-left">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Número de DNI</label>
+                    <Input 
+                      type="text" 
+                      placeholder="Ingrese su DNI" 
+                      value={dni}
+                      onChange={(e) => setDni(e.target.value)}
+                      className="h-12 text-center text-lg"
+                      maxLength={15}
+                    />
+                  </div>
+                  <Button 
+                    onClick={handleCheckIn} 
+                    className="w-full h-auto py-4 text-base sm:text-lg font-bold rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 leading-tight"
+                  >
+                    Marcar Asistencia con DNI
+                  </Button>
+
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <p className="text-xs text-slate-500 mb-3">¿Ya tienes cuenta en el sistema?</p>
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => router.push(`/login?redirect=/asistencia/${actividadId}`)}
+                    >
+                      <LogIn className="h-4 w-4 mr-2" /> Iniciar Sesión
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button 
+                  onClick={handleCheckIn} 
+                  className="w-full h-auto py-4 text-base sm:text-lg font-bold rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 whitespace-normal leading-tight"
+                >
+                  Marcar Asistencia Ahora
+                </Button>
+              )}
             </div>
           )}
 
@@ -220,7 +246,7 @@ export default function AsistenciaPublicPage() {
         <div className="bg-slate-50 dark:bg-slate-950 p-4 text-center border-t border-slate-100 dark:border-slate-800">
           <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center justify-center gap-1">
             <UserCheck className="h-3 w-3" />
-            Hola, {user?.name}
+            {isAuthenticated ? `Hola, ${user?.name}` : 'Registro Público Seguro'}
           </p>
         </div>
       </div>

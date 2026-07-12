@@ -46,6 +46,9 @@ export interface CreateActividadDTO {
   tipo_actividad_id: number;
   estado: ActividadEstado;
   es_publica?: boolean;
+  latitud?: number | null;
+  longitud?: number | null;
+  radio_asistencia_metros?: number;
   foto_portada_path?: string;
   foto_portada?: File | null;
   sujetos?: SujetoActividad[];

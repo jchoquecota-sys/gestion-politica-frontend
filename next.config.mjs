@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  //output: 'export',
   images: {
     // En desarrollo, desactivamos la optimización para evitar problemas con el proxy de Next.js y localhost.
     // Esto hace que las imágenes se carguen directamente desde la URL del backend.
@@ -28,6 +29,12 @@ const nextConfig = {
         hostname: 'gp-backend-test.loca.lt',
         pathname: '/storage/**',
       },
+      {
+        protocol: 'http',
+        hostname: '79.143.191.165',
+        port: '8080',
+        pathname: '/storage/**',
+      }
     ],
   },
   allowedDevOrigins: [
