@@ -87,6 +87,20 @@ export function RoleFormDialog({ isOpen, onClose, role }: RoleFormDialogProps) {
     }
   };
 
+  const handleToggleModule = (moduleName: string, perms: string[]) => {
+    const allSelected = perms.every((perm) => selectedPermissions.includes(perm));
+    if (allSelected) {
+      setValue(
+        'permissions',
+        selectedPermissions.filter((p) => !perms.includes(p)),
+        { shouldDirty: true }
+      );
+    } else {
+      const otherPermissions = selectedPermissions.filter((p) => !perms.includes(p));
+      setValue('permissions', [...otherPermissions, ...perms], { shouldDirty: true });
+    }
+  };
+
   const onSubmit = (data: RoleFormValues) => {
     // Evitar enviar data.permissions si no se modificaron en edición, o enviar todo (según la API lo permite)
     if (isEditing && role) {
@@ -134,9 +148,21 @@ export function RoleFormDialog({ isOpen, onClose, role }: RoleFormDialogProps) {
               <div className="space-y-4">
                 {Object.entries(groupedPermissions).map(([moduleName, perms]) => (
                   <div key={moduleName} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border">
-                    <h4 className="font-medium text-sm text-slate-800 capitalize mb-3 border-b pb-2">
-                      Módulo: {moduleName}
-                    </h4>
+                    <div className="flex justify-between items-center mb-3 border-b pb-2">
+                      <h4 className="font-medium text-sm text-slate-800 dark:text-slate-200 capitalize">
+                        Módulo: {moduleName}
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleModule(moduleName, perms)}
+                        className="text-xs text-primary hover:text-primary/80 hover:underline font-semibold transition-colors"
+                        disabled={isPending}
+                      >
+                        {perms.every((perm) => selectedPermissions.includes(perm))
+                          ? 'Desmarcar todo'
+                          : 'Seleccionar todo'}
+                      </button>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       {perms.map((perm) => (
                         <div key={perm} className="flex flex-row items-start space-x-3 space-y-0">

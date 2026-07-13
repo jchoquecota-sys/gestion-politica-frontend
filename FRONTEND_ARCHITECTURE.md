@@ -126,3 +126,17 @@ Para mantener la consistencia en todo el sistema, todas las tablas de datos debe
 
 ### 3. Información de Auditoría
 - Siempre que sea posible, incluye un icono de información (`Info`) o similar cerca del nombre principal del registro que muestre mediante un tooltip o atributo `title` los datos de creación y última actualización.
+
+---
+
+## 🔑 Estándares de Permisos y Roles (RBAC)
+
+Para mantener la alineación con el backend y una óptima experiencia de usuario:
+
+### 1. Nomenclatura Unificada `:view`
+- Todo control de visibilidad de secciones o acceso a vistas debe usar el permiso `modulo:view` (ej. `roles:view`, `personas:view`). No debe existir la distinción de `:list` en las rutas del dashboard o en la carga de vistas principales.
+
+### 2. Gestión Eficiente en Formularios de Roles
+- Los formularios para la creación o edición de roles deben agrupar los permisos por módulo (extrayendo el prefijo antes del carácter `:`).
+- Cada grupo de módulo debe proveer un atajo visual tipo **"Seleccionar todo" / "Desmarcar todo"** para agilizar la asignación de permisos, facilitando la administración rápida del sistema.
+- El hook `hasPermission` provisto por el store de autenticación es el punto central para validar los permisos cargados del usuario actual.
