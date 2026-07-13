@@ -30,6 +30,8 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 
 interface PersonasTableProps {
@@ -240,10 +242,10 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
               <Trash2 className="h-8 w-8 text-brand-secondary" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-slate-900">¿Eliminar persona?</h3>
-              <p className="text-sm text-slate-500">
+              <DialogTitle className="text-xl font-semibold text-slate-900">¿Eliminar persona?</DialogTitle>
+              <DialogDescription className="text-sm text-slate-500">
                 Esta acción moverá a la persona a la papelera. Podrá ser restaurada por un administrador si es necesario.
-              </p>
+              </DialogDescription>
             </div>
             <div className="flex w-full gap-3 mt-4">
               <Button 
