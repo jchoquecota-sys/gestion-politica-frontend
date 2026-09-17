@@ -40,13 +40,20 @@ export function PublicNavbar({ candidate }: PublicNavbarProps) {
         {/* Logo / Name */}
         <a href="#" className="flex items-center gap-3">
           {candidate?.logo_url ? (
-            <div className="relative h-10 w-10">
-              <Image src={candidate.logo_url} alt="Logo" fill className="object-contain" />
+            <div className="relative h-12 w-12 shrink-0">
+              <Image
+                src={candidate.logo_url}
+                alt="Logo Ahora Nación Tacna"
+                fill
+                className="object-contain"
+                sizes="48px"
+                priority
+              />
             </div>
           ) : (
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center text-primary-foreground font-black text-lg"
-              style={{ backgroundColor: candidate?.color_primario ?? '#042f98' }}
+              style={{ backgroundColor: candidate?.color_primario ?? '#E31B23' }}
             >
               {(candidate?.nombre_candidato ?? 'C')[0]}
             </div>

@@ -14,16 +14,16 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
-// Custom blue campaign marker
+// Custom campaign marker
 const campaignIcon = new L.DivIcon({
   html: `
     <div style="
       width: 28px; height: 28px;
-      background: linear-gradient(135deg, #042f98, #1e3a8a);
+      background: linear-gradient(135deg, #E31B23, #9B1218);
       border-radius: 50% 50% 50% 0;
       transform: rotate(-45deg);
       border: 2px solid white;
-      box-shadow: 0 4px 10px rgba(4,47,152,0.3);
+      box-shadow: 0 4px 10px rgba(227,27,35,0.35);
     "></div>
   `,
   className: '',
@@ -37,7 +37,7 @@ interface PublicBasesMapProps {
   isLoading: boolean;
 }
 
-const DEFAULT_CENTER: [number, number] = [-16.4, -71.5]; // Arequipa, Peru
+const DEFAULT_CENTER: [number, number] = [-18.005, -70.248]; // Alto de la Alianza, Tacna
 
 export default function PublicBasesMap({ bases, isLoading }: PublicBasesMapProps) {
   const validBases = bases.filter((b) => b.lat && b.lng);

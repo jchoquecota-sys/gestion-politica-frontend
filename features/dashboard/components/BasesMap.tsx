@@ -27,8 +27,8 @@ interface BasesMapProps {
 export default function BasesMap({ points, isLoading }: BasesMapProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   
-  // Centro en Tacna, Perú
-  const center: [number, number] = [-18.0145, -70.2536]; 
+  // Centro en Alto de la Alianza, Tacna, Perú
+  const center: [number, number] = [-18.005, -70.248]; 
 
   if (isLoading) {
     return (
@@ -50,7 +50,7 @@ export default function BasesMap({ points, isLoading }: BasesMapProps) {
             <MapPin className="h-4 w-4 text-primary" />
           </div>
           <div>
-            <CardTitle className="text-lg font-bold">Mapa Estratégico Tacna</CardTitle>
+            <CardTitle className="text-lg font-bold">Mapa Estratégico Alto de la Alianza</CardTitle>
             <CardDescription>Distribución territorial de bases operativas</CardDescription>
           </div>
         </div>

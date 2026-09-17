@@ -3,6 +3,7 @@
 import { Users, Building2, CalendarCheck } from 'lucide-react';
 import Image from 'next/image';
 import type { PublicStat } from '../types';
+import { CAMPAIGN_DEFAULTS, hexToRgba, shadeColor } from '../utils/colors';
 
 interface PublicStatsGridProps {
   stats: PublicStat | undefined;
@@ -31,7 +32,9 @@ const statItems = [
   },
 ];
 
-export function PublicStatsGrid({ stats, isLoading }: PublicStatsGridProps) {
+export function PublicStatsGrid({ stats, isLoading, colorPrimario }: PublicStatsGridProps) {
+  const primary = colorPrimario ?? CAMPAIGN_DEFAULTS.primary;
+
   return (
     <section id="estadisticas" className="relative py-28 overflow-hidden">
       {/* Background Image */}
@@ -48,12 +51,14 @@ export function PublicStatsGrid({ stats, isLoading }: PublicStatsGridProps) {
       {/* Dark overlay for all modes */}
       <div
         className="absolute inset-0 z-0"
-        style={{ background: 'linear-gradient(135deg, rgba(4, 47, 152, 0.65) 0%, rgba(3, 30, 107, 0.75) 50%, rgba(2, 14, 61, 0.85) 100%)' }}
+        style={{
+          background: `linear-gradient(135deg, ${hexToRgba(primary, 0.65)} 0%, ${hexToRgba(shadeColor(primary, 0.28), 0.75)} 50%, ${hexToRgba(shadeColor(primary, 0.52), 0.85)} 100%)`,
+        }}
       />
 
       {/* Decorative orbs */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/2" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#893030]/15 rounded-full blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/2" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[var(--campaign-primary)]/15 rounded-full blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/2" />
 
       {/* Decorative rings */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -62,7 +67,7 @@ export function PublicStatsGrid({ stats, isLoading }: PublicStatsGridProps) {
       </div>
 
       {/* Secondary accent line at top */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#893030] to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[var(--campaign-primary)] to-transparent" />
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-14">
@@ -85,7 +90,7 @@ export function PublicStatsGrid({ stats, isLoading }: PublicStatsGridProps) {
                 className="group relative bg-white/8 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/12 hover:border-white/20 transition-all duration-300 hover:-translate-y-1 overflow-hidden shadow-sm"
               >
                 {/* Secondary accent: left border strip */}
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[#893030]/80 via-[#893030]/40 to-transparent rounded-l-2xl" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[var(--campaign-primary)]/80 via-[var(--campaign-primary)]/40 to-transparent rounded-l-2xl" />
 
                 {/* Inner glow top-right */}
                 <div className="absolute top-0 right-0 w-28 h-28 bg-white/4 rounded-full blur-2xl group-hover:bg-white/7 transition-all duration-500" />
@@ -113,7 +118,7 @@ export function PublicStatsGrid({ stats, isLoading }: PublicStatsGridProps) {
                     </div>
 
                     {/* Divider in secondary color */}
-                    <div className="mt-4 mb-3 h-px w-12 bg-gradient-to-r from-[#893030]/70 to-transparent" />
+                    <div className="mt-4 mb-3 h-px w-12 bg-gradient-to-r from-[var(--campaign-primary)]/70 to-transparent" />
 
                     <p className="text-lg font-bold text-white/90 leading-tight">{item.label}</p>
                     <p className="text-[11px] text-white/35 mt-1 uppercase tracking-widest font-semibold">{item.sublabel}</p>

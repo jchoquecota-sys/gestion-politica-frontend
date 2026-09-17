@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Globe, MessageCircle } from 'lucide-react';
 import { SocialIcon } from './SocialIcon';
 import type { CandidateInfo } from '../types';
+import { CAMPAIGN_DEFAULTS, shadeColor } from '../utils/colors';
 
 interface HeroSectionProps {
   candidate: CandidateInfo | null;
@@ -29,11 +30,15 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
   }
 
   const redes = candidate?.redes_sociales ?? {};
+  const primary = candidate?.color_primario ?? CAMPAIGN_DEFAULTS.primary;
+  const secondary = candidate?.color_secundario ?? CAMPAIGN_DEFAULTS.secondary;
+  const primaryMid = shadeColor(primary, 0.28);
+  const primaryDark = shadeColor(primary, 0.52);
 
   return (
     <section
       className="relative min-h-screen flex items-center overflow-hidden"
-      style={{ background: `linear-gradient(135deg, ${candidate?.color_primario ?? '#042f98'} 0%, #031e6b 55%, #020d3a 100%)` }}
+      style={{ background: `linear-gradient(135deg, ${primary} 0%, ${primaryMid} 55%, ${primaryDark} 100%)` }}
     >
       {/* Background Secondary Image Overlay */}
       {candidate?.foto_secundaria_url && (
@@ -49,8 +54,8 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
 
       {/* Decorative elements */}
       <div className="absolute inset-0 opacity-10 z-0" style={{
-      backgroundImage: `radial-gradient(circle at 20% 50%, ${candidate?.color_secundario ?? '#893030'} 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, ${candidate?.color_primario ?? '#042f98'} 0%, transparent 40%)`
+      backgroundImage: `radial-gradient(circle at 20% 50%, ${secondary} 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, ${primary} 0%, transparent 40%)`
       }} />
       <div className="absolute top-0 right-0 w-96 h-96 opacity-5 translate-x-1/3 -translate-y-1/3 z-0">
         <div className="w-full h-full rounded-full border-[60px] border-white" />
@@ -66,7 +71,7 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
                 <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-sm font-bold tracking-wider text-white/90 uppercase">
                   <span
                     className="w-2 h-2 rounded-full animate-pulse"
-                    style={{ backgroundColor: candidate?.color_secundario ?? '#893030' }}
+                    style={{ backgroundColor: secondary }}
                   />
                   {candidate.cargo_candidatura}
                 </div>
@@ -80,7 +85,7 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
               {candidate?.eslogan && (
                 <div 
                   className="inline-block px-4 py-2 rounded-lg shadow-xl"
-                  style={{ backgroundColor: candidate?.color_secundario ?? '#893030' }}
+                  style={{ backgroundColor: secondary }}
                 >
                   <p className="text-lg md:text-xl font-bold text-white italic">
                     "{candidate.eslogan}"
@@ -137,7 +142,7 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
             <div className="flex flex-wrap gap-4 pt-2">
               <a href="#noticias"
                 className="px-8 py-3 rounded-xl font-semibold text-white transition-all duration-200 hover:opacity-90 hover:-translate-y-0.5 shadow-lg"
-                style={{ backgroundColor: candidate?.color_secundario ?? '#893030' }}>
+                style={{ backgroundColor: secondary }}>
                 Ver Actividades
               </a>
               <a href="#estadisticas"
@@ -153,7 +158,7 @@ export function HeroSection({ candidate, isLoading }: HeroSectionProps) {
               {/* Decorative ring */}
               <div
                 className="absolute inset-0 rounded-[2rem] opacity-30 -rotate-3"
-                style={{ background: `linear-gradient(135deg, ${candidate?.color_secundario ?? '#893030'}, transparent)` }}
+                style={{ background: `linear-gradient(135deg, ${secondary}, transparent)` }}
               />
               {candidate?.foto_principal_url ? (
                 <Image

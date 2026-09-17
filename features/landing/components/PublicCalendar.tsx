@@ -29,7 +29,7 @@ export function PublicCalendar({ eventos, isLoading }: PublicCalendarProps) {
       <div className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
 
       {/* Top border accent in secondary */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#893030] to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[var(--campaign-primary)] to-transparent" />
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-14">
@@ -66,13 +66,13 @@ export function PublicCalendar({ eventos, isLoading }: PublicCalendarProps) {
               return (
                 <div
                   key={`evento-${evento.id}-${idx}`}
-                  className={`group relative flex gap-5 bg-card dark:bg-slate-900 rounded-2xl p-5 border transition-all duration-300 hover:border-[#893030]/30 hover:shadow-xl hover:shadow-[#893030]/5 hover:-translate-y-0.5 ${
+                  className={`group relative flex gap-5 bg-card dark:bg-slate-900 rounded-2xl p-5 border transition-all duration-300 hover:border-[var(--campaign-primary)]/30 hover:shadow-xl hover:shadow-[var(--campaign-primary)]/5 hover:-translate-y-0.5 ${
                     upcoming ? 'border-border dark:border-slate-800' : 'border-border dark:border-slate-800 opacity-60'
                   }`}
                 >
                   {/* Left accent border on upcoming events */}
                   {upcoming && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-[#893030]/70" />
+                    <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl bg-[var(--campaign-primary)]/70" />
                   )}
                   {/* Date badge */}
                   <div className={`flex-shrink-0 w-16 h-16 rounded-xl flex flex-col items-center justify-center ${

@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Evita EPERM en Windows cuando `.next` queda bloqueado por antivirus/indexación.
+  distDir: process.env.NEXT_DIST_DIR || '.next-dev',
   //output: 'export',
   images: {
     // En desarrollo, desactivamos la optimización para evitar problemas con el proxy de Next.js y localhost.

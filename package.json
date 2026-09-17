@@ -4,9 +4,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --webpack",
+    "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "clean": "node -e \"const fs=require('fs');for (const d of ['.next','.next-dev']) { try { fs.rmSync(d,{recursive:true,force:true}); console.log('removed',d) } catch(e){ console.warn('skip',d,e.message) } }\"",
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",

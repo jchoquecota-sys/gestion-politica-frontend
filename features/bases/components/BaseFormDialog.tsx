@@ -183,7 +183,7 @@ export function BaseFormDialog({ isOpen, onClose, baseId }: BaseFormDialogProps)
               <div className="space-y-4">
                 <Label className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-primary" />
-                  Ubicación Geográfica (Tacna)
+                  Ubicación Geográfica (Alto de la Alianza)
                 </Label>
                 <MapPicker 
                   lat={watchLat} 

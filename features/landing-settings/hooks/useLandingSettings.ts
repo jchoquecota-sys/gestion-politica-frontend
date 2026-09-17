@@ -25,13 +25,12 @@ export const useUpdateLandingSettings = () => {
 
   return useMutation({
     mutationFn: async (formData: FormData) => {
-      const { data } = await api.post('/landing-settings', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const { data } = await api.post('/landing-settings', formData);
       return data.data as LandingSetting;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['landing-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['public-landing'] });
       toast.success('Configuración de la página pública guardada correctamente.');
     },
     onError: () => {

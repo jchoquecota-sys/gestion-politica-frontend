@@ -6,8 +6,8 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-lea
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Coordenadas por defecto (Tacna, Perú)
-const DEFAULT_CENTER: LatLngTuple = [-18.0117, -70.2536];
+// Coordenadas por defecto (Alto de la Alianza, Tacna, Perú)
+const DEFAULT_CENTER: LatLngTuple = [-18.005, -70.248];
 
 interface MapPickerProps {
   lat?: number;

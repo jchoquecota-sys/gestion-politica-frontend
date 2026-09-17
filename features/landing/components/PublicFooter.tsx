@@ -1,8 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import { Globe, MessageCircle } from 'lucide-react';
 import { SocialIcon } from './SocialIcon';
 import type { CandidateInfo } from '../types';
+import { CAMPAIGN_DEFAULTS, shadeColor } from '../utils/colors';
 
 interface PublicFooterProps {
   candidate: CandidateInfo | null;
@@ -11,16 +13,21 @@ interface PublicFooterProps {
 export function PublicFooter({ candidate }: PublicFooterProps) {
   const year = new Date().getFullYear();
   const redes = candidate?.redes_sociales ?? {};
+  const primary = candidate?.color_primario ?? CAMPAIGN_DEFAULTS.primary;
+  const secondary = candidate?.color_secundario ?? CAMPAIGN_DEFAULTS.secondary;
+  const primaryMid = shadeColor(primary, 0.28);
+  const primaryDark = shadeColor(primary, 0.52);
 
   return (
     <footer className="relative text-white overflow-hidden">
-      {/* Primary blue background */}
       <div
         className="absolute inset-0"
-        style={{ background: 'linear-gradient(135deg, #042f98 0%, #031e6b 60%, #020e3d 100%)' }}
+        style={{ background: `linear-gradient(135deg, ${primary} 0%, ${primaryMid} 60%, ${primaryDark} 100%)` }}
       />
-      {/* Secondary accent line at top */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#893030] to-transparent" />
+      <div
+        className="absolute top-0 left-0 right-0 h-0.5"
+        style={{ background: `linear-gradient(to right, transparent, ${secondary}, transparent)` }}
+      />
       {/* Subtle orb */}
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-white/4 rounded-full blur-3xl pointer-events-none translate-x-1/3 translate-y-1/3" />
 
@@ -28,12 +35,23 @@ export function PublicFooter({ candidate }: PublicFooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
           {/* Brand */}
           <div className="space-y-4">
+            {candidate?.logo_url && (
+              <div className="relative h-16 w-16">
+                <Image
+                  src={candidate.logo_url}
+                  alt="Logo Ahora Nación Tacna"
+                  fill
+                  className="object-contain"
+                  sizes="64px"
+                />
+              </div>
+            )}
             <h3 className="text-2xl font-black text-white">{candidate?.nombre_candidato ?? 'Candidato'}</h3>
             {candidate?.cargo_candidatura && (
               <p className="text-white/40 text-sm font-medium uppercase tracking-wider">{candidate.cargo_candidatura}</p>
             )}
             {candidate?.eslogan && (
-              <p className="text-white/60 italic text-sm border-l-2 border-[#893030]/60 pl-3">"{candidate.eslogan}"</p>
+              <p className="text-white/60 italic text-sm border-l-2 pl-3" style={{ borderColor: `${secondary}99` }}>"{candidate.eslogan}"</p>
             )}
           </div>
 

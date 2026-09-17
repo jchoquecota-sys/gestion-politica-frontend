@@ -25,14 +25,14 @@ export function PublicNewsFeed({ noticias, isLoading }: PublicNewsFeedProps) {
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-brand-secondary/5 rounded-full blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/3" />
 
       {/* Top border accent in secondary color */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#893030] to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[var(--campaign-primary)] to-transparent" />
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-14">
           <p className="text-sm font-bold uppercase tracking-widest mb-3 text-primary dark:text-[#c06060]">Campaña en Acción</p>
           <h2 className="text-4xl font-black text-foreground dark:text-white">Noticias y Actividades</h2>
           <p className="text-muted-foreground dark:text-slate-400 mt-3 max-w-xl mx-auto">
-            Conoce lo que estamos haciendo en cada rincón del distrito.
+            Conoce lo que estamos haciendo en cada rincón de Alto de la Alianza.
           </p>
         </div>
 
@@ -59,10 +59,10 @@ export function PublicNewsFeed({ noticias, isLoading }: PublicNewsFeedProps) {
             {noticias.map((noticia, idx) => (
               <article
                 key={`noticia-${noticia.id}-${idx}`}
-                className="group relative flex flex-col rounded-2xl overflow-hidden bg-card dark:bg-slate-900 border border-border dark:border-slate-800 hover:border-[#893030]/40 hover:shadow-2xl hover:shadow-[#893030]/5 hover:-translate-y-1 transition-all duration-300"
+                className="group relative flex flex-col rounded-2xl overflow-hidden bg-card dark:bg-slate-900 border border-border dark:border-slate-800 hover:border-[var(--campaign-primary)]/40 hover:shadow-2xl hover:shadow-[var(--campaign-primary)]/5 hover:-translate-y-1 transition-all duration-300"
               >
                 {/* Left accent border */}
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#893030]" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[var(--campaign-primary)]" />
 
                 {/* Cover image */}
                 <div className="relative h-52 overflow-hidden bg-muted dark:bg-slate-800 flex-shrink-0">

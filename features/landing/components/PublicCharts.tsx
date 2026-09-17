@@ -97,10 +97,10 @@ export function PublicCharts({ distribucionSectores, crecimientoMensual, isLoadi
     <section id="graficos" className="relative py-24 bg-background dark:bg-[#070d1a] overflow-hidden">
       {/* Decorative glow */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#893030]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[var(--campaign-primary)]/5 rounded-full blur-3xl pointer-events-none" />
 
       {/* Secondary accent line at top */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#893030] to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[var(--campaign-primary)] to-transparent" />
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-14">
@@ -108,7 +108,7 @@ export function PublicCharts({ distribucionSectores, crecimientoMensual, isLoadi
           <p className="text-sm font-bold uppercase tracking-widest mb-3 text-primary dark:text-[#c06060]">Análisis Territorial</p>
           <h2 className="text-4xl font-black text-foreground dark:text-white">Distribución de apoyo</h2>
           <p className="text-muted-foreground dark:text-slate-400 mt-3 max-w-xl mx-auto">
-            Así está organizada nuestra red de simpatizantes en el distrito.
+            Así está organizada nuestra red de simpatizantes en Alto de la Alianza.
           </p>
         </div>
 
@@ -117,7 +117,7 @@ export function PublicCharts({ distribucionSectores, crecimientoMensual, isLoadi
           <div className="bg-card dark:bg-slate-900 rounded-2xl p-6 border border-border dark:border-slate-800">
             {/* Title with secondary accent */}
             <div className="flex items-center gap-2 mb-6">
-              <span className="w-1 h-5 rounded-full bg-primary dark:bg-[#893030]" />
+              <span className="w-1 h-5 rounded-full bg-primary dark:bg-[var(--campaign-primary)]" />
               <h3 className="font-bold text-foreground dark:text-white text-lg">Crecimiento de Simpatizantes</h3>
             </div>
             {crecimientoMensual.length > 0 ? (
@@ -159,7 +159,7 @@ export function PublicCharts({ distribucionSectores, crecimientoMensual, isLoadi
           <div className="bg-card dark:bg-slate-900 rounded-2xl p-6 border border-border dark:border-slate-800">
             {/* Title with secondary accent */}
             <div className="flex items-center gap-2 mb-4">
-              <span className="w-1 h-5 rounded-full bg-primary dark:bg-[#893030]" />
+              <span className="w-1 h-5 rounded-full bg-primary dark:bg-[var(--campaign-primary)]" />
               <h3 className="font-bold text-foreground dark:text-white text-lg">Distribución por Sector</h3>
             </div>
             {distribucionSectores.length > 0 ? (

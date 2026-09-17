@@ -58,8 +58,8 @@ function mapSettingToForm(s: LandingSetting | null): FormValues {
     redes_tiktok: s?.redes_sociales?.tiktok ?? '',
     redes_twitter: s?.redes_sociales?.twitter ?? '',
     redes_whatsapp: s?.redes_sociales?.whatsapp ?? '',
-    color_primario: s?.color_primario ?? '#042f98',
-    color_secundario: s?.color_secundario ?? '#893030',
+    color_primario: s?.color_primario ?? '#E31B23',
+    color_secundario: s?.color_secundario ?? '#1A1A1A',
     meta_titulo: s?.meta_titulo ?? '',
     meta_descripcion: s?.meta_descripcion ?? '',
   };
@@ -141,11 +141,15 @@ export function LandingSettingsForm() {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     values: mapSettingToForm(setting ?? null),
   });
+
+  const colorPrimario = watch('color_primario');
+  const colorSecundario = watch('color_secundario');
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -252,16 +256,16 @@ export function LandingSettingsForm() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="nombre_candidato">Nombre completo del candidato *</Label>
-                  <Input id="nombre_candidato" {...register('nombre_candidato')} placeholder="Ej: Juan Pérez Mamani" />
+                  <Input id="nombre_candidato" {...register('nombre_candidato')} placeholder="Ej: Jhonson Mamani Velasquez" />
                   {errors.nombre_candidato && <p className="text-xs text-red-500">{errors.nombre_candidato.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="cargo_candidatura">Cargo al que se postula</Label>
-                  <Input id="cargo_candidatura" {...register('cargo_candidatura')} placeholder="Ej: Candidato a Alcalde" />
+                  <Input id="cargo_candidatura" {...register('cargo_candidatura')} placeholder="Ej: Candidato a Alcalde de Alto de la Alianza" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="eslogan">Eslogan de campaña</Label>
-                  <Input id="eslogan" {...register('eslogan')} placeholder="Ej: Juntos por un mejor mañana" />
+                  <Input id="eslogan" {...register('eslogan')} placeholder="Ej: Gestión transparente y lucha contra la corrupción" />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="biografia">Biografía / Presentación</Label>
@@ -284,10 +288,20 @@ export function LandingSettingsForm() {
                       <input
                         id="color_primario"
                         type="color"
-                        {...register('color_primario')}
+                        value={colorPrimario || '#E31B23'}
+                        onChange={(e) =>
+                          setValue('color_primario', e.target.value, {
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          })
+                        }
                         className="h-10 w-16 rounded-lg border border-slate-200 cursor-pointer p-1"
                       />
-                      <Input {...register('color_primario')} className="font-mono text-sm" placeholder="#042f98" />
+                      <Input
+                        {...register('color_primario')}
+                        className="font-mono text-sm"
+                        placeholder="#E31B23"
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -296,10 +310,20 @@ export function LandingSettingsForm() {
                       <input
                         id="color_secundario"
                         type="color"
-                        {...register('color_secundario')}
+                        value={colorSecundario || '#1A1A1A'}
+                        onChange={(e) =>
+                          setValue('color_secundario', e.target.value, {
+                            shouldDirty: true,
+                            shouldTouch: true,
+                          })
+                        }
                         className="h-10 w-16 rounded-lg border border-slate-200 cursor-pointer p-1"
                       />
-                      <Input {...register('color_secundario')} className="font-mono text-sm" placeholder="#893030" />
+                      <Input
+                        {...register('color_secundario')}
+                        className="font-mono text-sm"
+                        placeholder="#1A1A1A"
+                      />
                     </div>
                   </div>
                 </div>
@@ -393,7 +417,7 @@ export function LandingSettingsForm() {
                 <Input
                   id="meta_titulo"
                   {...register('meta_titulo')}
-                  placeholder="Ej: Juan Pérez — Candidato a Alcalde | Campaña 2026"
+                  placeholder="Ej: Jhonson Mamani Velasquez — Candidato a Alcalde de Alto de la Alianza"
                 />
                 <p className="text-xs text-slate-400">{watch('meta_titulo')?.length ?? 0}/120</p>
               </div>
