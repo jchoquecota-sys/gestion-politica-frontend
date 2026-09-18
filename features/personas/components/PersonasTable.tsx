@@ -1,7 +1,7 @@
 'use client';
 
 import { Persona } from '../types';
-import { usePersonas, useDeletePersona } from '../hooks/usePersonas';
+import { usePersonas, useDeletePersona, useImportPersonasCsv } from '../hooks/usePersonas';
 import {
   Table,
   TableBody,
@@ -11,9 +11,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, Plus, Search, Pencil, Trash2, User, Filter } from 'lucide-react';
+import { Loader2, Plus, Search, Pencil, Trash2, User, Filter, Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Badge } from '@/components/ui/badge';
 import { useSectoresOpciones } from '@/features/sectores/hooks/useSectores';
@@ -33,7 +33,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-
 interface PersonasTableProps {
   onAdd: () => void;
   onEdit: (persona: Persona) => void;
@@ -68,6 +67,8 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
   const meta = response?.meta;
 
   const { mutate: deletePersona, isPending: isDeleting } = useDeletePersona();
+  const { mutate: importCsv, isPending: isImporting } = useImportPersonasCsv();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const visibleSectores = hasListAll 
     ? sectores 
@@ -86,6 +87,19 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
         onSuccess: () => setPersonaToDelete(null)
       });
     }
+  };
+
+  const handleCsvSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    const ok = window.confirm(
+      '¿Reemplazar el padrón actual con este CSV?\n\nSe archivarán las personas actuales e importarán las del archivo.'
+    );
+    if (!ok) return;
+
+    importCsv({ file, replace: true });
   };
 
   return (
@@ -140,10 +154,33 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
           </div>
         </div>
         {hasPermission('personas:create') && (
-          <Button onClick={onAdd} className="bg-primary hover:bg-primary/90 text-white shrink-0">
-            <Plus className="h-4 w-4 mr-2" />
-            Nueva Persona
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={handleCsvSelected}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isImporting}
+              onClick={() => fileInputRef.current?.click()}
+              className="border-emerald-500/30 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
+            >
+              {isImporting ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4 mr-2" />
+              )}
+              Importar CSV
+            </Button>
+            <Button onClick={onAdd} className="bg-primary hover:bg-primary/90 text-white">
+              <Plus className="h-4 w-4 mr-2" />
+              Nueva Persona
+            </Button>
+          </div>
         )}
       </div>
 

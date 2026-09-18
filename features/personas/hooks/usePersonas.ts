@@ -113,3 +113,29 @@ export const useDeletePersona = () => {
     },
   });
 };
+
+export const useImportPersonasCsv = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ file, replace = true }: { file: File; replace?: boolean }) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('replace', replace ? '1' : '0');
+      const { data } = await api.post('/personas/import', formData);
+      return data as {
+        status: string;
+        message: string;
+        data?: { inserted: number; total_filas: number; replace: boolean };
+      };
+    },
+    onSuccess: (data) => {
+      toast.success(data.message || 'CSV importado correctamente');
+      queryClient.invalidateQueries({ queryKey: ['personas'] });
+      queryClient.invalidateQueries({ queryKey: ['opciones', 'personas'] });
+    },
+    onError: (error: unknown) => {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'No se pudo importar el CSV');
+    },
+  });
+};
