@@ -25,7 +25,10 @@ export const useActividades = (params: PaginationParams & ActividadFilters) => {
   });
 };
 
-export const useActividad = (id: number | string | undefined) => {
+export const useActividad = (
+  id: number | string | undefined,
+  options?: { live?: boolean }
+) => {
   return useQuery({
     queryKey: ['actividad', id],
     queryFn: async () => {
@@ -33,6 +36,9 @@ export const useActividad = (id: number | string | undefined) => {
       return data.data;
     },
     enabled: !!id,
+    // Detalle en vivo: refresca participantes/asistencia mientras el admin mira la página
+    refetchInterval: options?.live ? 5_000 : false,
+    refetchOnWindowFocus: true,
   });
 };
 

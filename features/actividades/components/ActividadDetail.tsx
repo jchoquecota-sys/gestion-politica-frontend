@@ -15,7 +15,9 @@ interface ActividadDetailProps {
 
 export function ActividadDetail({ id }: ActividadDetailProps) {
   const router = useRouter();
-  const { data: actividad, isLoading, isError } = useActividad(id);
+  const { data: actividad, isLoading, isError, isFetching, dataUpdatedAt } = useActividad(id, {
+    live: true,
+  });
 
   if (isLoading) {
     return (
@@ -89,7 +91,12 @@ export function ActividadDetail({ id }: ActividadDetailProps) {
         </div>
       </div>
 
-      <ActividadSujetosCard actividadId={actividad.id} sujetos={actividad.sujetos || []} />
+      <ActividadSujetosCard
+        actividadId={actividad.id}
+        sujetos={actividad.sujetos || []}
+        isLiveUpdating={isFetching}
+        lastUpdatedAt={dataUpdatedAt}
+      />
     </div>
   );
 }

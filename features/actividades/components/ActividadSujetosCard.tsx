@@ -26,7 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, User, Users, Home, Map, Trash2, FileEdit, MoreVertical, Image as ImageIcon, Eye } from 'lucide-react';
+import { Plus, User, Users, Home, Map, Trash2, FileEdit, MoreVertical, Image as ImageIcon, Eye, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { EjecucionEvidenceDialog } from './EjecucionEvidenceDialog';
 import {
@@ -47,9 +47,16 @@ import { QrCode, UserCheck } from 'lucide-react';
 interface ActividadSujetosCardProps {
   actividadId: number;
   sujetos: SujetoActividad[];
+  isLiveUpdating?: boolean;
+  lastUpdatedAt?: number;
 }
 
-export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosCardProps) {
+export function ActividadSujetosCard({
+  actividadId,
+  sujetos,
+  isLiveUpdating = false,
+  lastUpdatedAt,
+}: ActividadSujetosCardProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isQRDialogOpen, setIsQRDialogOpen] = useState(false);
   const [isManualDialogOpen, setIsManualDialogOpen] = useState(false);
@@ -164,7 +171,16 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
       <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4 space-y-0">
         <div>
           <CardTitle>Participantes y Asistencia</CardTitle>
-          <CardDescription>Gestione la participación y asistencia a esta actividad.</CardDescription>
+          <CardDescription className="flex items-center gap-2 flex-wrap">
+            <span>Gestione la participación y asistencia a esta actividad.</span>
+            <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400">
+              <RefreshCw className={`h-3 w-3 ${isLiveUpdating ? 'animate-spin' : ''}`} />
+              En vivo
+              {lastUpdatedAt
+                ? ` · ${format(new Date(lastUpdatedAt), 'HH:mm:ss')}`
+                : ''}
+            </span>
+          </CardDescription>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {canMarkAttendance && (
