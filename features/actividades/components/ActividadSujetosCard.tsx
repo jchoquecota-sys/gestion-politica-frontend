@@ -115,32 +115,36 @@ export function ActividadSujetosCard({ actividadId, sujetos }: ActividadSujetosC
         confirmar_salida: necesitaConfirmarSalida,
       },
       {
-        onSuccess: (response: { message?: string }) => {
-          toast.success(response.message || 'Asistencia registrada correctamente');
+        onSuccess: (response) => {
+          toast.success((response as { message?: string }).message || 'Asistencia registrada correctamente');
           setIsManualDialogOpen(false);
           setManualPersonaId(0);
         },
-        onError: (error: { response?: { status?: number; data?: { message?: string; requires_confirmation?: boolean } } }) => {
-          if (error.response?.status === 409 && error.response?.data?.requires_confirmation) {
-            const ok = window.confirm(error.response.data.message || '¿Marcar salida?');
+        onError: (error) => {
+          const axiosErr = error as Error & {
+            response?: { status?: number; data?: { message?: string; requires_confirmation?: boolean } };
+          };
+          if (axiosErr.response?.status === 409 && axiosErr.response?.data?.requires_confirmation) {
+            const ok = window.confirm(axiosErr.response.data.message || '¿Marcar salida?');
             if (ok) {
               marcarAsistencia(
                 { persona_id: manualPersonaId, confirmar_salida: true },
                 {
-                  onSuccess: (response: { message?: string }) => {
-                    toast.success(response.message || 'Salida registrada correctamente');
+                  onSuccess: (response) => {
+                    toast.success((response as { message?: string }).message || 'Salida registrada correctamente');
                     setIsManualDialogOpen(false);
                     setManualPersonaId(0);
                   },
-                  onError: (err: { response?: { data?: { message?: string } } }) => {
-                    toast.error(err.response?.data?.message || 'Error al marcar salida');
+                  onError: (err) => {
+                    const e = err as Error & { response?: { data?: { message?: string } } };
+                    toast.error(e.response?.data?.message || 'Error al marcar salida');
                   },
                 }
               );
             }
             return;
           }
-          toast.error(error.response?.data?.message || 'Error al marcar asistencia');
+          toast.error(axiosErr.response?.data?.message || 'Error al marcar asistencia');
         },
       }
     );

@@ -52,7 +52,7 @@ export function PublicStatsGrid({ stats, isLoading, colorPrimario }: PublicStats
       <div
         className="absolute inset-0 z-0"
         style={{
-          background: `linear-gradient(135deg, ${hexToRgba(primary, 0.65)} 0%, ${hexToRgba(shadeColor(primary, 0.28), 0.75)} 50%, ${hexToRgba(shadeColor(primary, 0.52), 0.85)} 100%)`,
+          background: `linear-gradient(135deg, ${hexToRgba(primary, 0.78)} 0%, ${hexToRgba(shadeColor(primary, 0.28), 0.85)} 50%, ${hexToRgba(shadeColor(primary, 0.52), 0.92)} 100%)`,
         }}
       />
 
