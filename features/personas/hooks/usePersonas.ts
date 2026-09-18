@@ -139,3 +139,42 @@ export const useImportPersonasCsv = () => {
     },
   });
 };
+
+export const useExportPersonasCsv = () => {
+  return useMutation({
+    mutationFn: async (params?: {
+      search?: string;
+      sector_id?: number | null;
+      base_id?: number | null;
+    }) => {
+      const { data } = await api.get('/personas/export', {
+        params: {
+          search: params?.search || undefined,
+          sector_id: params?.sector_id ?? undefined,
+          base_id: params?.base_id ?? undefined,
+        },
+        responseType: 'blob',
+      });
+
+      const blob = data instanceof Blob
+        ? data
+        : new Blob([data], { type: 'text/csv;charset=utf-8' });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `padron-personas-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    },
+    onSuccess: () => {
+      toast.success('CSV exportado (UTF-8, con ñ y acentos)');
+    },
+    onError: (error: unknown) => {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || 'No se pudo exportar el CSV');
+    },
+  });
+};

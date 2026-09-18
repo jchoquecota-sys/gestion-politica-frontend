@@ -1,7 +1,7 @@
 'use client';
 
 import { Persona } from '../types';
-import { usePersonas, useDeletePersona, useImportPersonasCsv } from '../hooks/usePersonas';
+import { usePersonas, useDeletePersona, useImportPersonasCsv, useExportPersonasCsv } from '../hooks/usePersonas';
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Loader2, Plus, Search, Pencil, Trash2, User, Filter, Upload } from 'lucide-react';
+import { Loader2, Plus, Search, Pencil, Trash2, User, Filter, Upload, Download } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -68,6 +68,7 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
 
   const { mutate: deletePersona, isPending: isDeleting } = useDeletePersona();
   const { mutate: importCsv, isPending: isImporting } = useImportPersonasCsv();
+  const { mutate: exportCsv, isPending: isExporting } = useExportPersonasCsv();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const visibleSectores = hasListAll 
@@ -153,35 +154,58 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
             </Select>
           </div>
         </div>
-        {hasPermission('personas:create') && (
-          <div className="flex items-center gap-2 shrink-0">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv,text/csv"
-              className="hidden"
-              onChange={handleCsvSelected}
-            />
+        <div className="flex items-center gap-2 shrink-0">
+          {hasPermission('personas:view') && (
             <Button
               type="button"
               variant="outline"
-              disabled={isImporting}
-              onClick={() => fileInputRef.current?.click()}
-              className="border-emerald-500/30 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
+              disabled={isExporting}
+              onClick={() =>
+                exportCsv({
+                  search: debouncedSearch || undefined,
+                  sector_id: selectedSectorId,
+                  base_id: selectedBaseId,
+                })
+              }
             >
-              {isImporting ? (
+              {isExporting ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <Upload className="h-4 w-4 mr-2" />
+                <Download className="h-4 w-4 mr-2" />
               )}
-              Importar CSV
+              Exportar CSV
             </Button>
-            <Button onClick={onAdd} className="bg-primary hover:bg-primary/90 text-white">
-              <Plus className="h-4 w-4 mr-2" />
-              Nueva Persona
-            </Button>
-          </div>
-        )}
+          )}
+          {hasPermission('personas:create') && (
+            <>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,text/csv"
+                className="hidden"
+                onChange={handleCsvSelected}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isImporting}
+                onClick={() => fileInputRef.current?.click()}
+                className="border-emerald-500/30 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
+              >
+                {isImporting ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4 mr-2" />
+                )}
+                Importar CSV
+              </Button>
+              <Button onClick={onAdd} className="bg-primary hover:bg-primary/90 text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Nueva Persona
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="rounded-md border bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
