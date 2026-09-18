@@ -52,19 +52,20 @@ export default function AsistenciaPublicPage() {
       setStatus('success');
     };
 
-    const onError = (error: {
-      response?: {
-        status?: number;
-        data?: { message?: string; requires_confirmation?: boolean };
+    const onError = (error: Error) => {
+      const axiosErr = error as Error & {
+        response?: {
+          status?: number;
+          data?: { message?: string; requires_confirmation?: boolean };
+        };
       };
-    }) => {
-      if (error.response?.status === 409 && error.response?.data?.requires_confirmation) {
+      if (axiosErr.response?.status === 409 && axiosErr.response?.data?.requires_confirmation) {
         setPendingPayload(payload);
         setStatus('confirm_exit');
         return;
       }
       setStatus('error');
-      setErrorMessage(error.response?.data?.message || 'Error al registrar la asistencia.');
+      setErrorMessage(axiosErr.response?.data?.message || 'Error al registrar la asistencia.');
     };
 
     if (isAuthenticated) {
