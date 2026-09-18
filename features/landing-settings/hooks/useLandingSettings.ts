@@ -33,8 +33,19 @@ export const useUpdateLandingSettings = () => {
       queryClient.invalidateQueries({ queryKey: ['public-landing'] });
       toast.success('Configuración de la página pública guardada correctamente.');
     },
-    onError: () => {
-      toast.error('Error al guardar la configuración. Intente nuevamente.');
+    onError: (error: unknown) => {
+      const err = error as {
+        response?: { data?: { message?: string; errors?: Record<string, string[]> } };
+      };
+      const errors = err.response?.data?.errors;
+      const firstFieldError = errors
+        ? Object.values(errors).flat()[0]
+        : undefined;
+      toast.error(
+        firstFieldError ||
+          err.response?.data?.message ||
+          'Error al guardar la configuración. Intente nuevamente.'
+      );
     },
   });
 };

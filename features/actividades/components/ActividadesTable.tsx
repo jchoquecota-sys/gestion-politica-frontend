@@ -142,14 +142,14 @@ export function ActividadesTable() {
   const canDelete = hasPermission('actividades:delete');
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-3 flex-1 w-full">
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+    <div className="space-y-3">
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-3">
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-2 flex-1 w-full">
+          <div className="relative w-full md:w-72">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
             <Input
-              placeholder="Buscar por título o descripción..."
-              className="pl-9"
+              placeholder="Buscar actividad..."
+              className="pl-8 h-9 text-sm"
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -168,7 +168,7 @@ export function ActividadesTable() {
                 }}
                 value={selectedSectorId?.toString() || 'all'}
               >
-                <SelectTrigger className="w-full sm:w-[180px] h-9">
+                <SelectTrigger className="w-full sm:w-[160px] h-9 text-sm">
                   <SelectValue placeholder="Todos los Sectores" />
                 </SelectTrigger>
                 <SelectContent>
@@ -188,7 +188,7 @@ export function ActividadesTable() {
                 }}
                 value={selectedBaseId?.toString() || 'all'}
               >
-                <SelectTrigger className="w-full sm:w-[180px] h-9">
+                <SelectTrigger className="w-full sm:w-[160px] h-9 text-sm">
                   <SelectValue placeholder="Todas las Bases" />
                 </SelectTrigger>
                 <SelectContent>
@@ -203,79 +203,81 @@ export function ActividadesTable() {
         </div>
 
         {hasPermission('actividades:create') && (
-          <Button onClick={handleCreate} className="bg-primary hover:bg-primary/90 text-white gap-2 w-full xl:w-auto shrink-0">
+          <Button onClick={handleCreate} size="sm" className="bg-primary hover:bg-primary/90 text-white gap-1.5 w-full xl:w-auto shrink-0 h-9">
             <Plus className="h-4 w-4" />
-            Nueva Actividad
+            Nueva
           </Button>
         )}
       </div>
 
-      <div className="bg-white dark:bg-slate-950 rounded-xl border shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-950 rounded-lg border shadow-sm overflow-hidden">
         <Table>
           <TableHeader className="bg-slate-50 dark:bg-slate-900">
-            <TableRow>
-              <TableHead className="w-[300px]">Actividad</TableHead>
-              <TableHead>Fecha</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Participantes</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="h-9 py-2 w-[240px]">Actividad</TableHead>
+              <TableHead className="h-9 py-2 w-[120px]">Fecha</TableHead>
+              <TableHead className="h-9 py-2 w-[100px]">Tipo</TableHead>
+              <TableHead className="h-9 py-2 w-[90px]">Particip.</TableHead>
+              <TableHead className="h-9 py-2 w-[90px]">Estado</TableHead>
+              <TableHead className="h-9 py-2 text-right w-[110px]">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {actividades.map((actividad) => (
               <TableRow key={actividad.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
-                <TableCell>
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-semibold text-slate-900 dark:text-white leading-tight">
+                <TableCell className="py-2">
+                  <div className="flex flex-col gap-0 min-w-0">
+                    <span className="font-medium text-sm text-slate-900 dark:text-white leading-snug truncate max-w-[280px]" title={actividad.titulo}>
                       {actividad.titulo}
                     </span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
-                      {actividad.descripcion}
-                    </span>
+                    {actividad.descripcion && (
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[280px]" title={actividad.descripcion}>
+                        {actividad.descripcion}
+                      </span>
+                    )}
                   </div>
                 </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                    <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                    {format(new Date(actividad.fecha_actividad), "dd 'de' MMMM, HH:mm", { locale: es })}
+                <TableCell className="py-2">
+                  <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                    <Calendar className="h-3 w-3 text-slate-400 shrink-0" />
+                    {format(new Date(actividad.fecha_actividad), 'dd/MM/yy HH:mm', { locale: es })}
                   </div>
                 </TableCell>
-                <TableCell>
-                  <Badge variant="outline" className="font-normal bg-primary/5 text-primary border-primary/20">
+                <TableCell className="py-2">
+                  <Badge variant="outline" className="font-normal text-[11px] px-1.5 py-0 h-5 bg-primary/5 text-primary border-primary/20">
                     {actividad.tipo_actividad?.nombre || 'General'}
                   </Badge>
                 </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 text-sm text-slate-600 dark:text-slate-400">
-                    <Users className="h-3.5 w-3.5 text-slate-400" />
-                    {actividad.sujetos?.length || 0} sujetos
+                <TableCell className="py-2">
+                  <div className="flex items-center gap-1 text-xs text-slate-600 dark:text-slate-400">
+                    <Users className="h-3 w-3 text-slate-400" />
+                    {actividad.sujetos?.length || 0}
                   </div>
                 </TableCell>
-                <TableCell>
-                  <Badge className={`font-medium border ${statusConfig[actividad.estado].className}`} variant="secondary">
+                <TableCell className="py-2">
+                  <Badge className={`font-medium text-[11px] px-1.5 py-0 h-5 border ${statusConfig[actividad.estado].className}`} variant="secondary">
                     {statusConfig[actividad.estado].label}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-1">
+                <TableCell className="py-2 text-right">
+                  <div className="flex justify-end gap-0.5">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => router.push(`/actividades/${actividad.id}`)}
-                      className="h-8 w-8 text-primary hover:bg-primary/10"
+                      className="h-7 w-7 text-primary hover:bg-primary/10"
                       title="Ver Detalles y Evidencias"
                     >
-                      <Search className="h-4 w-4" />
+                      <Search className="h-3.5 w-3.5" />
                     </Button>
                     {canEdit && (
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleEdit(actividad.id)}
-                        className="h-8 w-8 text-primary hover:bg-primary/10"
+                        className="h-7 w-7 text-primary hover:bg-primary/10"
                       >
-                        <Edit2 className="h-4 w-4" />
+                        <Edit2 className="h-3.5 w-3.5" />
                       </Button>
                     )}
                     {canDelete && (
@@ -283,9 +285,9 @@ export function ActividadesTable() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setActividadToDelete(actividad)}
-                        className="h-8 w-8 text-brand-secondary hover:bg-brand-secondary/10"
+                        className="h-7 w-7 text-brand-secondary hover:bg-brand-secondary/10"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     )}
                   </div>
@@ -294,10 +296,10 @@ export function ActividadesTable() {
             ))}
             {actividades.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-12">
-                  <div className="flex flex-col items-center gap-2">
-                    <FolderOpen className="h-8 w-8 text-slate-300" />
-                    <p className="text-slate-500">No se encontraron actividades registradas.</p>
+                <TableCell colSpan={6} className="text-center py-8">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <FolderOpen className="h-7 w-7 text-slate-300" />
+                    <p className="text-sm text-slate-500">No se encontraron actividades.</p>
                   </div>
                 </TableCell>
               </TableRow>

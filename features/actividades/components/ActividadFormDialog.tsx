@@ -188,35 +188,35 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[800px] lg:max-w-[900px] max-h-[95vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[720px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Editar Actividad' : 'Nueva Actividad'}</DialogTitle>
           <DialogDescription>
             {isEditing 
               ? 'Actualice la información básica de la actividad.' 
-              : 'Registre los detalles de la actividad política. Podrá gestionar los participantes y evidencias después de crearla.'}
+              : 'Complete los datos. Los participantes se agregan después de crear.'}
           </DialogDescription>
         </DialogHeader>
 
         {isPending && (isEditing || isDictionariesLoading) ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex flex-col items-center justify-center py-8 gap-3">
+            <Loader2 className="h-7 w-7 animate-spin text-primary" />
             <p className="text-sm text-slate-500 font-medium">Cargando datos...</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Columna Izquierda: Datos Básicos */}
-              <div className="space-y-4">
-                <div className="space-y-2">
+              <div className="space-y-3">
+                <div className="space-y-1.5">
                   <Label htmlFor="titulo">Título de la Actividad</Label>
-                  <Input id="titulo" {...register('titulo')} placeholder="Ej: Asamblea de Coordinación Regional" />
+                  <Input id="titulo" {...register('titulo')} placeholder="Ej: Asamblea de Coordinación Regional" className="h-9" />
                   {errors.titulo && <p className="text-xs text-red-500 font-medium">{errors.titulo.message}</p>}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <Label htmlFor="descripcion">Descripción</Label>
-                  <Textarea id="descripcion" {...register('descripcion')} placeholder="Detalle los objetivos y resultados..." className="min-h-[100px]" />
+                  <Textarea id="descripcion" {...register('descripcion')} placeholder="Detalle los objetivos y resultados..." className="min-h-[72px] text-sm" />
                   {errors.descripcion && <p className="text-xs text-red-500 font-medium">{errors.descripcion.message}</p>}
                 </div>
 
@@ -342,15 +342,15 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
               {/* Columna Derecha: Configuraciones */}
               <div className="space-y-4">
                 {/* Geolocalización con Mapa */}
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-4 space-y-4">
-                  <div className="flex justify-between items-start">
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-3 space-y-3">
+                  <div className="flex justify-between items-start gap-2">
                     <div>
                       <Label className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-primary" />
                         Geolocalización
                       </Label>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Mueva el pin en el mapa para fijar el evento.
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Mueva el pin para fijar el evento.
                       </p>
                     </div>
                     <div className="flex flex-col gap-1 items-end">
@@ -366,7 +366,8 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
 
                   <MapPicker 
                     lat={watchLat || undefined} 
-                    lng={watchLng || undefined} 
+                    lng={watchLng || undefined}
+                    height={180}
                     onChange={(lat, lng) => {
                       setValue('latitud', lat);
                       setValue('longitud', lng);
@@ -374,7 +375,7 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
                     disabled={isPending}
                   />
 
-                  <div className="flex gap-4 text-xs text-slate-500 bg-white dark:bg-slate-950 p-2 rounded-md border border-slate-200 dark:border-slate-800">
+                  <div className="flex gap-3 text-[11px] text-slate-500 bg-white dark:bg-slate-950 px-2 py-1.5 rounded-md border border-slate-200 dark:border-slate-800">
                     <div className="flex items-center gap-1">
                       <Navigation className="h-3 w-3" /> Lat: {watchLat?.toFixed(6) || 'N/A'}
                     </div>
@@ -386,15 +387,15 @@ export function ActividadFormDialog({ isOpen, onClose, actividadId }: ActividadF
               </div>
             </div>
 
-            <DialogFooter className="pt-6 border-t">
-              <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>
+            <DialogFooter className="pt-4 border-t">
+              <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isPending}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isPending} className="bg-primary hover:bg-primary/90 text-white min-w-[140px]">
+              <Button type="submit" size="sm" disabled={isPending} className="bg-primary hover:bg-primary/90 text-white min-w-[120px]">
                 {isPending ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Procesando...</>
                 ) : (
-                  isEditing ? 'Guardar Cambios' : 'Continuar a Detalles'
+                  isEditing ? 'Guardar' : 'Continuar'
                 )}
               </Button>
             </DialogFooter>

@@ -30,11 +30,11 @@ export default function ActividadesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Actividades</h1>
-        <p className="text-slate-500 dark:text-slate-400">
-          Administre el registro de actividades, mitines, reuniones y capacitaciones.
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Actividades</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Mitines, reuniones y capacitaciones.
         </p>
       </div>
 

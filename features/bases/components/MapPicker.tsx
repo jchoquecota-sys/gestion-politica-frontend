@@ -14,6 +14,7 @@ interface MapPickerProps {
   lng?: number;
   onChange: (lat: number, lng: number) => void;
   disabled?: boolean;
+  height?: number;
 }
 
 // Componente para re-centrar el mapa cuando cambian las coordenadas externamente
@@ -55,6 +56,7 @@ function LocationMarker({ lat, lng, onChange, disabled }: MapPickerProps) {
 
 export default function MapPicker(props: MapPickerProps) {
   const [isClient, setIsClient] = useState(false);
+  const mapHeight = props.height ?? 300;
 
   useEffect(() => {
     setIsClient(true);
@@ -71,7 +73,10 @@ export default function MapPicker(props: MapPickerProps) {
 
   if (!isClient) {
     return (
-      <div className="h-[300px] w-full bg-slate-100 animate-pulse rounded-md flex items-center justify-center text-slate-400">
+      <div
+        className="w-full bg-slate-100 animate-pulse rounded-md flex items-center justify-center text-slate-400"
+        style={{ height: mapHeight }}
+      >
         Cargando mapa...
       </div>
     );
@@ -80,7 +85,7 @@ export default function MapPicker(props: MapPickerProps) {
   const center: LatLngTuple = props.lat && props.lng ? [props.lat, props.lng] : DEFAULT_CENTER;
 
   return (
-    <div className="h-[300px] w-full rounded-md overflow-hidden border relative z-0">
+    <div className="w-full rounded-md overflow-hidden border relative z-0" style={{ height: mapHeight }}>
       <MapContainer 
         center={center} 
         zoom={15} 

@@ -50,46 +50,43 @@ export function ActividadDetail({ id }: ActividadDetailProps) {
   const fechaObj = new Date(actividad.fecha_actividad);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-950 p-6 rounded-xl border dark:border-slate-800 shadow-sm">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm mb-1">
-            <Button variant="ghost" size="sm" className="h-8 px-2 -ml-2" onClick={() => router.back()}>
-              <ArrowLeft className="h-4 w-4 mr-1" /> Volver
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-slate-950 px-4 py-3 rounded-lg border dark:border-slate-800 shadow-sm">
+        <div className="space-y-1 min-w-0">
+          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs mb-0.5">
+            <Button variant="ghost" size="sm" className="h-7 px-2 -ml-2 text-xs" onClick={() => router.back()}>
+              <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Volver
             </Button>
             <span>/</span>
-            <span>Detalle de Actividad</span>
+            <span>Detalle</span>
           </div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{actividad.titulo}</h1>
-            <Badge variant="outline" className={getEstadoColor(actividad.estado)}>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{actividad.titulo}</h1>
+            <Badge variant="outline" className={`text-[11px] ${getEstadoColor(actividad.estado)}`}>
               {actividad.estado.toUpperCase()}
             </Badge>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 max-w-2xl">{actividad.descripcion}</p>
+          {actividad.descripcion && (
+            <p className="text-sm text-slate-500 dark:text-slate-400 max-w-2xl line-clamp-2">{actividad.descripcion}</p>
+          )}
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium border border-primary/20 dark:border-primary/30">
-            <Calendar className="h-4 w-4" />
-            {format(fechaObj, "EEEE, d 'de' MMMM", { locale: es })}
+        <div className="flex flex-wrap gap-1.5 shrink-0">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium border border-primary/20 dark:border-primary/30">
+            <Calendar className="h-3.5 w-3.5" />
+            {format(fechaObj, "d MMM yyyy", { locale: es })}
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-sm font-medium border border-primary/20 dark:border-primary/30">
-            <Clock className="h-4 w-4" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium border border-primary/20 dark:border-primary/30">
+            <Clock className="h-3.5 w-3.5" />
             {format(fechaObj, 'HH:mm')}
           </div>
+          {actividad.tipo_actividad?.nombre && (
+            <Badge variant="secondary" className="text-[11px] bg-slate-50 dark:bg-slate-900 border">
+              {actividad.tipo_actividad.nombre}
+            </Badge>
+          )}
         </div>
-      </div>
-
-      
-      {/* Información del tipo de actividad en una fila destacada si es necesario, 
-          o simplemente ir directo a los participantes */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-900 border dark:border-slate-800 rounded-lg w-fit">
-        <span className="text-xs font-bold text-slate-500 uppercase">Tipo:</span>
-        <Badge variant="secondary" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-primary">
-          {actividad.tipo_actividad?.nombre}
-        </Badge>
       </div>
 
       <ActividadSujetosCard actividadId={actividad.id} sujetos={actividad.sujetos || []} />
