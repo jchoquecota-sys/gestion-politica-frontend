@@ -31,6 +31,8 @@ export interface Actividad {
   latitud?: number | null;
   longitud?: number | null;
   radio_asistencia_metros?: number;
+  asistencia_abierta?: boolean;
+  asistencia_mensaje?: string | null;
   foto_portada_path?: string | null;
   foto_portada_url?: string | null;
   created_by?: number;

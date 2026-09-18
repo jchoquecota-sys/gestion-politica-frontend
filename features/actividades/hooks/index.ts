@@ -167,8 +167,12 @@ export const useDesvincularSujeto = (actividadId: number) => {
 export const useMarcarAsistenciaManual = (actividadId: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (personaId: number) => {
-      const { data } = await api.post(`/actividades/${actividadId}/asistencias/admin`, { persona_id: personaId });
+    mutationFn: async (payload: number | { persona_id: number; confirmar_salida?: boolean }) => {
+      const body =
+        typeof payload === 'number'
+          ? { persona_id: payload }
+          : payload;
+      const { data } = await api.post(`/actividades/${actividadId}/asistencias/admin`, body);
       return data;
     },
     onSuccess: () => {
@@ -180,7 +184,12 @@ export const useMarcarAsistenciaManual = (actividadId: number) => {
 export const useMarcarAsistenciaQR = (actividadId: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { latitud_usuario: number; longitud_usuario: number; browser_fingerprint: string }) => {
+    mutationFn: async (payload: {
+      latitud_usuario: number;
+      longitud_usuario: number;
+      browser_fingerprint: string;
+      confirmar_salida?: boolean;
+    }) => {
       const { data } = await api.post(`/actividades/${actividadId}/asistencias/self-register`, payload);
       return data;
     },
@@ -193,7 +202,13 @@ export const useMarcarAsistenciaQR = (actividadId: number) => {
 export const useMarcarAsistenciaDNI = (actividadId: number) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { dni: string; latitud_usuario: number; longitud_usuario: number; browser_fingerprint: string }) => {
+    mutationFn: async (payload: {
+      dni: string;
+      latitud_usuario: number;
+      longitud_usuario: number;
+      browser_fingerprint: string;
+      confirmar_salida?: boolean;
+    }) => {
       const { data } = await api.post(`/public/actividades/${actividadId}/asistencias/dni`, payload);
       return data;
     },
