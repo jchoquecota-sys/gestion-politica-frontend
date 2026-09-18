@@ -36,12 +36,28 @@ const nextConfig = {
         hostname: '79.143.191.165',
         port: '8080',
         pathname: '/storage/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: '79-143-191-165.sslip.io',
+        pathname: '/storage/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '79.143.191.165.sslip.io',
+        pathname: '/storage/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '79-143-191-165.sslip.io',
+        pathname: '/storage/**',
+      },
     ],
   },
   allowedDevOrigins: [
     '192.168.0.105',
     'localhost:3000',
+    '79-143-191-165.sslip.io',
   ],
 };
 
