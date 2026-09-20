@@ -5,7 +5,7 @@ import { SujetoActividad, SujetoType } from '../types';
 import { useAsignarSujeto, useDesvincularSujeto } from '../hooks';
 import { useSectoresOpciones } from '@/features/sectores/hooks/useSectores';
 import { useBasesOpciones } from '@/features/bases/hooks/useBases';
-import { usePersonasOpciones, useCreatePersona } from '@/features/personas/hooks/usePersonas';
+import { usePersonasOpciones, useCreatePersona, useConsultarDni } from '@/features/personas/hooks/usePersonas';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, User, Users, Home, Map, Trash2, FileEdit, MoreVertical, Image as ImageIcon, Eye, RefreshCw } from 'lucide-react';
+import { Plus, User, Users, Home, Map, Trash2, FileEdit, MoreVertical, Image as ImageIcon, Eye, RefreshCw, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { EjecucionEvidenceDialog } from './EjecucionEvidenceDialog';
 import {
@@ -43,7 +43,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { QrCode, UserCheck } from 'lucide-react';
+import { QrCode, UserCheck, Loader2 } from 'lucide-react';
 
 const emptyNuevaPersona = {
   nombres: '',
@@ -80,6 +80,7 @@ export function ActividadSujetosCard({
 
   const { mutate: asignar, isPending: isAsignando } = useAsignarSujeto(actividadId);
   const { mutate: crearPersona, isPending: isCreandoPersona } = useCreatePersona();
+  const { mutate: consultarDni, isPending: isConsultandoDni } = useConsultarDni();
   const { mutate: desvincular } = useDesvincularSujeto(actividadId);
   const { mutate: marcarAsistencia, isPending: isMarcando } = useMarcarAsistenciaManual(actividadId);
 
@@ -92,6 +93,28 @@ export function ActividadSujetosCard({
     setSelectedSujeto({ id: 0, type: 'persona' });
     setPersonaMode('existente');
     setNuevaPersona(emptyNuevaPersona);
+  };
+
+  const handleConsultarDniNueva = () => {
+    const dni = nuevaPersona.dni.trim();
+    if (dni.length !== 8) {
+      toast.error('Ingrese un DNI de 8 dígitos');
+      return;
+    }
+    consultarDni(dni, {
+      onSuccess: (res) => {
+        setNuevaPersona((p) => ({
+          ...p,
+          nombres: res.data.nombres,
+          apellidos: res.data.apellidos,
+        }));
+        toast.success('Datos cargados desde el DNI');
+      },
+      onError: (error: unknown) => {
+        const err = error as { message?: string; response?: { data?: { message?: string } } };
+        toast.error(err.response?.data?.message || err.message || 'No se pudo consultar el DNI');
+      },
+    });
   };
 
   const handleAsignar = () => {
@@ -431,6 +454,38 @@ export function ActividadSujetosCard({
 
             {selectedSujeto.type === 'persona' && personaMode === 'nueva' ? (
               <div className="space-y-3">
+                <div className="space-y-2">
+                  <Label htmlFor="np-dni">DNI</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="np-dni"
+                      value={nuevaPersona.dni}
+                      maxLength={8}
+                      inputMode="numeric"
+                      onChange={(e) =>
+                        setNuevaPersona((p) => ({
+                          ...p,
+                          dni: e.target.value.replace(/\D/g, '').slice(0, 8),
+                        }))
+                      }
+                      placeholder="8 dígitos"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="shrink-0"
+                      disabled={isConsultandoDni || isCreandoPersona}
+                      onClick={handleConsultarDniNueva}
+                      title="Buscar datos por DNI"
+                    >
+                      {isConsultandoDni ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Search className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="np-nombres">Nombres *</Label>
@@ -451,39 +506,21 @@ export function ActividadSujetosCard({
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="np-dni">DNI</Label>
-                    <Input
-                      id="np-dni"
-                      value={nuevaPersona.dni}
-                      maxLength={8}
-                      inputMode="numeric"
-                      onChange={(e) =>
-                        setNuevaPersona((p) => ({
-                          ...p,
-                          dni: e.target.value.replace(/\D/g, '').slice(0, 8),
-                        }))
-                      }
-                      placeholder="Opcional"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="np-celular">Celular</Label>
-                    <Input
-                      id="np-celular"
-                      value={nuevaPersona.celular}
-                      maxLength={15}
-                      inputMode="numeric"
-                      onChange={(e) =>
-                        setNuevaPersona((p) => ({
-                          ...p,
-                          celular: e.target.value.replace(/\D/g, '').slice(0, 15),
-                        }))
-                      }
-                      placeholder="Opcional"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="np-celular">Celular</Label>
+                  <Input
+                    id="np-celular"
+                    value={nuevaPersona.celular}
+                    maxLength={15}
+                    inputMode="numeric"
+                    onChange={(e) =>
+                      setNuevaPersona((p) => ({
+                        ...p,
+                        celular: e.target.value.replace(/\D/g, '').slice(0, 15),
+                      }))
+                    }
+                    placeholder="Opcional"
+                  />
                 </div>
               </div>
             ) : (

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Persona } from '../types';
-import { useCreatePersona, useUpdatePersona } from '../hooks/usePersonas';
+import { useCreatePersona, useUpdatePersona, useConsultarDni } from '../hooks/usePersonas';
 import {
   Dialog,
   DialogContent,
@@ -15,9 +15,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Camera, User, X } from 'lucide-react';
+import { Loader2, Camera, User, X, Search } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
+import { toast } from 'sonner';
 const personaSchema = z.object({
   nombres: z.string().min(2, 'Los nombres son requeridos').max(100),
   apellidos: z.string().min(2, 'Los apellidos son requeridos').max(100),
@@ -44,10 +44,11 @@ export function PersonaFormDialog({ isOpen, onClose, persona }: PersonaFormDialo
   
   const { mutate: createPersona, isPending: isCreating } = useCreatePersona();
   const { mutate: updatePersona, isPending: isUpdating } = useUpdatePersona();
+  const { mutate: consultarDni, isPending: isConsultandoDni } = useConsultarDni();
   
-  const isPending = isCreating || isUpdating;
+  const isPending = isCreating || isUpdating || isConsultandoDni;
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<PersonaFormValues>({
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch, getValues } = useForm<PersonaFormValues>({
     resolver: zodResolver(personaSchema),
     defaultValues: {
       nombres: '',
@@ -112,6 +113,29 @@ export function PersonaFormDialog({ isOpen, onClose, persona }: PersonaFormDialo
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const handleConsultarDni = () => {
+    const dni = (getValues('dni') || '').replace(/\D/g, '');
+    if (dni.length !== 8) {
+      toast.error('Ingrese un DNI de 8 dígitos');
+      return;
+    }
+
+    consultarDni(dni, {
+      onSuccess: (res) => {
+        setValue('nombres', res.data.nombres, { shouldValidate: true });
+        setValue('apellidos', res.data.apellidos, { shouldValidate: true });
+        if (res.data.direccion) {
+          setValue('direccion', res.data.direccion, { shouldValidate: true });
+        }
+        toast.success('Datos cargados desde el DNI');
+      },
+      onError: (error: unknown) => {
+        const err = error as { message?: string; response?: { data?: { message?: string } } };
+        toast.error(err.response?.data?.message || err.message || 'No se pudo consultar el DNI');
+      },
+    });
   };
 
   const onSubmit = (data: PersonaFormValues) => {
@@ -183,6 +207,35 @@ export function PersonaFormDialog({ isOpen, onClose, persona }: PersonaFormDialo
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="dni">DNI <span className="text-red-500">*</span></Label>
+              <div className="flex gap-2">
+                <Input id="dni" maxLength={8} {...register('dni')} disabled={isPending} placeholder="8 dígitos" />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isPending}
+                  onClick={handleConsultarDni}
+                  title="Buscar datos por DNI"
+                  className="shrink-0"
+                >
+                  {isConsultandoDni ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              {errors.dni && <p className="text-sm text-red-500">{errors.dni.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="fecha_nacimiento">Fecha de Nacimiento</Label>
+              <Input id="fecha_nacimiento" type="date" {...register('fecha_nacimiento')} disabled={isPending} />
+              {errors.fecha_nacimiento && <p className="text-sm text-red-500">{errors.fecha_nacimiento.message}</p>}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="nombres">Nombres <span className="text-red-500">*</span></Label>
               <Input id="nombres" {...register('nombres')} disabled={isPending} placeholder="Nombres" />
               {errors.nombres && <p className="text-sm text-red-500">{errors.nombres.message}</p>}
@@ -191,19 +244,6 @@ export function PersonaFormDialog({ isOpen, onClose, persona }: PersonaFormDialo
               <Label htmlFor="apellidos">Apellidos <span className="text-red-500">*</span></Label>
               <Input id="apellidos" {...register('apellidos')} disabled={isPending} placeholder="Apellidos" />
               {errors.apellidos && <p className="text-sm text-red-500">{errors.apellidos.message}</p>}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="dni">DNI <span className="text-red-500">*</span></Label>
-              <Input id="dni" maxLength={8} {...register('dni')} disabled={isPending} placeholder="8 dígitos" />
-              {errors.dni && <p className="text-sm text-red-500">{errors.dni.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fecha_nacimiento">Fecha de Nacimiento</Label>
-              <Input id="fecha_nacimiento" type="date" {...register('fecha_nacimiento')} disabled={isPending} />
-              {errors.fecha_nacimiento && <p className="text-sm text-red-500">{errors.fecha_nacimiento.message}</p>}
             </div>
           </div>
 

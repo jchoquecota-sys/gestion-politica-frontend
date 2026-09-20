@@ -111,6 +111,29 @@ export const useDeletePersona = () => {
   });
 };
 
+export const useConsultarDni = () => {
+  return useMutation({
+    mutationFn: async (dni: string) => {
+      const clean = dni.replace(/\D/g, '').slice(0, 8);
+      if (clean.length !== 8) {
+        throw new Error('El DNI debe tener 8 dígitos');
+      }
+      const { data } = await api.get(`/personas/consultar-dni/${clean}`);
+      return data as {
+        status: string;
+        message: string;
+        data: {
+          dni: string;
+          nombres: string;
+          apellidos: string;
+          nombre_completo: string;
+          direccion: string | null;
+        };
+      };
+    },
+  });
+};
+
 export const useImportPersonasCsv = () => {
   const queryClient = useQueryClient();
   return useMutation({
