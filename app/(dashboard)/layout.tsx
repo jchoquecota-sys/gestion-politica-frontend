@@ -16,7 +16,6 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
-    // Si no está cargando y no hay perfil, redirigir a login
     if (!isLoadingProfile && !profile) {
       router.push('/login');
     }
@@ -31,20 +30,20 @@ export default function DashboardLayout({
   }
 
   if (!profile) {
-    return null; // Prevents flashing content before redirect
+    return null;
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
-      {/* Sidebar Desktop */}
-      <div className="hidden lg:block lg:w-72 lg:shrink-0">
-        <Sidebar className="fixed w-72" />
-      </div>
-      
-      <div className="flex-1 w-full flex flex-col min-w-0">
+    <div className="flex min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-slate-50 dark:bg-slate-900">
+      {/* Sidebar solo en pantallas anchas; en chicas/medianas usa el menú hamburguesa */}
+      <aside className="hidden xl:block xl:w-64 xl:shrink-0">
+        <Sidebar className="fixed inset-y-0 left-0 z-30 w-64 overflow-y-auto" />
+      </aside>
+
+      <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden">
         <Navbar />
-        <main className="flex-1 p-6 lg:p-8">
-          <div className="mx-auto max-w-6xl">
+        <main className="min-w-0 flex-1 overflow-x-hidden p-4 sm:p-6 lg:p-8">
+          <div className="mx-auto w-full max-w-6xl min-w-0">
             {children}
           </div>
         </main>

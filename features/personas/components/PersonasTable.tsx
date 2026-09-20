@@ -104,20 +104,20 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-3 flex-1">
-          <div className="relative w-full md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-            <Input
-              placeholder="Buscar por nombre o DNI..."
-              className="pl-9"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+    <div className="space-y-4 min-w-0 w-full">
+      <div className="flex flex-col gap-3">
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+          <Input
+            placeholder="Buscar por nombre o DNI..."
+            className="pl-9"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center w-full sm:w-auto">
             {showSectorFilter && (
               <Select 
                 onValueChange={(val) => {
@@ -153,62 +153,67 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
               </SelectContent>
             </Select>
           </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          {hasPermission('personas:view') && (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isExporting}
-              onClick={() =>
-                exportCsv({
-                  search: debouncedSearch || undefined,
-                  sector_id: selectedSectorId,
-                  base_id: selectedBaseId,
-                })
-              }
-            >
-              {isExporting ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Download className="h-4 w-4 mr-2" />
-              )}
-              Exportar CSV
-            </Button>
-          )}
-          {hasPermission('personas:create') && (
-            <>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv,text/csv"
-                className="hidden"
-                onChange={handleCsvSelected}
-              />
+
+          <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center w-full sm:w-auto">
+            {hasPermission('personas:view') && (
               <Button
                 type="button"
                 variant="outline"
-                disabled={isImporting}
-                onClick={() => fileInputRef.current?.click()}
-                className="border-emerald-500/30 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
+                className="w-full sm:w-auto"
+                disabled={isExporting}
+                onClick={() =>
+                  exportCsv({
+                    search: debouncedSearch || undefined,
+                    sector_id: selectedSectorId,
+                    base_id: selectedBaseId,
+                  })
+                }
               >
-                {isImporting ? (
+                {isExporting ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
-                  <Upload className="h-4 w-4 mr-2" />
+                  <Download className="h-4 w-4 mr-2" />
                 )}
-                Importar CSV
+                Exportar CSV
               </Button>
-              <Button onClick={onAdd} className="bg-primary hover:bg-primary/90 text-white">
-                <Plus className="h-4 w-4 mr-2" />
-                Nueva Persona
-              </Button>
-            </>
-          )}
+            )}
+            {hasPermission('personas:create') && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv,text/csv"
+                  className="hidden"
+                  onChange={handleCsvSelected}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full sm:w-auto border-emerald-500/30 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
+                  disabled={isImporting}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {isImporting ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4 mr-2" />
+                  )}
+                  Importar CSV
+                </Button>
+                <Button
+                  onClick={onAdd}
+                  className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nueva Persona
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="rounded-md border bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
+      <div className="rounded-md border bg-white dark:bg-slate-950 shadow-sm min-w-0 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50/50 dark:bg-slate-900/50">
@@ -237,9 +242,9 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
             ) : (
               personas.map((p) => (
                 <TableRow key={p.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors">
-                  <TableCell>
+                  <TableCell className="whitespace-normal min-w-[140px] max-w-[220px]">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary overflow-hidden border border-slate-200">
+                      <div className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-primary overflow-hidden border border-slate-200">
                         {p.foto_url ? (
                           <img 
                             src={p.foto_url} 
@@ -250,9 +255,9 @@ export function PersonasTable({ onAdd, onEdit }: PersonasTableProps) {
                           <User className="h-5 w-5" />
                         )}
                       </div>
-                      <div>
-                        <p className="font-semibold text-slate-900 dark:text-slate-100">{p.nombres} {p.apellidos}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{p.direccion || 'Sin dirección'}</p>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-slate-900 dark:text-slate-100 break-words leading-snug">{p.nombres} {p.apellidos}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{p.direccion || 'Sin dirección'}</p>
                       </div>
                     </div>
                   </TableCell>

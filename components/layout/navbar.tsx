@@ -43,9 +43,9 @@ export function Navbar() {
   const currentLabel = routeLabels[currentPath] || 'Sistema';
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b bg-background/95 px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex items-center gap-4">
-        <div className="lg:hidden">
+    <header className="sticky top-0 z-40 flex h-14 sm:h-16 w-full min-w-0 items-center justify-between border-b bg-background/95 px-3 sm:px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-4">
+        <div className="xl:hidden">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="shrink-0">
@@ -53,7 +53,7 @@ export function Navbar() {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 p-0 border-none">
+            <SheetContent side="left" className="w-[min(18rem,85vw)] p-0 border-none">
               <SheetHeader className="sr-only">
                 <SheetTitle>Menú de Navegación</SheetTitle>
               </SheetHeader>
