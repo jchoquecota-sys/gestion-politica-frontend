@@ -46,11 +46,24 @@ export const useCreatePersona = () => {
     },
     onError: (error: any) => {
       if (error.response?.status === 403) {
-        toast.error("No tiene permiso para crear esta persona.");
-      } else {
-        const message = error.response?.data?.message || 'Error al registrar persona';
-        toast.error(message);
+        toast.error('No tiene permiso para crear esta persona.');
+        return;
       }
+      const errors = error.response?.data?.errors as Record<string, string[]> | undefined;
+      if (errors?.dni?.[0]) {
+        toast.error(errors.dni[0]);
+        return;
+      }
+      if (errors?.email?.[0]) {
+        toast.error(errors.email[0]);
+        return;
+      }
+      const firstFieldError = errors && Object.values(errors).flat()[0];
+      toast.error(
+        firstFieldError ||
+          error.response?.data?.message ||
+          'Error al registrar persona'
+      );
     },
   });
 };
@@ -82,10 +95,15 @@ export const useUpdatePersona = () => {
     onError: (error: any) => {
       if (error.response?.status === 403) {
         toast.error("No tiene permiso para gestionar esta persona.");
-      } else {
-        const message = error.response?.data?.message || 'Error al actualizar datos';
-        toast.error(message);
+        return;
       }
+      const errors = error.response?.data?.errors as Record<string, string[]> | undefined;
+      if (errors?.dni?.[0]) {
+        toast.error(errors.dni[0]);
+        return;
+      }
+      const firstFieldError = errors && Object.values(errors).flat()[0];
+      toast.error(firstFieldError || error.response?.data?.message || 'Error al actualizar datos');
     },
   });
 };

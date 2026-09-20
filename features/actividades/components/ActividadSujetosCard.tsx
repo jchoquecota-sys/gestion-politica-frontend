@@ -111,8 +111,25 @@ export function ActividadSujetosCard({
         toast.success('Datos cargados desde el DNI');
       },
       onError: (error: unknown) => {
-        const err = error as { message?: string; response?: { data?: { message?: string } } };
-        toast.error(err.response?.data?.message || err.message || 'No se pudo consultar el DNI');
+        const err = error as {
+          message?: string;
+          response?: {
+            data?: {
+              message?: string;
+              code?: string;
+              data?: { id?: number; nombre_completo?: string };
+            };
+          };
+        };
+        const msg = err.response?.data?.message || err.message || 'No se pudo consultar el DNI';
+        toast.error(msg);
+
+        // Si ya existe en el padrón, ofrecer usarla como existente
+        if (err.response?.data?.code === 'persona_ya_existe' && err.response.data.data?.id) {
+          const id = err.response.data.data.id;
+          setPersonaMode('existente');
+          setSelectedSujeto({ id, type: 'persona' });
+        }
       },
     });
   };

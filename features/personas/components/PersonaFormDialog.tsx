@@ -132,7 +132,7 @@ export function PersonaFormDialog({ isOpen, onClose, persona }: PersonaFormDialo
         toast.success('Datos cargados desde el DNI');
       },
       onError: (error: unknown) => {
-        const err = error as { message?: string; response?: { data?: { message?: string } } };
+        const err = error as { message?: string; response?: { data?: { message?: string; code?: string } } };
         toast.error(err.response?.data?.message || err.message || 'No se pudo consultar el DNI');
       },
     });
