@@ -31,21 +31,18 @@ export const useCreatePersona = () => {
     mutationFn: async (newPersona: PersonaFormData) => {
       const formData = new FormData();
       Object.entries(newPersona).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
+        if (value !== undefined && value !== null && value !== '') {
           formData.append(key, value instanceof File ? value : String(value));
         }
       });
 
-      const { data } = await api.post('/personas', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return data;
+      const { data } = await api.post('/personas', formData);
+      return data as { status: string; message: string; data: Persona };
     },
     onSuccess: () => {
       toast.success('Persona registrada exitosamente');
       queryClient.invalidateQueries({ queryKey: ['personas'] });
+      queryClient.invalidateQueries({ queryKey: ['opciones', 'personas'] });
     },
     onError: (error: any) => {
       if (error.response?.status === 403) {

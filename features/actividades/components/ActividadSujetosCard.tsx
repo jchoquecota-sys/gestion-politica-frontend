@@ -5,7 +5,7 @@ import { SujetoActividad, SujetoType } from '../types';
 import { useAsignarSujeto, useDesvincularSujeto } from '../hooks';
 import { useSectoresOpciones } from '@/features/sectores/hooks/useSectores';
 import { useBasesOpciones } from '@/features/bases/hooks/useBases';
-import { usePersonasOpciones } from '@/features/personas/hooks/usePersonas';
+import { usePersonasOpciones, useCreatePersona } from '@/features/personas/hooks/usePersonas';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,12 +38,19 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { QrCode, UserCheck } from 'lucide-react';
 
+const emptyNuevaPersona = {
+  nombres: '',
+  apellidos: '',
+  dni: '',
+  celular: '',
+};
 interface ActividadSujetosCardProps {
   actividadId: number;
   sujetos: SujetoActividad[];
@@ -61,6 +68,8 @@ export function ActividadSujetosCard({
   const [isQRDialogOpen, setIsQRDialogOpen] = useState(false);
   const [isManualDialogOpen, setIsManualDialogOpen] = useState(false);
   const [selectedSujeto, setSelectedSujeto] = useState<{ id: number; type: SujetoType }>({ id: 0, type: 'persona' });
+  const [personaMode, setPersonaMode] = useState<'existente' | 'nueva'>('existente');
+  const [nuevaPersona, setNuevaPersona] = useState(emptyNuevaPersona);
   const [manualPersonaId, setManualPersonaId] = useState<number>(0);
   const [reportingSujeto, setReportingSujeto] = useState<SujetoActividad | null>(null);
   const [viewingSujeto, setViewingSujeto] = useState<SujetoActividad | null>(null);
@@ -70,14 +79,67 @@ export function ActividadSujetosCard({
   const { data: personas } = usePersonasOpciones();
 
   const { mutate: asignar, isPending: isAsignando } = useAsignarSujeto(actividadId);
+  const { mutate: crearPersona, isPending: isCreandoPersona } = useCreatePersona();
   const { mutate: desvincular } = useDesvincularSujeto(actividadId);
   const { mutate: marcarAsistencia, isPending: isMarcando } = useMarcarAsistenciaManual(actividadId);
 
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const canManage = hasPermission('actividades:edit') || hasPermission('actividades:manage-all');
   const canMarkAttendance = hasPermission('actividades:asistencia-manual') || canManage;
+  const canCreatePersona = hasPermission('personas:create');
+
+  const resetAddDialog = () => {
+    setSelectedSujeto({ id: 0, type: 'persona' });
+    setPersonaMode('existente');
+    setNuevaPersona(emptyNuevaPersona);
+  };
 
   const handleAsignar = () => {
+    if (selectedSujeto.type === 'persona' && personaMode === 'nueva') {
+      const nombres = nuevaPersona.nombres.trim();
+      const apellidos = nuevaPersona.apellidos.trim();
+      if (!nombres || !apellidos) {
+        toast.error('Ingrese nombres y apellidos');
+        return;
+      }
+      if (!canCreatePersona) {
+        toast.error('No tiene permiso para crear personas');
+        return;
+      }
+
+      crearPersona(
+        {
+          nombres,
+          apellidos,
+          dni: nuevaPersona.dni.trim() || '',
+          celular: nuevaPersona.celular.trim() || undefined,
+        },
+        {
+          onSuccess: (res) => {
+            const personaId = res?.data?.id;
+            if (!personaId) {
+              toast.error('Persona creada, pero no se pudo asignar a la actividad');
+              return;
+            }
+            asignar(
+              { sujeto_id: personaId, sujeto_type: 'persona' },
+              {
+                onSuccess: () => {
+                  toast.success('Asignada a la actividad');
+                  setIsAddDialogOpen(false);
+                  resetAddDialog();
+                },
+                onError: (error: any) => {
+                  toast.error(error.response?.data?.message || 'Persona creada, pero falló la asignación');
+                },
+              }
+            );
+          },
+        }
+      );
+      return;
+    }
+
     if (selectedSujeto.id === 0) {
       toast.error('Seleccione un sujeto');
       return;
@@ -90,7 +152,7 @@ export function ActividadSujetosCard({
       onSuccess: () => {
         toast.success('Sujeto asignado correctamente');
         setIsAddDialogOpen(false);
-        setSelectedSujeto({ id: 0, type: 'persona' });
+        resetAddDialog();
       },
       onError: (error: any) => {
         toast.error(error.response?.data?.message || 'Error al asignar sujeto');
@@ -310,7 +372,13 @@ export function ActividadSujetosCard({
       </CardContent>
 
       {/* Dialog para Añadir Participante */}
-      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+      <Dialog
+        open={isAddDialogOpen}
+        onOpenChange={(open) => {
+          setIsAddDialogOpen(open);
+          if (!open) resetAddDialog();
+        }}
+      >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Añadir Participante</DialogTitle>
@@ -321,7 +389,11 @@ export function ActividadSujetosCard({
               <Label>Tipo de Participante</Label>
               <Select 
                 value={selectedSujeto.type} 
-                onValueChange={(val) => setSelectedSujeto({ id: 0, type: val as SujetoType })}
+                onValueChange={(val) => {
+                  setSelectedSujeto({ id: 0, type: val as SujetoType });
+                  setPersonaMode('existente');
+                  setNuevaPersona(emptyNuevaPersona);
+                }}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -334,24 +406,114 @@ export function ActividadSujetosCard({
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label>Seleccionar</Label>
-              <SearchableSelect
-                value={selectedSujeto.id.toString()}
-                onValueChange={(val) => setSelectedSujeto(prev => ({ ...prev, id: Number(val) }))}
-                placeholder={`Seleccione ${selectedSujeto.type}...`}
-                options={
-                  selectedSujeto.type === 'persona' ? (personas?.map(p => ({ value: p.id.toString(), label: `${p.nombre_completo} - ${p.dni}` })) || [])
-                  : selectedSujeto.type === 'base' ? (bases?.map(b => ({ value: b.id.toString(), label: b.nombre })) || [])
-                  : (sectores?.map(s => ({ value: s.id.toString(), label: s.nombre })) || [])
-                }
-              />
-            </div>
+            {selectedSujeto.type === 'persona' && canCreatePersona && (
+              <div className="flex rounded-md border p-1 gap-1 bg-slate-50 dark:bg-slate-900">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={personaMode === 'existente' ? 'default' : 'ghost'}
+                  className="flex-1 h-8"
+                  onClick={() => setPersonaMode('existente')}
+                >
+                  Buscar existente
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={personaMode === 'nueva' ? 'default' : 'ghost'}
+                  className="flex-1 h-8"
+                  onClick={() => setPersonaMode('nueva')}
+                >
+                  Nueva persona
+                </Button>
+              </div>
+            )}
+
+            {selectedSujeto.type === 'persona' && personaMode === 'nueva' ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="np-nombres">Nombres *</Label>
+                    <Input
+                      id="np-nombres"
+                      value={nuevaPersona.nombres}
+                      onChange={(e) => setNuevaPersona((p) => ({ ...p, nombres: e.target.value }))}
+                      placeholder="Nombres"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="np-apellidos">Apellidos *</Label>
+                    <Input
+                      id="np-apellidos"
+                      value={nuevaPersona.apellidos}
+                      onChange={(e) => setNuevaPersona((p) => ({ ...p, apellidos: e.target.value }))}
+                      placeholder="Apellidos"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="np-dni">DNI</Label>
+                    <Input
+                      id="np-dni"
+                      value={nuevaPersona.dni}
+                      maxLength={8}
+                      inputMode="numeric"
+                      onChange={(e) =>
+                        setNuevaPersona((p) => ({
+                          ...p,
+                          dni: e.target.value.replace(/\D/g, '').slice(0, 8),
+                        }))
+                      }
+                      placeholder="Opcional"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="np-celular">Celular</Label>
+                    <Input
+                      id="np-celular"
+                      value={nuevaPersona.celular}
+                      maxLength={15}
+                      inputMode="numeric"
+                      onChange={(e) =>
+                        setNuevaPersona((p) => ({
+                          ...p,
+                          celular: e.target.value.replace(/\D/g, '').slice(0, 15),
+                        }))
+                      }
+                      placeholder="Opcional"
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label>Seleccionar</Label>
+                <SearchableSelect
+                  value={selectedSujeto.id.toString()}
+                  onValueChange={(val) => setSelectedSujeto(prev => ({ ...prev, id: Number(val) }))}
+                  placeholder={`Seleccione ${selectedSujeto.type}...`}
+                  options={
+                    selectedSujeto.type === 'persona' ? (personas?.map(p => ({ value: p.id.toString(), label: `${p.nombre_completo} - ${p.dni}` })) || [])
+                    : selectedSujeto.type === 'base' ? (bases?.map(b => ({ value: b.id.toString(), label: b.nombre })) || [])
+                    : (sectores?.map(s => ({ value: s.id.toString(), label: s.nombre })) || [])
+                  }
+                />
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={handleAsignar} disabled={isAsignando} className="bg-primary hover:bg-primary/90">
-              Asignar Participante
+            <Button
+              onClick={handleAsignar}
+              disabled={isAsignando || isCreandoPersona}
+              className="bg-primary hover:bg-primary/90"
+            >
+              {(isAsignando || isCreandoPersona) ? 'Guardando...' : (
+                selectedSujeto.type === 'persona' && personaMode === 'nueva'
+                  ? 'Crear y asignar'
+                  : 'Asignar Participante'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
